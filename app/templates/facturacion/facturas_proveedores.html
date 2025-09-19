@@ -362,9 +362,9 @@
                     <p class="subtitle">Sistema OCR Automatizado | Workflow de Aprobación | Análisis Inteligente</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <button class="btn btn-light btn-lg" onclick="toggleMobileView()">
-                        <i class="fas fa-mobile-alt me-2"></i>Vista Móvil
-                    </button>
+                    <a href="{{ url_for('facturacion_proveedores') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-building me-2"></i>Gestión Proveedores
+                    </a>
                 </div>
             </div>
         </div>
@@ -1000,10 +1000,6 @@
 
         function exportToExcel() {
             showToast('successToast', 'Exportando a Excel...');
-        }
-
-        function toggleMobileView() {
-            showToast('successToast', 'Cambiando a vista móvil...');
         }
 
         function showDuplicateDetails() {

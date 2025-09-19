@@ -1,0 +1,1307 @@
+{% extends "layout.html" %}
+
+{% block title %}Gastos de Proveedores - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =============================================================================
+       GASTOS DE PROVEEDORES - SISTEMA OCR + WORKFLOW 3 FASES
+       Arquitectura: erp13-enterprise/templates/facturacion/facturas_proveedores.html
+       OCR: Tesseract.js gratuito + validación manual obligatoria
+       Workflow: Carga → Aprobación → Pago (roles configurables)
+       Mobile: Upload fotos + aprobaciones responsive
+    ============================================================================= */
+    
+    /* Header Principal */
+    .gastos-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .gastos-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        opacity: 0.2;
+    }
+    
+    .gastos-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        position: relative;
+    }
+    
+    .gastos-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0;
+        position: relative;
+    }
+    
+    .gastos-actions {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .header-btn {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .header-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .header-btn.primary {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* KPIs Principales (4 componentes exactos) */
+    .kpis-gastos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--kpi-color);
+    }
+    
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .kpi-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--kpi-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: var(--kpi-color);
+        background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        line-height: 1;
+    }
+    
+    .kpi-label {
+        font-size: 0.95rem;
+        color: #64748b;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* Búsqueda y Filtros */
+    .search-filters {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .search-container {
+        position: relative;
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 1.1rem;
+    }
+    
+    .filter-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+        min-width: 150px;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    /* Tabla de Facturas */
+    .facturas-table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+    
+    .table-header {
+        background: #f8fafc;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1e293b;
+    }
+    
+    .facturas-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .facturas-table th {
+        background: #f8fafc;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+    }
+    
+    .facturas-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    
+    .facturas-table tr:hover {
+        background: #f8fafc;
+    }
+    
+    .estado-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        min-width: 120px;
+        display: inline-block;
+    }
+    
+    .estado-revision {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .estado-confirmada {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .estado-pagada {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .confianza-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .confianza-progress {
+        width: 60px;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .confianza-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    .confianza-text {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #374151;
+    }
+    
+    .acciones-btn {
+        padding: 0.5rem;
+        margin: 0 0.25rem;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+    }
+    
+    .acciones-btn:hover {
+        background: #f3f4f6;
+        color: #374151;
+        transform: scale(1.1);
+    }
+    
+    .acciones-btn.view:hover { color: #3b82f6; }
+    .acciones-btn.edit:hover { color: #10b981; }
+    .acciones-btn.delete:hover { color: #ef4444; }
+
+    /* Modal Upload Factura */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    
+    .close-btn:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+    
+    .upload-zone {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-zone:hover,
+    .upload-zone.dragover {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.05);
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+    
+    .upload-text {
+        font-size: 1.1rem;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .upload-subtext {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .ocr-processing {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        display: none;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .ocr-processing.show {
+        display: flex;
+    }
+    
+    .ocr-spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #e5e7eb;
+        border-top: 3px solid #10b981;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+    
+    .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    /* Notificaciones Duplicados */
+    .duplicate-alert {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        display: none;
+    }
+    
+    .duplicate-alert.show {
+        display: block;
+    }
+    
+    .duplicate-text {
+        color: #92400e;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .gastos-actions {
+            position: static;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .gastos-title {
+            font-size: 1.8rem;
+        }
+        
+        .kpis-gastos {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .search-filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-container {
+            min-width: auto;
+        }
+        
+        .facturas-table-container {
+            overflow-x: auto;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Colores KPIs */
+    .kpi-total { --kpi-color: #1e293b; }
+    .kpi-pendientes { --kpi-color: #f59e0b; }
+    .kpi-confirmadas { --kpi-color: #10b981; }
+    .kpi-confianza { --kpi-color: #3b82f6; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Header Principal -->
+    <div class="gastos-header">
+        <h1 class="gastos-title">Gastos de Proveedores</h1>
+        <p class="gastos-subtitle">Sube facturas de proveedores y procesa automáticamente con OCR</p>
+        <div class="gastos-actions">
+            <button class="header-btn" onclick="openUploadModal()">
+                <i class="fas fa-upload"></i>
+                Subir Factura
+            </button>
+            <button class="header-btn primary" onclick="addManualInvoice()">
+                <i class="fas fa-plus"></i>
+                Agregar Manual
+            </button>
+        </div>
+    </div>
+
+    <!-- KPIs Principales (4 componentes exactos) -->
+    <div class="kpis-gastos">
+        <div class="kpi-card kpi-total">
+            <div class="kpi-header">
+                <div class="kpi-number">2</div>
+                <div class="kpi-icon">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+            </div>
+            <div class="kpi-value">€759.63</div>
+            <div class="kpi-label">Total Gastos</div>
+        </div>
+        
+        <div class="kpi-card kpi-pendientes">
+            <div class="kpi-header">
+                <div class="kpi-number">1</div>
+                <div class="kpi-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="kpi-value">1</div>
+            <div class="kpi-label">Pendientes Revisión</div>
+        </div>
+        
+        <div class="kpi-card kpi-confirmadas">
+            <div class="kpi-header">
+                <div class="kpi-number">1</div>
+                <div class="kpi-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="kpi-value">1</div>
+            <div class="kpi-label">Confirmadas</div>
+        </div>
+        
+        <div class="kpi-card kpi-confianza">
+            <div class="kpi-header">
+                <div class="kpi-number">90%</div>
+                <div class="kpi-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+            </div>
+            <div class="kpi-value">90%</div>
+            <div class="kpi-label">Confianza Promedio</div>
+        </div>
+    </div>
+
+    <!-- Búsqueda y Filtros -->
+    <div class="search-filters">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" 
+                   id="search-facturas"
+                   placeholder="Buscar por número de factura o proveedor...">
+        </div>
+        <select class="filter-select" id="filter-estado">
+            <option value="">Todos los estados</option>
+            <option value="revision">Requiere Revisión</option>
+            <option value="confirmada">Confirmada</option>
+            <option value="pagada">Pagada</option>
+        </select>
+        <select class="filter-select" id="filter-fecha">
+            <option value="">Todos los...</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+        </select>
+    </div>
+
+    <!-- Tabla de Facturas y Gastos -->
+    <div class="facturas-table-container">
+        <div class="table-header">
+            Facturas y Gastos
+        </div>
+        <table class="facturas-table">
+            <thead>
+                <tr>
+                    <th>Estado</th>
+                    <th>Número</th>
+                    <th>Proveedor</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    <th>Confianza</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="facturas-tbody">
+                <!-- Factura 1 - Requiere Revisión -->
+                <tr>
+                    <td>
+                        <span class="estado-badge estado-revision">Requiere Revisión</span>
+                    </td>
+                    <td><strong>TEC-2024-042</strong></td>
+                    <td>Tecnología Avanzada S.A.</td>
+                    <td>12/09/2025</td>
+                    <td><strong>€613.22</strong></td>
+                    <td>
+                        <div class="confianza-bar">
+                            <div class="confianza-progress">
+                                <div class="confianza-fill" style="width: 88%"></div>
+                            </div>
+                            <span class="confianza-text">88%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="acciones-btn view" onclick="viewFactura('TEC-2024-042')" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="acciones-btn edit" onclick="editFactura('TEC-2024-042')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="acciones-btn delete" onclick="deleteFactura('TEC-2024-042')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                
+                <!-- Factura 2 - Confirmada -->
+                <tr>
+                    <td>
+                        <span class="estado-badge estado-confirmada">Confirmada</span>
+                    </td>
+                    <td><strong>FAC-2024-001</strong></td>
+                    <td>Suministros Oficina S.L.</td>
+                    <td>04/09/2025</td>
+                    <td><strong>€146.41</strong></td>
+                    <td>
+                        <div class="confianza-bar">
+                            <div class="confianza-progress">
+                                <div class="confianza-fill" style="width: 92%"></div>
+                            </div>
+                            <span class="confianza-text">92%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="acciones-btn view" onclick="viewFactura('FAC-2024-001')" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="acciones-btn edit" onclick="editFactura('FAC-2024-001')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="acciones-btn delete" onclick="deleteFactura('FAC-2024-001')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Upload Factura -->
+<div id="uploadModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Subir Factura de Proveedor</h2>
+            <button class="close-btn" onclick="closeUploadModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="uploadForm">
+            <!-- Zona de Upload -->
+            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Arrastra tu factura aquí o haz clic para seleccionar</div>
+                <div class="upload-subtext">Formatos: JPG, PNG, PDF (máx. 10MB)</div>
+                <input type="file" id="fileInput" style="display: none;" 
+                       accept=".jpg,.jpeg,.png,.pdf" onchange="handleFileSelect(event)">
+            </div>
+            
+            <!-- Procesamiento OCR -->
+            <div class="ocr-processing" id="ocrProcessing">
+                <div class="ocr-spinner"></div>
+                <span>Procesando factura con OCR...</span>
+            </div>
+            
+            <!-- Alerta Duplicados -->
+            <div class="duplicate-alert" id="duplicateAlert">
+                <div class="duplicate-text">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Posible factura duplicada detectada - mismo proveedor, fecha y monto
+                </div>
+            </div>
+            
+            <!-- Formulario Datos OCR -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Proveedor</label>
+                    <input type="text" class="form-input" id="proveedor" 
+                           placeholder="Extraído automáticamente con OCR">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Número Fiscal</label>
+                    <input type="text" class="form-input" id="numeroFiscal" 
+                           placeholder="NIF/CIF extraído con OCR">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Fecha</label>
+                    <input type="date" class="form-input" id="fecha">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Número Factura</label>
+                    <input type="text" class="form-input" id="numeroFactura" 
+                           placeholder="Número extraído con OCR">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Detalle</label>
+                <textarea class="form-input" id="detalle" rows="3" 
+                          placeholder="Descripción servicios/productos extraída con OCR"></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Subtotal</label>
+                    <input type="number" class="form-input" id="subtotal" 
+                           step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">IVA</label>
+                    <input type="number" class="form-input" id="iva" 
+                           step="0.01" placeholder="0.00">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Total</label>
+                <input type="number" class="form-input" id="total" 
+                       step="0.01" placeholder="0.00">
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Guardar Factura
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Tesseract.js para OCR gratuito -->
+<script src="https://unpkg.com/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+
+<script>
+    // =============================================================================
+    // GASTOS PROVEEDORES - SISTEMA OCR + WORKFLOW
+    // OCR: Tesseract.js gratuito + validación manual
+    // Workflow: Carga → Aprobación → Pago (36h timeout)
+    // Duplicados: Notificación (no bloqueo)
+    // =============================================================================
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🏭 Gastos Proveedores - Inicializando sistema OCR...');
+        
+        // Inicializar componentes
+        setupSearch();
+        setupFilters();
+        setupDragAndDrop();
+        
+        console.log('✅ Gastos Proveedores - Sistema cargado completamente');
+    });
+
+    // =============================================================================
+    // MODAL Y UPLOAD
+    // =============================================================================
+    
+    function openUploadModal() {
+        document.getElementById('uploadModal').classList.add('show');
+        console.log('📤 Abriendo modal upload factura...');
+    }
+    
+    function closeUploadModal() {
+        document.getElementById('uploadModal').classList.remove('show');
+        resetForm();
+        console.log('❌ Cerrando modal upload...');
+    }
+    
+    function addManualInvoice() {
+        openUploadModal();
+        console.log('✏️ Agregando factura manual...');
+    }
+    
+    function resetForm() {
+        document.getElementById('uploadForm').reset();
+        document.getElementById('ocrProcessing').classList.remove('show');
+        document.getElementById('duplicateAlert').classList.remove('show');
+    }
+
+    // =============================================================================
+    // DRAG AND DROP + FILE HANDLING
+    // =============================================================================
+    
+    function setupDragAndDrop() {
+        const uploadZone = document.querySelector('.upload-zone');
+        
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+    }
+    
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    }
+    
+    function handleFile(file) {
+        console.log('📄 Procesando archivo:', file.name);
+        
+        // Validar tipo y tamaño
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        if (!validTypes.includes(file.type)) {
+            showNotification('Formato no válido. Use JPG, PNG o PDF', 'error');
+            return;
+        }
+        
+        if (file.size > maxSize) {
+            showNotification('Archivo muy grande. Máximo 10MB', 'error');
+            return;
+        }
+        
+        // Procesar con OCR
+        processOCR(file);
+    }
+
+    // =============================================================================
+    // PROCESAMIENTO OCR CON TESSERACT.JS
+    // =============================================================================
+    
+    async function processOCR(file) {
+        const ocrProcessing = document.getElementById('ocrProcessing');
+        ocrProcessing.classList.add('show');
+        
+        try {
+            console.log('🔍 Iniciando OCR con Tesseract...');
+            
+            const result = await Tesseract.recognize(file, 'spa', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+                    }
+                }
+            });
+            
+            const extractedText = result.data.text;
+            console.log('📋 Texto extraído:', extractedText);
+            
+            // Extraer campos específicos
+            const extractedData = extractInvoiceData(extractedText);
+            
+            // Rellenar formulario
+            populateForm(extractedData);
+            
+            // Verificar duplicados
+            checkDuplicates(extractedData);
+            
+            ocrProcessing.classList.remove('show');
+            showNotification('OCR completado - Revise los datos extraídos', 'success');
+            
+        } catch (error) {
+            console.error('❌ Error OCR:', error);
+            ocrProcessing.classList.remove('show');
+            showNotification('Error en OCR - Complete manualmente', 'error');
+        }
+    }
+    
+    function extractInvoiceData(text) {
+        const data = {
+            proveedor: '',
+            numeroFiscal: '',
+            fecha: '',
+            numeroFactura: '',
+            detalle: '',
+            subtotal: '',
+            iva: '',
+            total: ''
+        };
+        
+        // Expresiones regulares para extraer datos
+        const patterns = {
+            // CIF/NIF español
+            numeroFiscal: /[A-Z]\d{8}|[A-Z]\d{7}[A-Z]|\d{8}[A-Z]/g,
+            // Fecha formato español
+            fecha: /\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/g,
+            // Número factura
+            numeroFactura: /(?:FACTURA|FAC|N[ºU]M)[:\s]*([A-Z0-9\-\/]+)/gi,
+            // Importes en euros
+            total: /(?:TOTAL|IMPORTE)[:\s]*€?\s*(\d+[,\.]\d{2})/gi,
+            subtotal: /(?:SUBTOTAL|BASE)[:\s]*€?\s*(\d+[,\.]\d{2})/gi,
+            iva: /(?:IVA|I\.V\.A)[:\s]*€?\s*(\d+[,\.]\d{2})/gi
+        };
+        
+        // Extraer proveedor (primeras líneas de texto)
+        const lines = text.split('\n').filter(line => line.trim().length > 3);
+        if (lines.length > 0) {
+            data.proveedor = lines[0].trim();
+        }
+        
+        // Extraer otros campos
+        Object.keys(patterns).forEach(field => {
+            const match = text.match(patterns[field]);
+            if (match) {
+                data[field] = match[0].replace(/[^\d\.,A-Z\-\/]/gi, '');
+                
+                // Limpiar importes
+                if (['total', 'subtotal', 'iva'].includes(field)) {
+                    data[field] = data[field].replace(',', '.');
+                }
+            }
+        });
+        
+        // Extraer detalle (líneas con productos/servicios)
+        const detailLines = lines.filter(line => 
+            line.length > 10 && 
+            !line.match(/CIF|NIF|TOTAL|IVA|FECHA|FACTURA/i)
+        );
+        data.detalle = detailLines.slice(1, 4).join('\n');
+        
+        return data;
+    }
+    
+    function populateForm(data) {
+        Object.keys(data).forEach(field => {
+            const element = document.getElementById(field);
+            if (element && data[field]) {
+                element.value = data[field];
+            }
+        });
+        
+        // Calcular total si faltan datos
+        calculateTotals();
+    }
+    
+    function calculateTotals() {
+        const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+        const iva = parseFloat(document.getElementById('iva').value) || 0;
+        const total = subtotal + iva;
+        
+        if (total > 0) {
+            document.getElementById('total').value = total.toFixed(2);
+        }
+    }
+
+    // =============================================================================
+    // VALIDACIÓN DUPLICADOS
+    // =============================================================================
+    
+    function checkDuplicates(data) {
+        // Simular verificación duplicados (implementar con API real)
+        const existingInvoices = [
+            { proveedor: 'Tecnología Avanzada S.A.', fecha: '12/09/2025', total: '613.22' },
+            { proveedor: 'Suministros Oficina S.L.', fecha: '04/09/2025', total: '146.41' }
+        ];
+        
+        const isDuplicate = existingInvoices.some(invoice => 
+            invoice.proveedor.toLowerCase().includes(data.proveedor.toLowerCase()) &&
+            invoice.fecha === data.fecha &&
+            Math.abs(parseFloat(invoice.total) - parseFloat(data.total)) < 1
+        );
+        
+        if (isDuplicate) {
+            document.getElementById('duplicateAlert').classList.add('show');
+            console.log('⚠️ Posible duplicado detectado');
+        }
+    }
+
+    // =============================================================================
+    // BÚSQUEDA Y FILTROS
+    // =============================================================================
+    
+    function setupSearch() {
+        const searchInput = document.getElementById('search-facturas');
+        
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            filterTable(query, 'search');
+        });
+    }
+    
+    function setupFilters() {
+        const estadoFilter = document.getElementById('filter-estado');
+        const fechaFilter = document.getElementById('filter-fecha');
+        
+        estadoFilter.addEventListener('change', function(e) {
+            filterTable(e.target.value, 'estado');
+        });
+        
+        fechaFilter.addEventListener('change', function(e) {
+            filterTable(e.target.value, 'fecha');
+        });
+    }
+    
+    function filterTable(value, type) {
+        console.log(`🔍 Filtrando por ${type}:`, value);
+        
+        const rows = document.querySelectorAll('#facturas-tbody tr');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (type === 'search' && value) {
+                const text = row.textContent.toLowerCase();
+                show = text.includes(value);
+            } else if (type === 'estado' && value) {
+                const estado = row.querySelector('.estado-badge').textContent.toLowerCase();
+                show = estado.includes(value);
+            } else if (type === 'fecha' && value) {
+                // Implementar filtro fecha
+                show = true;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // =============================================================================
+    // ACCIONES TABLA
+    // =============================================================================
+    
+    function viewFactura(numero) {
+        console.log('👁️ Viendo factura:', numero);
+        showNotification(`Abriendo factura ${numero}`, 'info');
+        // Implementar modal ver factura
+    }
+    
+    function editFactura(numero) {
+        console.log('✏️ Editando factura:', numero);
+        showNotification(`Editando factura ${numero}`, 'info');
+        // Implementar modal editar
+    }
+    
+    function deleteFactura(numero) {
+        if (confirm(`¿Eliminar factura ${numero}?`)) {
+            console.log('🗑️ Eliminando factura:', numero);
+            showNotification(`Factura ${numero} eliminada`, 'success');
+            // Implementar eliminación
+        }
+    }
+
+    // =============================================================================
+    // WORKFLOW Y APROBACIONES
+    // =============================================================================
+    
+    function approveInvoice(numero) {
+        console.log('✅ Aprobando factura:', numero);
+        showNotification('Enviando notificación de aprobación...', 'info');
+        
+        // Implementar workflow aprobación
+        // 1. Verificar rol usuario
+        // 2. Registrar aprobación
+        // 3. Enviar email siguiente fase
+        // 4. Actualizar estado
+    }
+    
+    function processPayment(numero) {
+        console.log('💰 Procesando pago:', numero);
+        showNotification('Registrando pago de factura...', 'success');
+        
+        // Implementar registro pago
+        // 1. Verificar rol financiero
+        // 2. Registrar pago
+        // 3. Generar asiento contable
+        // 4. Actualizar KPIs
+    }
+
+    // =============================================================================
+    // SISTEMA DE NOTIFICACIONES
+    // =============================================================================
+    
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 350px;
+            font-weight: 500;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // =============================================================================
+    // EVENTOS FORMULARIO
+    // =============================================================================
+    
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        const fileInput = document.getElementById('fileInput');
+        
+        // Recoger datos formulario
+        const data = {
+            proveedor: document.getElementById('proveedor').value,
+            numeroFiscal: document.getElementById('numeroFiscal').value,
+            fecha: document.getElementById('fecha').value,
+            numeroFactura: document.getElementById('numeroFactura').value,
+            detalle: document.getElementById('detalle').value,
+            subtotal: parseFloat(document.getElementById('subtotal').value) || 0,
+            iva: parseFloat(document.getElementById('iva').value) || 0,
+            total: parseFloat(document.getElementById('total').value) || 0
+        };
+        
+        console.log('💾 Guardando factura:', data);
+        
+        // Validar datos obligatorios
+        if (!data.proveedor || !data.fecha || !data.total) {
+            showNotification('Complete los campos obligatorios', 'error');
+            return;
+        }
+        
+        // Simular guardado
+        setTimeout(() => {
+            showNotification('Factura guardada correctamente', 'success');
+            closeUploadModal();
+            
+            // Actualizar tabla (implementar recarga real)
+            updateKPIs();
+        }, 1000);
+    });
+    
+    function updateKPIs() {
+        // Simular actualización KPIs después de agregar factura
+        const totalElement = document.querySelector('.kpi-total .kpi-value');
+        const currentTotal = parseFloat(totalElement.textContent.replace('€', ''));
+        const newTotal = currentTotal + 150; // Simular nueva factura
+        totalElement.textContent = `€${newTotal.toFixed(2)}`;
+    }
+    
+    // Calcular automáticamente total cuando cambian subtotal/IVA
+    ['subtotal', 'iva'].forEach(field => {
+        document.getElementById(field).addEventListener('input', calculateTotals);
+    });
+    
+    console.log('🎯 Gastos Proveedores - Sistema OCR completamente inicializado');
+</script>
+{% endblock %}

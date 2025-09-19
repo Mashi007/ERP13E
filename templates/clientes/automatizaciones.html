@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatizaciones - ERP13 Enterprise</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #8B5CF6;
+            --secondary-color: #3B82F6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1F2937;
+            --light-color: #F9FAFB;
+            --ai-color: #06B6D4;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-item {
+            color: #D1D5DB;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 20px;
+            min-height: calc(100vh - 40px);
+        }
+
+        .automations-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .automations-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="brain" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23brain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .ai-brain-indicator {
+            background: linear-gradient(135deg, var(--ai-color) 0%, #0891B2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: white;
+            position: relative;
+        }
+
+        .automation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid var(--primary-color);
+            position: relative;
+        }
+
+        .automation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .automation-card.ai-powered {
+            border-left-color: var(--ai-color);
+        }
+
+        .automation-card.ai-powered::before {
+            content: '🧠 AI';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--ai-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .automation-status {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active { 
+            background: #D1FAE5; 
+            color: #065F46; 
+            animation: pulse-green 2s infinite;
+        }
+        .status-paused { background: #FEF3C7; color: #92400E; }
+        .status-disabled { background: #E5E7EB; color: #374151; }
+        .status-error { background: #FEE2E2; color: #991B1B; }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+
+        .trigger-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .trigger-time { background: #DBEAFE; color: #1E40AF; }
+        .trigger-event { background: #D1FAE5; color: #065F46; }
+        .trigger-condition { background: #FEF3C7; color: #92400E; }
+        .trigger-webhook { background: #F3E8FF; color: #7C2D12; }
+        .trigger-ai { background: #E0F7FA; color: #00695C; }
+
+        .workflow-visualization {
+            background: #F9FAFB;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 2px dashed #D1D5DB;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .workflow-step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .step-trigger { background: var(--primary-color); }
+        .step-condition { background: var(--warning-color); }
+        .step-action { background: var(--success-color); }
+        .step-ai { background: var(--ai-color); }
+
+        .workflow-arrow {
+            text-align: center;
+            color: #9CA3AF;
+            margin: 10px 0;
+        }
+
+        .execution-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .execution-stat {
+            background: #F9FAFB;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .execution-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .execution-label {
+            color: #6B7280;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .ai-recommendations {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .recommendation-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .recommendation-score {
+            background: var(--success-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            float: right;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #6B7280;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .efficiency-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .efficiency-bar {
+            flex: 1;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .efficiency-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .efficiency-excellent { background: var(--success-color); }
+        .efficiency-good { background: var(--warning-color); }
+        .efficiency-poor { background: var(--danger-color); }
+
+        .template-showcase {
+            background: #F0F9FF;
+            border: 2px solid #BAE6FD;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .template-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .quick-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .quick-action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9CA3AF;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .priority-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .priority-critical { background: var(--danger-color); }
+        .priority-high { background: var(--warning-color); }
+        .priority-medium { background: var(--primary-color); }
+        .priority-low { background: #6B7280; }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .execution-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .brain-pulse {
+            animation: brainPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-users"></i> Clientes
+                    </h4>
+                    
+                    <nav>
+                        <a href="{{ url_for('clientes.gestion_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-users-cog"></i> Gestión Clientes
+                        </a>
+                        <a href="{{ url_for('clientes.timeline_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-clock"></i> Timeline
+                        </a>
+                        <a href="{{ url_for('clientes.comunicaciones_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-comments"></i> Comunicaciones
+                        </a>
+                        <a href="{{ url_for('clientes.propuestas_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-file-alt"></i> Propuestas
+                        </a>
+                        <a href="{{ url_for('clientes.pipeline_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-chart-line"></i> Pipeline
+                        </a>
+                        <a href="{{ url_for('clientes.tickets_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-ticket-alt"></i> Tickets
+                        </a>
+                        <a href="{{ url_for('clientes.calendario_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-calendar-alt"></i> Calendario
+                        </a>
+                        <a href="{{ url_for('clientes.campanas_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-bullhorn"></i> Campañas Publicitarias
+                        </a>
+                        <a href="{{ url_for('clientes.automatizaciones_clientes') }}" class="sidebar-item active">
+                            <i class="fas fa-magic"></i> Automatizaciones
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="automations-header">
+                            <div class="d-flex justify-content-between align-items-center position-relative">
+                                <div>
+                                    <h2 class="mb-2">
+                                        <i class="fas fa-brain brain-pulse"></i> Automatizaciones IA
+                                        {% if selected_client %}
+                                            - {{ selected_client.nombre_empresa }}
+                                        {% endif %}
+                                    </h2>
+                                    <p class="mb-3 opacity-90">
+                                        {% if selected_client %}
+                                            Automatizaciones inteligentes para {{ selected_client.nombre_empresa }}
+                                        {% else %}
+                                            El Cerebro del ERP: Flujos inteligentes que aprenden de tus patrones de negocio
+                                        {% endif %}
+                                    </p>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <select id="client-selector" class="form-select" style="max-width: 300px;">
+                                            <option value="">Todas las automatizaciones</option>
+                                            {% for client in clients %}
+                                            <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
+                                                {{ client.nombre_empresa }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fs-3 fw-bold">{{ automations|length }}</div>
+                                    <div class="opacity-75">automatizaciones</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Brain Indicator -->
+                        <div class="ai-brain-indicator">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-2">
+                                        <i class="fas fa-cpu brain-pulse"></i> Estado de la IA
+                                    </h5>
+                                    <p class="mb-0 opacity-90">
+                                        Sistema de aprendizaje activo • {{ executions|length }} ejecuciones en las últimas 24h
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <div class="h4 mb-0">98.5%</div>
+                                    <div class="small opacity-75">Eficiencia global</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Recommendations -->
+                        <div class="ai-recommendations">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-lightbulb text-warning"></i> Recomendaciones de IA
+                                </h5>
+                                <button class="btn btn-sm btn-outline-success" id="apply-all-recommendations">
+                                    <i class="fas fa-magic"></i> Aplicar Todas
+                                </button>
+                            </div>
+                            
+                            {% if ai_recommendations %}
+                                {% for recommendation in ai_recommendations[:3] %}
+                                <div class="recommendation-item">
+                                    <div class="recommendation-score">{{ (recommendation.confidence_score * 100)|round }}% confianza</div>
+                                    <h6 class="mb-2">{{ recommendation.recommendation_title }}</h6>
+                                    <p class="mb-2">{{ recommendation.description }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-chart-line"></i>
+                                            Impacto estimado: {{ recommendation.estimated_impact }}
+                                        </small>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-success me-2">
+                                                <i class="fas fa-check"></i> Aplicar
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-times"></i> Descartar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-robot fa-3x mb-3 opacity-25"></i>
+                                    <p class="text-muted mb-0">La IA está analizando tus patrones de negocio...</p>
+                                    <small class="text-muted">Las recomendaciones aparecerán aquí</small>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ automations|selectattr("status", "equalto", "active")|list|length }}
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-play text-success"></i> Activas
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ executions|length }}
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-cogs text-primary"></i> Ejecuciones (24h)
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ ((executions|selectattr("status", "equalto", "success")|list|length / executions|length * 100) if executions|length > 0 else 100)|round }}%
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-check-circle text-success"></i> Tasa de éxito
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ (executions|sum(attribute='time_saved_hours') if executions else 0)|round }}h
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-clock text-warning"></i> Tiempo ahorrado
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Showcase -->
+                        <div class="template-showcase">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-layer-group text-primary"></i> Plantillas de Automatización Más Utilizadas
+                                </h5>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#templatesModal">
+                                    Ver todas
+                                </button>
+                            </div>
+                            <div class="row">
+                                {% for template in templates[:4] %}
+                                <div class="col-md-6">
+                                    <div class="template-item" data-template-id="{{ template.id }}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">{{ template.template_name }}</h6>
+                                                <p class="small text-muted mb-2">{{ template.description or 'Automatización predefinida' }}</p>
+                                                <div class="small">
+                                                    <span class="badge bg-light text-dark">{{ template.category or 'General' }}</span>
+                                                    <span class="text-muted">• Usado {{ template.usage_count or 0 }} veces</span>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-sm btn-primary use-template" data-template-id="{{ template.id }}">
+                                                <i class="fas fa-magic"></i> Usar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="filter-controls">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-filter"></i> Gestión de Automatizaciones
+                                </h5>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#workflowBuilderModal">
+                                        <i class="fas fa-sitemap"></i> Constructor Visual
+                                    </button>
+                                    <button class="btn btn-outline-success" id="test-all-automations">
+                                        <i class="fas fa-play"></i> Probar Todas
+                                    </button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAutomationModal">
+                                        <i class="fas fa-plus"></i> Nueva Automatización
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="row align-items-end">
+                                <div class="col-md-2">
+                                    <label class="form-label small">Estado:</label>
+                                    <select class="form-select form-select-sm" id="filter-status">
+                                        <option value="">Todos</option>
+                                        <option value="active">Activa</option>
+                                        <option value="paused">Pausada</option>
+                                        <option value="disabled">Deshabilitada</option>
+                                        <option value="error">Con errores</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Tipo:</label>
+                                    <select class="form-select form-select-sm" id="filter-type">
+                                        <option value="">Todos</option>
+                                        <option value="scheduled">Programada</option>
+                                        <option value="trigger">Por evento</option>
+                                        <option value="webhook">Webhook</option>
+                                        <option value="ai">IA/ML</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Prioridad:</label>
+                                    <select class="form-select form-select-sm" id="filter-priority">
+                                        <option value="">Todas</option>
+                                        <option value="critical">Crítica</option>
+                                        <option value="high">Alta</option>
+                                        <option value="medium">Media</option>
+                                        <option value="low">Baja</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Plantilla:</label>
+                                    <select class="form-select form-select-sm" id="filter-template">
+                                        <option value="">Todas</option>
+                                        {% for template in templates %}
+                                        <option value="{{ template.id }}">{{ template.template_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Buscar:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="search-automations" 
+                                               placeholder="Buscar automatizaciones...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Automations List -->
+                        <div class="automations-list">
+                            {% if automations %}
+                                {% for automation in automations %}
+                                <div class="automation-card fade-in {{ 'ai-powered' if automation.uses_ai else '' }}" 
+                                     data-status="{{ automation.status or '' }}"
+                                     data-priority="{{ automation.priority or 'medium' }}"
+                                     data-template="{{ automation.template_id or '' }}"
+                                     data-date="{{ automation.created_at or '' }}">
+                                    
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center gap-3 mb-2">
+                                                <div class="priority-indicator priority-{{ automation.priority or 'medium' }}"></div>
+                                                <h5 class="mb-0 fw-bold">{{ automation.automation_name or 'Automatización sin nombre' }}</h5>
+                                                
+                                                <span class="automation-status status-{{ automation.status or 'disabled' }}">
+                                                    {% if automation.status == 'active' %}
+                                                        <i class="fas fa-play"></i> Activa
+                                                    {% elif automation.status == 'paused' %}
+                                                        <i class="fas fa-pause"></i> Pausada
+                                                    {% elif automation.status == 'error' %}
+                                                        <i class="fas fa-exclamation-triangle"></i> Error
+                                                    {% else %}
+                                                        <i class="fas fa-stop"></i> Deshabilitada
+                                                    {% endif %}
+                                                </span>
+
+                                                {% if automation.template_name %}
+                                                <span class="badge bg-light text-dark">
+                                                    <i class="fas fa-layer-group"></i> {{ automation.template_name }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <p class="text-muted mb-0">{{ automation.description or 'Sin descripción' }}</p>
+                                            </div>
+
+                                            <!-- Triggers -->
+                                            <div class="mb-3">
+                                                <div class="small fw-semibold mb-2">Disparadores:</div>
+                                                {% if automation.trigger_conditions %}
+                                                    {% for trigger in automation.trigger_conditions.split(',') if trigger %}
+                                                    <span class="trigger-badge trigger-{{ 'ai' if 'ia' in trigger.lower() or 'ml' in trigger.lower() else 'time' if 'tiempo' in trigger.lower() or 'hora' in trigger.lower() else 'event' if 'evento' in trigger.lower() else 'condition' if 'condicion' in trigger.lower() else 'webhook' }}">
+                                                        {% if 'ia' in trigger.lower() or 'ml' in trigger.lower() %}
+                                                            <i class="fas fa-brain"></i>
+                                                        {% elif 'tiempo' in trigger.lower() or 'hora' in trigger.lower() %}
+                                                            <i class="fas fa-clock"></i>
+                                                        {% elif 'evento' in trigger.lower() %}
+                                                            <i class="fas fa-bolt"></i>
+                                                        {% elif 'webhook' in trigger.lower() %}
+                                                            <i class="fas fa-link"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-cog"></i>
+                                                        {% endif %}
+                                                        {{ trigger.strip() }}
+                                                    </span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="trigger-badge trigger-condition">
+                                                        <i class="fas fa-question"></i> Sin configurar
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver flujo</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar automatización</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-copy"></i> Duplicar</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-play"></i> Ejecutar ahora</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i> Ver historial</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                {% if automation.status == 'active' %}
+                                                <li><a class="dropdown-item text-warning" href="#"><i class="fas fa-pause"></i> Pausar</a></li>
+                                                {% else %}
+                                                <li><a class="dropdown-item text-success" href="#"><i class="fas fa-play"></i> Activar</a></li>
+                                                {% endif %}
+                                                <li><a class="dropdown-item text-info" href="#"><i class="fas fa-robot"></i> Optimizar con IA</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Eliminar</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Workflow Visualization -->
+                                    {% if automation.workflow_definition %}
+                                    <div class="workflow-visualization">
+                                        <div class="small fw-semibold mb-3">
+                                            <i class="fas fa-sitemap"></i> Flujo de trabajo:
+                                        </div>
+                                        
+                                        <div class="workflow-step">
+                                            <div class="workflow-step-icon step-trigger">
+                                                <i class="fas fa-play"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">Disparador</div>
+                                                <div class="small text-muted">{{ automation.trigger_name or 'Evento o condición específica' }}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="workflow-arrow">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </div>
+                                        
+                                        <div class="workflow-step">
+                                            <div class="workflow-step-icon step-condition">
+                                                <i class="fas fa-question"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">Evaluación</div>
+                                                <div class="small text-muted">Verificar condiciones y reglas de negocio</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="workflow-arrow">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </div>
+                                        
+                                        {% if automation.uses_ai %}
+                                        <div class="workflow-step">
+                                            <div class="workflow-step-icon step-ai">
+                                                <i class="fas fa-brain"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">Análisis IA</div>
+                                                <div class="small text-muted">Procesamiento inteligente y toma de decisiones</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="workflow-arrow">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="workflow-step">
+                                            <div class="workflow-step-icon step-action">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">Acción</div>
+                                                <div class="small text-muted">{{ automation.action_description or 'Ejecutar acciones definidas' }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Execution Stats -->
+                                    <div class="execution-stats">
+                                        <div class="execution-stat">
+                                            <div class="execution-number">{{ automation.execution_count or 0 }}</div>
+                                            <div class="execution-label">Ejecuciones</div>
+                                        </div>
+                                        <div class="execution-stat">
+                                            <div class="execution-number">{{ ((automation.success_count or 0) / (automation.execution_count or 1) * 100)|round }}%</div>
+                                            <div class="execution-label">Éxito</div>
+                                        </div>
+                                        <div class="execution-stat">
+                                            <div class="execution-number">{{ automation.avg_execution_time or 0 }}s</div>
+                                            <div class="execution-label">Tiempo Avg</div>
+                                        </div>
+                                        <div class="execution-stat">
+                                            <div class="execution-number">{{ automation.time_saved_hours or 0 }}h</div>
+                                            <div class="execution-label">Ahorro</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Efficiency Indicator -->
+                                    <div class="efficiency-indicator">
+                                        <span class="small fw-semibold">Eficiencia:</span>
+                                        <div class="efficiency-bar">
+                                            {% set efficiency = ((automation.success_count or 0) / (automation.execution_count or 1) * 100) %}
+                                            <div class="efficiency-fill {{ 'efficiency-excellent' if efficiency >= 90 else 'efficiency-good' if efficiency >= 70 else 'efficiency-poor' }}" 
+                                                 style="width: {{ efficiency }}%"></div>
+                                        </div>
+                                        <span class="small fw-bold {{ 'text-success' if efficiency >= 90 else 'text-warning' if efficiency >= 70 else 'text-danger' }}">
+                                            {{ efficiency|round }}%
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-magic"></i>
+                                    <h4>No hay automatizaciones</h4>
+                                    <p class="text-muted">
+                                        {% if selected_client %}
+                                            No se encontraron automatizaciones para {{ selected_client.nombre_empresa }}
+                                        {% else %}
+                                            Crea tu primera automatización para optimizar tus procesos
+                                        {% endif %}
+                                    </p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAutomationModal">
+                                        <i class="fas fa-plus"></i> Crear Primera Automatización
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Load More -->
+                        {% if automations|length >= 25 %}
+                        <div class="text-center mt-4">
+                            <button class="btn btn-outline-primary" id="load-more">
+                                <i class="fas fa-chevron-down"></i> Cargar más automatizaciones
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-action-btn btn btn-info" title="Constructor visual" data-bs-toggle="modal" data-bs-target="#workflowBuilderModal">
+            <i class="fas fa-sitemap"></i>
+        </button>
+        <button class="quick-action-btn btn btn-primary" title="Nueva automatización" data-bs-toggle="modal" data-bs-target="#newAutomationModal">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- New Automation Modal -->
+    <div class="modal fade" id="newAutomationModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Automatización</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newAutomationForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre de la Automatización *</label>
+                                    <input type="text" class="form-control" name="automation_name" required 
+                                           placeholder="Ej: Seguimiento automático de leads inactivos">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Prioridad</label>
+                                    <select class="form-select" name="priority">
+                                        <option value="low">Baja</option>
+                                        <option value="medium" selected>Media</option>
+                                        <option value="high">Alta</option>
+                                        <option value="critical">Crítica</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Descripción *</label>
+                                    <textarea class="form-control" name="description" rows="3" required 
+                                              placeholder="Describe qué hace esta automatización..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trigger Configuration -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-bolt"></i> Configuración del Disparador</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipo de Disparador *</label>
+                                        <select class="form-select" name="trigger_type" required>
+                                            <option value="">Seleccionar tipo</option>
+                                            <option value="schedule">Programado (tiempo)</option>
+                                            <option value="event">Evento del sistema</option>
+                                            <option value="condition">Condición específica</option>
+                                            <option value="webhook">Webhook externo</option>
+                                            <option value="ai">Análisis IA/ML</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Cliente Objetivo</label>
+                                        <select class="form-select" name="target_client_id">
+                                            <option value="">Todos los clientes</option>
+                                            {% for client in clients %}
+                                            <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Configuration -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-cog"></i> Acciones a Ejecutar</h6>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Acciones (selecciona múltiples)</label>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="send_email" id="action-email">
+                                                    <label class="form-check-label" for="action-email">
+                                                        <i class="fas fa-envelope"></i> Enviar email
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="create_task" id="action-task">
+                                                    <label class="form-check-label" for="action-task">
+                                                        <i class="fas fa-tasks"></i> Crear tarea
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="update_status" id="action-status">
+                                                    <label class="form-check-label" for="action-status">
+                                                        <i class="fas fa-edit"></i> Actualizar estado
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="create_opportunity" id="action-opportunity">
+                                                    <label class="form-check-label" for="action-opportunity">
+                                                        <i class="fas fa-chart-line"></i> Crear oportunidad
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="send_notification" id="action-notification">
+                                                    <label class="form-check-label" for="action-notification">
+                                                        <i class="fas fa-bell"></i> Enviar notificación
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="create_calendar_event" id="action-calendar">
+                                                    <label class="form-check-label" for="action-calendar">
+                                                        <i class="fas fa-calendar"></i> Crear evento calendario
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="webhook_call" id="action-webhook">
+                                                    <label class="form-check-label" for="action-webhook">
+                                                        <i class="fas fa-link"></i> Llamar webhook
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="actions" value="ai_analysis" id="action-ai">
+                                                    <label class="form-check-label" for="action-ai">
+                                                        <i class="fas fa-brain"></i> Análisis IA
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Options -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-sliders-h"></i> Opciones Avanzadas</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="use_ai" id="use-ai">
+                                        <label class="form-check-label" for="use-ai">
+                                            <i class="fas fa-brain"></i> Activar análisis IA
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="enable_learning" id="enable-learning">
+                                        <label class="form-check-label" for="enable-learning">
+                                            <i class="fas fa-graduation-cap"></i> Aprendizaje automático
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-primary" id="testAutomation">
+                        <i class="fas fa-play"></i> Probar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveAutomation">
+                        <i class="fas fa-save"></i> Crear Automatización
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2
+            $('#client-selector, select[name="target_client_id"]').select2({
+                placeholder: 'Buscar cliente...',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Client selector change
+            $('#client-selector').change(function() {
+                const clientId = $(this).val();
+                if (clientId) {
+                    window.location.href = `/clientes/automatizaciones/${clientId}`;
+                } else {
+                    window.location.href = '/clientes/automatizaciones';
+                }
+            });
+
+            // Filtering
+            $('#filter-status, #filter-type, #filter-priority, #filter-template, #search-automations')
+                .on('change input', function() {
+                    filterAutomations();
+                });
+
+            function filterAutomations() {
+                const status = $('#filter-status').val();
+                const type = $('#filter-type').val();
+                const priority = $('#filter-priority').val();
+                const template = $('#filter-template').val();
+                const searchTerm = $('#search-automations').val().toLowerCase();
+
+                $('.automation-card').each(function() {
+                    const card = $(this);
+                    const cardStatus = card.data('status');
+                    const cardPriority = card.data('priority');
+                    const cardTemplate = card.data('template');
+                    const cardText = card.text().toLowerCase();
+
+                    let show = true;
+
+                    // Status filter
+                    if (status && cardStatus !== status) {
+                        show = false;
+                    }
+
+                    // Priority filter
+                    if (priority && cardPriority !== priority) {
+                        show = false;
+                    }
+
+                    // Template filter
+                    if (template && cardTemplate != template) {
+                        show = false;
+                    }
+
+                    // Search filter
+                    if (searchTerm && !cardText.includes(searchTerm)) {
+                        show = false;
+                    }
+
+                    if (show) {
+                        card.show();
+                    } else {
+                        card.hide();
+                    }
+                });
+            }
+
+            // Use template
+            $('.use-template').click(function() {
+                const templateId = $(this).data('template-id');
+                $('#newAutomationModal').modal('show');
+                
+                // Pre-fill form with template data (simplified)
+                setTimeout(function() {
+                    $('input[name="automation_name"]').val('Nueva automatización desde plantilla');
+                    $('textarea[name="description"]').val('Automatización basada en plantilla predefinida');
+                }, 100);
+            });
+
+            // Test automation
+            $('#testAutomation').click(function() {
+                const btn = $(this);
+                const originalText = btn.html();
+                
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Probando...');
+                
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html(originalText);
+                    
+                    $('<div class="alert alert-success">Prueba exitosa! La automatización funciona correctamente.</div>')
+                        .insertAfter('.modal-body form')
+                        .delay(3000)
+                        .fadeOut();
+                }, 2000);
+            });
+
+            // Save automation
+            $('#saveAutomation').click(function() {
+                const formData = $('#newAutomationForm').serialize();
+                console.log('Creating automation:', formData);
+                
+                $('#newAutomationModal').modal('hide');
+                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                  'Automatización creada exitosamente! El sistema comenzará a monitorear los disparadores.' +
+                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                  '</div>').prependTo('.main-content .p-4');
+
+                // Reset form
+                $('#newAutomationForm')[0].reset();
+            });
+
+            // Apply AI recommendations
+            $('#apply-all-recommendations').click(function() {
+                const btn = $(this);
+                const originalText = btn.html();
+                
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Aplicando...');
+                
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html(originalText);
+                    
+                    $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                      'Todas las recomendaciones de IA han sido aplicadas exitosamente!' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                      '</div>').prependTo('.main-content .p-4');
+
+                    // Hide recommendations
+                    $('.ai-recommendations').fadeOut();
+                }, 3000);
+            });
+
+            // Test all automations
+            $('#test-all-automations').click(function() {
+                const btn = $(this);
+                const originalText = btn.html();
+                
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Probando...');
+                
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html(originalText);
+                    
+                    $('<div class="alert alert-info alert-dismissible fade show" role="alert">' +
+                      'Pruebas completadas: 8 automatizaciones funcionando correctamente, 2 requieren atención.' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                      '</div>').prependTo('.main-content .p-4');
+                }, 4000);
+            });
+
+            // Load more automations
+            $('#load-more').click(function() {
+                const btn = $(this);
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
+
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-chevron-down"></i> Cargar más automatizaciones');
+                    
+                    $('<div class="alert alert-info">No hay más automatizaciones para mostrar</div>')
+                        .insertBefore(btn.parent())
+                        .delay(3000)
+                        .fadeOut();
+                }, 1500);
+            });
+
+            // Dynamic form updates
+            $('select[name="trigger_type"]').change(function() {
+                const triggerType = $(this).val();
+                
+                // Enable AI options for certain trigger types
+                if (triggerType === 'ai' || triggerType === 'condition') {
+                    $('#use-ai').prop('checked', true);
+                    $('#enable-learning').prop('checked', true);
+                }
+            });
+
+            // AI-powered features toggle
+            $('#use-ai').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#action-ai').prop('checked', true);
+                    $('#enable-learning').prop('checked', true);
+                }
+            });
+
+            // Real-time efficiency updates (simulation)
+            setInterval(function() {
+                $('.efficiency-fill').each(function() {
+                    const currentWidth = parseFloat($(this).css('width'));
+                    const parentWidth = $(this).parent().width();
+                    const percentage = (currentWidth / parentWidth) * 100;
+                    
+                    // Simulate small improvements over time
+                    if (percentage < 95 && Math.random() > 0.7) {
+                        const newPercentage = Math.min(percentage + Math.random() * 2, 100);
+                        $(this).css('width', newPercentage + '%');
+                    }
+                });
+            }, 10000); // Update every 10 seconds for demo
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración General - Módulo Clientes - ERP13 Enterprise</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #8B5CF6;
+            --secondary-color: #3B82F6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1F2937;
+            --light-color: #F9FAFB;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-item {
+            color: #D1D5DB;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 20px;
+            min-height: calc(100vh - 40px);
+        }
+
+        .config-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .config-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .config-section h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+
+        .config-tabs {
+            border-bottom: 2px solid #E5E7EB;
+            margin-bottom: 30px;
+        }
+
+        .config-tabs .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            padding: 15px 20px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .config-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: none;
+        }
+
+        .config-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .pipeline-stage {
+            background: #F9FAFB;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .pipeline-stage.active {
+            border-color: var(--success-color);
+            background: #F0FDF4;
+        }
+
+        .stage-handle {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            color: #9CA3AF;
+            font-size: 1.5rem;
+        }
+
+        .stage-handle:active {
+            cursor: grabbing;
+        }
+
+        .sla-category {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .sla-indicator {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .sla-critical { background: #FEE2E2; color: #991B1B; }
+        .sla-high { background: #FEF3C7; color: #92400E; }
+        .sla-medium { background: #DBEAFE; color: #1E40AF; }
+        .sla-low { background: #D1FAE5; color: #065F46; }
+
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .save-indicator.show {
+            opacity: 1;
+        }
+
+        .config-preview {
+            background: #F3F4F6;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #CBD5E1;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .breadcrumb-config {
+            background: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-config .breadcrumb-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb-config .breadcrumb-item.active {
+            color: #6B7280;
+        }
+
+        @media (max-width: 768px) {
+            .config-section {
+                padding: 20px;
+            }
+            
+            .config-tabs .nav-link {
+                padding: 12px 15px;
+                font-size: 0.875rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Save Indicator -->
+    <div class="save-indicator" id="saveIndicator">
+        <div class="alert alert-success mb-0">
+            <i class="fas fa-check-circle"></i> Configuración guardada
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-cog"></i> Configuración
+                    </h4>
+                    
+                    <nav>
+                        <a href="#" class="sidebar-item active">
+                            <i class="fas fa-sliders-h"></i> Configuración General
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-brain"></i> IA Interna
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-file-invoice-dollar"></i> Plantillas Presupuesto
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-receipt"></i> Configuración Facturación
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content">
+                    <div class="p-4">
+                        <!-- Breadcrumb -->
+                        <nav aria-label="breadcrumb" class="breadcrumb-config">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="#">Clientes</a></li>
+                                <li class="breadcrumb-item active">Configuración General</li>
+                            </ol>
+                        </nav>
+
+                        <!-- Header -->
+                        <div class="config-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="mb-2">
+                                        <i class="fas fa-sliders-h"></i> Configuración General - Módulo Clientes
+                                    </h2>
+                                    <p class="mb-0 opacity-90">
+                                        Configura los parámetros principales del módulo de gestión de clientes
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-light" id="exportConfig">
+                                        <i class="fas fa-download"></i> Exportar Config
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuration Tabs -->
+                        <ul class="nav nav-tabs config-tabs" id="configTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="pipeline-tab" data-bs-toggle="tab" data-bs-target="#pipeline" type="button" role="tab">
+                                    <i class="fas fa-chart-line"></i> Pipeline de Ventas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="sla-tab" data-bs-toggle="tab" data-bs-target="#sla" type="button" role="tab">
+                                    <i class="fas fa-clock"></i> SLA y Tickets
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="communications-tab" data-bs-toggle="tab" data-bs-target="#communications" type="button" role="tab">
+                                    <i class="fas fa-comments"></i> Comunicaciones
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="automation-tab" data-bs-toggle="tab" data-bs-target="#automation" type="button" role="tab">
+                                    <i class="fas fa-magic"></i> Automatizaciones
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                                    <i class="fas fa-cogs"></i> Configuración General
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="configTabContent">
+                            
+                            <!-- Pipeline Configuration -->
+                            <div class="tab-pane fade show active" id="pipeline" role="tabpanel">
+                                <div class="config-section fade-in">
+                                    <h5><i class="fas fa-chart-line text-primary"></i> Configuración del Pipeline de Ventas</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Número de Etapas del Pipeline</label>
+                                            <select class="form-select" id="pipelineStages">
+                                                <option value="4">4 Etapas (Básico)</option>
+                                                <option value="5" selected>5 Etapas (Estándar)</option>
+                                                <option value="6">6 Etapas (Avanzado)</option>
+                                                <option value="7">7 Etapas (Empresarial)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Método de Conversión</label>
+                                            <select class="form-select" id="conversionMethod">
+                                                <option value="manual" selected>Manual</option>
+                                                <option value="automatic">Automático por IA</option>
+                                                <option value="hybrid">Híbrido (Manual + IA)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold mb-3">Configurar Etapas del Pipeline</h6>
+                                        <div id="pipelineStagesList">
+                                            <!-- Stages will be populated here -->
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary" id="addStage">
+                                            <i class="fas fa-plus"></i> Añadir Etapa
+                                        </button>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">Probabilidad Mínima Lead (%)</label>
+                                            <input type="number" class="form-control" value="20" min="0" max="100">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">Tiempo Máximo por Etapa (días)</label>
+                                            <input type="number" class="form-control" value="30" min="1">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">Auto-asignación de Comerciales</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SLA and Tickets Configuration -->
+                            <div class="tab-pane fade" id="sla" role="tabpanel">
+                                <div class="config-section fade-in">
+                                    <h5><i class="fas fa-clock text-warning"></i> Configuración SLA y Tickets</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">SLA Global por Defecto (horas)</label>
+                                            <input type="number" class="form-control" value="24" min="1">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Escalación Automática</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="fw-semibold mb-3">SLA por Categoría de Ticket</h6>
+                                    <div id="slaCategories">
+                                        <div class="sla-category">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">Soporte Técnico</h6>
+                                                    <span class="sla-indicator sla-high">Alta Prioridad</span>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div>
+                                                        <label class="small">SLA (horas)</label>
+                                                        <input type="number" class="form-control form-control-sm" value="4" style="width: 80px;">
+                                                    </div>
+                                                    <button class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="sla-category">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">Consulta Comercial</h6>
+                                                    <span class="sla-indicator sla-medium">Prioridad Media</span>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div>
+                                                        <label class="small">SLA (horas)</label>
+                                                        <input type="number" class="form-control form-control-sm" value="12" style="width: 80px;">
+                                                    </div>
+                                                    <button class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="sla-category">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">Información General</h6>
+                                                    <span class="sla-indicator sla-low">Prioridad Baja</span>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div>
+                                                        <label class="small">SLA (horas)</label>
+                                                        <input type="number" class="form-control form-control-sm" value="48" style="width: 80px;">
+                                                    </div>
+                                                    <button class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#addSLAModal">
+                                        <i class="fas fa-plus"></i> Añadir Categoría SLA
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Communications Configuration -->
+                            <div class="tab-pane fade" id="communications" role="tabpanel">
+                                <div class="config-section fade-in">
+                                    <h5><i class="fas fa-comments text-info"></i> Configuración de Comunicaciones</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="fw-semibold">Canales Activos</h6>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked id="emailChannel">
+                                                <label class="form-check-label" for="emailChannel">
+                                                    <i class="fas fa-envelope text-primary"></i> Email
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked id="whatsappChannel">
+                                                <label class="form-check-label" for="whatsappChannel">
+                                                    <i class="fab fa-whatsapp text-success"></i> WhatsApp
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="smsChannel">
+                                                <label class="form-check-label" for="smsChannel">
+                                                    <i class="fas fa-sms text-warning"></i> SMS
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked id="phoneChannel">
+                                                <label class="form-check-label" for="phoneChannel">
+                                                    <i class="fas fa-phone text-info"></i> Teléfono
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="fw-semibold">Configuración de Respuestas</h6>
+                                            <div class="mb-3">
+                                                <label class="form-label">Tiempo de Respuesta Objetivo (minutos)</label>
+                                                <input type="number" class="form-control" value="15" min="1">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Auto-respuesta Inmediata</label>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Análisis de Sentimiento</label>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold mb-3">Variables Globales Disponibles</h6>
+                                        <div class="config-preview">{{clientName}} - Nombre del cliente
+{{companyName}} - Nombre de la empresa
+{{contactName}} - Nombre del contacto
+{{email}} - Email del cliente
+{{phone}} - Teléfono del cliente
+{{assignedTo}} - Comercial asignado
+{{currentDate}} - Fecha actual
+{{followupDate}} - Fecha de seguimiento</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Automation Configuration -->
+                            <div class="tab-pane fade" id="automation" role="tabpanel">
+                                <div class="config-section fade-in">
+                                    <h5><i class="fas fa-magic text-purple"></i> Configuración de Automatizaciones</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="fw-semibold">Motor de Automatizaciones</h6>
+                                            <div class="mb-3">
+                                                <label class="form-label">Estado del Motor</label>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked id="automationEngine">
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Intervalo de Verificación (minutos)</label>
+                                                <input type="number" class="form-control" value="5" min="1">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Máximo de Ejecuciones Paralelas</label>
+                                                <input type="number" class="form-control" value="10" min="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="fw-semibold">Configuración IA</h6>
+                                            <div class="mb-3">
+                                                <label class="form-label">Recomendaciones Automáticas</label>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Umbral de Confianza IA (%)</label>
+                                                <input type="number" class="form-control" value="85" min="0" max="100">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Aprendizaje Automático</label>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold mb-3">Triggers Disponibles</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked id="timeBasedTriggers">
+                                                    <label class="form-check-label" for="timeBasedTriggers">
+                                                        <i class="fas fa-clock text-primary"></i> Triggers por Tiempo
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked id="eventBasedTriggers">
+                                                    <label class="form-check-label" for="eventBasedTriggers">
+                                                        <i class="fas fa-bolt text-warning"></i> Triggers por Eventos
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="conditionBasedTriggers">
+                                                    <label class="form-check-label" for="conditionBasedTriggers">
+                                                        <i class="fas fa-code-branch text-info"></i> Triggers Condicionales
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked id="webhookTriggers">
+                                                    <label class="form-check-label" for="webhookTriggers">
+                                                        <i class="fas fa-link text-success"></i> Webhooks
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked id="aiTriggers">
+                                                    <label class="form-check-label" for="aiTriggers">
+                                                        <i class="fas fa-brain text-purple"></i> Triggers IA
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- General Configuration -->
+                            <div class="tab-pane fade" id="general" role="tabpanel">
+                                <div class="config-section fade-in">
+                                    <h5><i class="fas fa-cogs text-secondary"></i> Configuración General</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="fw-semibold">Configuración Regional</h6>
+                                            <div class="mb-3">
+                                                <label class="form-label">Zona Horaria</label>
+                                                <select class="form-select">
+                                                    <option selected>Europe/Madrid</option>
+                                                    <option>America/Mexico_City</option>
+                                                    <option>America/Buenos_Aires</option>
+                                                    <option>UTC</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Idioma por Defecto</label>
+                                                <select class="form-select">
+                                                    <option selected>Español (ES)</option>
+                                                    <option>English (EN)</option>
+                                                    <option>Português (PT)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Formato de Fecha</label>
+                                                <select class="form-select">
+                                                    <option selected>DD/MM/YYYY</option>
+                                                    <option>MM/DD/YYYY</option>
+                                                    <option>YYYY-MM-DD</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="fw-semibold">Configuración de Datos</h6>
+                                            <div class="mb-3">
+                                                <label class="form-label">Retención de Logs (días)</label>
+                                                <input type="number" class="form-control" value="90" min="1">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Backup Automático</label>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Frecuencia de Backup</label>
+                                                <select class="form-select">
+                                                    <option>Diario</option>
+                                                    <option selected>Semanal</option>
+                                                    <option>Mensual</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold mb-3">Configuración de Performance</h6>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Cache TTL (segundos)</label>
+                                                <input type="number" class="form-control" value="3600" min="60">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Límite de Resultados por Página</label>
+                                                <input type="number" class="form-control" value="25" min="10" max="100">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Timeout de Sesión (minutos)</label>
+                                                <input type="number" class="form-control" value="30" min="5">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold mb-3">Notificaciones del Sistema</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label">
+                                                        Notificar nuevos leads
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label">
+                                                        Alertas de SLA vencidos
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox">
+                                                    <label class="form-check-label">
+                                                        Resumen diario de actividad
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label">
+                                                        Recordatorios de seguimiento
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox">
+                                                    <label class="form-check-label">
+                                                        Alertas de oportunidades perdidas
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label">
+                                                        Notificaciones de automatizaciones
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save Configuration Button -->
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-primary btn-lg px-5" id="saveConfiguration">
+                                <i class="fas fa-save"></i> Guardar Configuración
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add SLA Modal -->
+    <div class="modal fade" id="addSLAModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Categoría SLA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" placeholder="Ej: Soporte Urgente">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SLA (horas)</label>
+                        <input type="number" class="form-control" min="1" placeholder="24">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prioridad</label>
+                        <select class="form-select">
+                            <option value="critical">Crítica</option>
+                            <option value="high">Alta</option>
+                            <option value="medium">Media</option>
+                            <option value="low">Baja</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveSLACategory">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize pipeline stages
+            initializePipelineStages();
+            
+            // Save configuration
+            $('#saveConfiguration').click(function() {
+                saveConfiguration();
+            });
+
+            // Export configuration
+            $('#exportConfig').click(function() {
+                exportConfiguration();
+            });
+
+            // Add SLA category
+            $('#saveSLACategory').click(function() {
+                addSLACategory();
+                $('#addSLAModal').modal('hide');
+            });
+
+            // Pipeline stages configuration
+            $('#pipelineStages').change(function() {
+                const stageCount = parseInt($(this).val());
+                generatePipelineStages(stageCount);
+            });
+
+            // Auto-save on input changes
+            $('input, select, textarea').on('change', function() {
+                autoSave();
+            });
+
+            // Initialize with 5 stages by default
+            generatePipelineStages(5);
+        });
+
+        function initializePipelineStages() {
+            // Initialize sortable for pipeline stages
+            const stagesList = document.getElementById('pipelineStagesList');
+            if (stagesList) {
+                new Sortable(stagesList, {
+                    handle: '.stage-handle',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost'
+                });
+            }
+        }
+
+        function generatePipelineStages(count) {
+            const stageNames = [
+                'Prospecto',
+                'Contacto Inicial',
+                'Calificado',
+                'Propuesta',
+                'Negociación',
+                'Cerrado',
+                'Post-venta'
+            ];
+
+            const colors = [
+                '#EF4444', '#F59E0B', '#10B981', 
+                '#3B82F6', '#8B5CF6', '#06B6D4', '#EC4899'
+            ];
+
+            let stagesHtml = '';
+            for (let i = 0; i < count; i++) {
+                const stageName = stageNames[i] || `Etapa ${i + 1}`;
+                const color = colors[i % colors.length];
+                
+                stagesHtml += `
+                <div class="pipeline-stage active" data-stage="${i + 1}">
+                    <i class="fas fa-grip-vertical stage-handle"></i>
+                    <div class="row align-items-center" style="margin-left: 30px;">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" value="${stageName}" placeholder="Nombre de la etapa">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="color" class="form-control form-control-color" value="${color}" title="Color de la etapa">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" value="${20 + (i * 15)}" min="0" max="100" placeholder="%" title="Probabilidad de conversión">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" value="${7 * (i + 1)}" min="1" placeholder="Días" title="Tiempo máximo en días">
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select">
+                                <option value="manual">Manual</option>
+                                <option value="auto">Automático</option>
+                                <option value="ai">IA</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-stage">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            
+            $('#pipelineStagesList').html(stagesHtml);
+            
+            // Add event listeners for remove buttons
+            $('.remove-stage').click(function() {
+                if ($('.pipeline-stage').length > 2) {
+                    $(this).closest('.pipeline-stage').remove();
+                    autoSave();
+                } else {
+                    alert('Debe mantener al menos 2 etapas en el pipeline');
+                }
+            });
+        }
+
+        function addSLACategory() {
+            const name = $('#addSLAModal input[type="text"]').val();
+            const hours = $('#addSLAModal input[type="number"]').val();
+            const priority = $('#addSLAModal select').val();
+            
+            if (name && hours) {
+                const priorityClasses = {
+                    'critical': 'sla-critical',
+                    'high': 'sla-high',
+                    'medium': 'sla-medium',
+                    'low': 'sla-low'
+                };
+                
+                const priorityNames = {
+                    'critical': 'Crítica',
+                    'high': 'Alta',
+                    'medium': 'Media',
+                    'low': 'Baja'
+                };
+
+                const slaHtml = `
+                <div class="sla-category">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${name}</h6>
+                            <span class="sla-indicator ${priorityClasses[priority]}">${priorityNames[priority]} Prioridad</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div>
+                                <label class="small">SLA (horas)</label>
+                                <input type="number" class="form-control form-control-sm" value="${hours}" style="width: 80px;">
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+                
+                $('#slaCategories').append(slaHtml);
+                
+                // Clear modal
+                $('#addSLAModal input').val('');
+                $('#addSLAModal select').val('medium');
+                
+                autoSave();
+            }
+        }
+
+        function saveConfiguration() {
+            const config = gatherConfiguration();
+            
+            // Simulate API call
+            console.log('Saving configuration:', config);
+            
+            // Show success indicator
+            $('#saveIndicator').addClass('show');
+            setTimeout(() => {
+                $('#saveIndicator').removeClass('show');
+            }, 3000);
+            
+            // In production, make actual API call
+            // $.post('/api/configuracion/save', config)...
+        }
+
+        function autoSave() {
+            // Auto-save functionality with debouncing
+            clearTimeout(window.autoSaveTimeout);
+            window.autoSaveTimeout = setTimeout(() => {
+                const config = gatherConfiguration();
+                console.log('Auto-saving configuration:', config);
+                
+                // Visual feedback
+                $('#saveIndicator .alert').removeClass('alert-success').addClass('alert-info').html('<i class="fas fa-sync fa-spin"></i> Auto-guardando...');
+                $('#saveIndicator').addClass('show');
+                
+                setTimeout(() => {
+                    $('#saveIndicator .alert').removeClass('alert-info').addClass('alert-success').html('<i class="fas fa-check-circle"></i> Auto-guardado');
+                    setTimeout(() => {
+                        $('#saveIndicator').removeClass('show');
+                    }, 2000);
+                }, 1000);
+            }, 1000);
+        }
+
+        function gatherConfiguration() {
+            const config = {
+                pipeline: {
+                    stages: [],
+                    conversionMethod: $('#conversionMethod').val(),
+                    minLeadProbability: $('input[placeholder="Probabilidad Mínima Lead (%)"]').val(),
+                    maxTimePerStage: $('input[placeholder="Tiempo Máximo por Etapa (días)"]').val(),
+                    autoAssignment: $('input[type="checkbox"]').first().is(':checked')
+                },
+                sla: {
+                    globalDefault: $('input[placeholder="SLA Global por Defecto (horas)"]').val(),
+                    autoEscalation: true,
+                    categories: []
+                },
+                communications: {
+                    channels: {
+                        email: $('#emailChannel').is(':checked'),
+                        whatsapp: $('#whatsappChannel').is(':checked'),
+                        sms: $('#smsChannel').is(':checked'),
+                        phone: $('#phoneChannel').is(':checked')
+                    },
+                    responseTime: $('input[placeholder="Tiempo de Respuesta Objetivo (minutos)"]').val(),
+                    autoResponse: true,
+                    sentimentAnalysis: true
+                },
+                automation: {
+                    engineEnabled: $('#automationEngine').is(':checked'),
+                    verificationInterval: 5,
+                    maxParallelExecutions: 10,
+                    aiRecommendations: true,
+                    confidenceThreshold: 85,
+                    autoLearning: true
+                },
+                general: {
+                    timezone: 'Europe/Madrid',
+                    language: 'es',
+                    dateFormat: 'DD/MM/YYYY',
+                    logRetention: 90,
+                    autoBackup: true,
+                    backupFrequency: 'weekly'
+                }
+            };
+
+            // Gather pipeline stages
+            $('.pipeline-stage').each(function() {
+                const stage = {
+                    name: $(this).find('input[type="text"]').val(),
+                    color: $(this).find('input[type="color"]').val(),
+                    probability: $(this).find('input[placeholder="%"]').val(),
+                    maxDays: $(this).find('input[placeholder="Días"]').val(),
+                    advanceMode: $(this).find('select').val()
+                };
+                config.pipeline.stages.push(stage);
+            });
+
+            // Gather SLA categories
+            $('.sla-category').each(function() {
+                const category = {
+                    name: $(this).find('h6').text(),
+                    hours: $(this).find('input[type="number"]').val(),
+                    priority: $(this).find('.sla-indicator').attr('class').split(' ')[1].replace('sla-', '')
+                };
+                config.sla.categories.push(category);
+            });
+
+            return config;
+        }
+
+        function exportConfiguration() {
+            const config = gatherConfiguration();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "configuracion_clientes.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+    </script>
+</body>
+</html>

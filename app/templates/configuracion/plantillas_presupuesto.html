@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantillas Presupuesto - Configuración - ERP13 Enterprise</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #8B5CF6;
+            --secondary-color: #3B82F6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1F2937;
+            --light-color: #F9FAFB;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-item {
+            color: #D1D5DB;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 20px;
+            min-height: calc(100vh - 40px);
+        }
+
+        .config-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .template-editor {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 400px);
+            min-height: 600px;
+        }
+
+        .editor-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 2px solid #E5E7EB;
+            display: flex;
+            justify-content-between;
+            align-items: center;
+        }
+
+        .panel-header h5 {
+            margin: 0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .template-textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            resize: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .template-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+
+        .preview-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-content {
+            flex: 1;
+            padding: 20px;
+            background: #FAFAFA;
+            border-radius: 0 0 12px 12px;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+
+        .variables-panel {
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .variable-group {
+            margin-bottom: 20px;
+        }
+
+        .variable-group h6 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .variable-item {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .variable-item:hover {
+            background: #EEF2FF;
+            border-color: var(--primary-color);
+            transform: translateX(3px);
+        }
+
+        .variable-code {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .variable-description {
+            font-size: 0.75rem;
+            color: #6B7280;
+            margin-top: 3px;
+        }
+
+        .template-tabs {
+            border-bottom: 2px solid #E5E7EB;
+            margin-bottom: 20px;
+        }
+
+        .template-tabs .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            padding: 12px 16px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .template-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: none;
+        }
+
+        .template-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-config {
+            background: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-config .breadcrumb-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb-config .breadcrumb-item.active {
+            color: #6B7280;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #6B7280;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .variable-editor {
+            background: #F3F4F6;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .variable-input {
+            background: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+        }
+
+        .variable-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+
+        .template-selector {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .template-card.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #F3F4F6 0%, #ffffff 100%);
+        }
+
+        .quick-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .quick-action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .variable-tooltip {
+            position: absolute;
+            background: #1F2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .variable-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1F2937;
+        }
+
+        .variable-item:hover .variable-tooltip {
+            opacity: 1;
+        }
+
+        @media (max-width: 1200px) {
+            .template-editor {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .variables-panel {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .highlight-variable {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-cog"></i> Configuración
+                    </h4>
+                    
+                    <nav>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-sliders-h"></i> Configuración General
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-brain"></i> IA Interna
+                        </a>
+                        <a href="#" class="sidebar-item active">
+                            <i class="fas fa-file-invoice-dollar"></i> Plantillas Presupuesto
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-receipt"></i> Configuración Facturación
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content">
+                    <div class="p-4">
+                        <!-- Breadcrumb -->
+                        <nav aria-label="breadcrumb" class="breadcrumb-config">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="#">Clientes</a></li>
+                                <li class="breadcrumb-item active">Plantillas Presupuesto</li>
+                            </ol>
+                        </nav>
+
+                        <!-- Header -->
+                        <div class="config-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="mb-2">
+                                        <i class="fas fa-file-invoice-dollar"></i> Plantillas de Presupuesto
+                                    </h2>
+                                    <p class="mb-0 opacity-90">
+                                        Configura plantillas con variables dinámicas para propuestas comerciales
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exportTemplateModal">
+                                        <i class="fas fa-download"></i> Exportar Plantillas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Row -->
+                        <div class="stats-row">
+                            <div class="stat-card">
+                                <div class="stat-number">5</div>
+                                <div class="stat-label">
+                                    <i class="fas fa-layer-group text-primary"></i> Plantillas Disponibles
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">23</div>
+                                <div class="stat-label">
+                                    <i class="fas fa-code text-success"></i> Variables Configuradas
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">147</div>
+                                <div class="stat-label">
+                                    <i class="fas fa-file-alt text-info"></i> Propuestas Generadas
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">89%</div>
+                                <div class="stat-label">
+                                    <i class="fas fa-chart-line text-warning"></i> Tasa Aceptación
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Selector -->
+                        <div class="template-selector">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-layer-group text-success"></i> Seleccionar Plantilla Base
+                                </h5>
+                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newTemplateModal">
+                                    <i class="fas fa-plus"></i> Nueva Plantilla
+                                </button>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="template-card active" data-template="comercial-basica">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">Propuesta Comercial Básica</h6>
+                                                <div class="small text-muted mb-2">Plantilla estándar para servicios</div>
+                                                <div class="small">
+                                                    <span class="badge bg-light text-dark">15 variables</span>
+                                                    <span class="text-muted">• Usado 89 veces</span>
+                                                </div>
+                                            </div>
+                                            <i class="fas fa-file-alt text-primary fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="template-card" data-template="tecnologia-avanzada">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">Tecnología Avanzada</h6>
+                                                <div class="small text-muted mb-2">Para proyectos técnicos complejos</div>
+                                                <div class="small">
+                                                    <span class="badge bg-light text-dark">23 variables</span>
+                                                    <span class="text-muted">• Usado 34 veces</span>
+                                                </div>
+                                            </div>
+                                            <i class="fas fa-laptop-code text-success fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="template-card" data-template="consultoria">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">Consultoría Empresarial</h6>
+                                                <div class="small text-muted mb-2">Servicios de consultoría y auditoría</div>
+                                                <div class="small">
+                                                    <span class="badge bg-light text-dark">18 variables</span>
+                                                    <span class="text-muted">• Usado 24 veces</span>
+                                                </div>
+                                            </div>
+                                            <i class="fas fa-handshake text-warning fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Actions -->
+                        <div class="template-actions">
+                            <button class="btn btn-outline-primary" id="previewTemplate">
+                                <i class="fas fa-eye"></i> Vista Previa
+                            </button>
+                            <button class="btn btn-outline-success" id="testTemplate">
+                                <i class="fas fa-play"></i> Probar con Datos
+                            </button>
+                            <button class="btn btn-outline-warning" id="duplicateTemplate">
+                                <i class="fas fa-copy"></i> Duplicar Plantilla
+                            </button>
+                            <button class="btn btn-primary" id="saveTemplate">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+
+                        <!-- Template Editor -->
+                        <div class="template-editor">
+                            <!-- Variables Panel -->
+                            <div class="variables-panel">
+                                <div class="panel-header">
+                                    <h5><i class="fas fa-code"></i> Variables Disponibles</h5>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addVariableModal">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="panel-content">
+                                    <!-- Cliente Variables -->
+                                    <div class="variable-group">
+                                        <h6><i class="fas fa-user text-primary"></i> Cliente</h6>
+                                        <div class="variable-item" data-variable="{{clientName}}">
+                                            <div class="variable-tooltip">Insertar: {{clientName}}</div>
+                                            <div class="variable-code">{{clientName}}</div>
+                                            <div class="variable-description">Nombre del cliente</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{companyName}}">
+                                            <div class="variable-tooltip">Insertar: {{companyName}}</div>
+                                            <div class="variable-code">{{companyName}}</div>
+                                            <div class="variable-description">Nombre de la empresa</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{contactEmail}}">
+                                            <div class="variable-tooltip">Insertar: {{contactEmail}}</div>
+                                            <div class="variable-code">{{contactEmail}}</div>
+                                            <div class="variable-description">Email de contacto</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{contactPhone}}">
+                                            <div class="variable-tooltip">Insertar: {{contactPhone}}</div>
+                                            <div class="variable-code">{{contactPhone}}</div>
+                                            <div class="variable-description">Teléfono de contacto</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{industryType}}">
+                                            <div class="variable-tooltip">Insertar: {{industryType}}</div>
+                                            <div class="variable-code">{{industryType}}</div>
+                                            <div class="variable-description">Sector de la empresa</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Propuesta Variables -->
+                                    <div class="variable-group">
+                                        <h6><i class="fas fa-file-alt text-success"></i> Propuesta</h6>
+                                        <div class="variable-item" data-variable="{{proposalDate}}">
+                                            <div class="variable-tooltip">Insertar: {{proposalDate}}</div>
+                                            <div class="variable-code">{{proposalDate}}</div>
+                                            <div class="variable-description">Fecha de la propuesta</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{proposalId}}">
+                                            <div class="variable-tooltip">Insertar: {{proposalId}}</div>
+                                            <div class="variable-code">{{proposalId}}</div>
+                                            <div class="variable-description">ID único de propuesta</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{totalAmount}}">
+                                            <div class="variable-tooltip">Insertar: {{totalAmount}}</div>
+                                            <div class="variable-code">{{totalAmount}}</div>
+                                            <div class="variable-description">Monto total</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{discountPercentage}}">
+                                            <div class="variable-tooltip">Insertar: {{discountPercentage}}</div>
+                                            <div class="variable-code">{{discountPercentage}}</div>
+                                            <div class="variable-description">Porcentaje descuento</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{validUntil}}">
+                                            <div class="variable-tooltip">Insertar: {{validUntil}}</div>
+                                            <div class="variable-code">{{validUntil}}</div>
+                                            <div class="variable-description">Válido hasta</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{deliveryDate}}">
+                                            <div class="variable-tooltip">Insertar: {{deliveryDate}}</div>
+                                            <div class="variable-code">{{deliveryDate}}</div>
+                                            <div class="variable-description">Fecha de entrega</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Empresa Variables -->
+                                    <div class="variable-group">
+                                        <h6><i class="fas fa-building text-info"></i> Nuestra Empresa</h6>
+                                        <div class="variable-item" data-variable="{{ourCompanyName}}">
+                                            <div class="variable-tooltip">Insertar: {{ourCompanyName}}</div>
+                                            <div class="variable-code">{{ourCompanyName}}</div>
+                                            <div class="variable-description">Nombre de nuestra empresa</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{ourAddress}}">
+                                            <div class="variable-tooltip">Insertar: {{ourAddress}}</div>
+                                            <div class="variable-code">{{ourAddress}}</div>
+                                            <div class="variable-description">Nuestra dirección</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{ourPhone}}">
+                                            <div class="variable-tooltip">Insertar: {{ourPhone}}</div>
+                                            <div class="variable-code">{{ourPhone}}</div>
+                                            <div class="variable-description">Nuestro teléfono</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{ourEmail}}">
+                                            <div class="variable-tooltip">Insertar: {{ourEmail}}</div>
+                                            <div class="variable-code">{{ourEmail}}</div>
+                                            <div class="variable-description">Nuestro email</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{assignedSalesperson}}">
+                                            <div class="variable-tooltip">Insertar: {{assignedSalesperson}}</div>
+                                            <div class="variable-code">{{assignedSalesperson}}</div>
+                                            <div class="variable-description">Comercial asignado</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sistema Variables -->
+                                    <div class="variable-group">
+                                        <h6><i class="fas fa-cog text-warning"></i> Sistema</h6>
+                                        <div class="variable-item" data-variable="{{currentDate}}">
+                                            <div class="variable-tooltip">Insertar: {{currentDate}}</div>
+                                            <div class="variable-code">{{currentDate}}</div>
+                                            <div class="variable-description">Fecha actual</div>
+                                        </div>
+                                        <div class="variable-item" data-variable="{{currentYear}}">
+                                            <div class="variable-tooltip">Insertar: {{currentYear}}</div>
+                                            <div class="variable-code">{{currentYear}}</div>
+                                            <div class="variable-description">Año actual</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Editor Panel -->
+                            <div class="editor-panel">
+                                <div class="panel-header">
+                                    <h5><i class="fas fa-edit"></i> Editor de Plantilla</h5>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-secondary" id="formatTemplate">
+                                            <i class="fas fa-indent"></i> Formatear
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary" id="insertVariables">
+                                            <i class="fas fa-code"></i> Variables
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="panel-content">
+                                    <textarea class="template-textarea" id="templateEditor" placeholder="Escribe tu plantilla aquí... Usa {{variables}} para campos dinámicos">
+# PROPUESTA COMERCIAL - {{proposalId}}
+
+**Fecha:** {{proposalDate}}
+**Para:** {{companyName}}
+**Atención:** {{clientName}}
+**Email:** {{contactEmail}}
+**Teléfono:** {{contactPhone}}
+
+---
+
+## PROPUESTA DE SERVICIOS
+
+Estimado/a {{clientName}},
+
+Es un placer para {{ourCompanyName}} presentar esta propuesta comercial para {{companyName}}, empresa del sector {{industryType}}.
+
+### RESUMEN EJECUTIVO
+
+Basándonos en nuestras conversaciones previas y el análisis de sus necesidades, hemos desarrollado una solución integral que se adapta perfectamente a los requerimientos de su organización.
+
+### SERVICIOS PROPUESTOS
+
+**1. Servicio Principal**
+- Descripción detallada del servicio
+- Beneficios específicos para {{industryType}}
+- Metodología de implementación
+
+**2. Servicios Complementarios**
+- Soporte técnico especializado
+- Capacitación del equipo
+- Mantenimiento y actualizaciones
+
+### INVERSIÓN
+
+- **Monto Total:** {{totalAmount}}
+- **Descuento Aplicado:** {{discountPercentage}}%
+- **Forma de Pago:** A convenir
+- **Fecha de Entrega:** {{deliveryDate}}
+
+### CONDICIONES COMERCIALES
+
+- Esta propuesta es válida hasta: {{validUntil}}
+- Los precios incluyen IVA
+- Garantía de servicios por 12 meses
+
+### PRÓXIMOS PASOS
+
+Quedamos a su disposición para coordinar una reunión y resolver cualquier consulta adicional.
+
+---
+
+**Contacto:**
+{{assignedSalesperson}}
+{{ourCompanyName}}
+{{ourAddress}}
+Tel: {{ourPhone}}
+Email: {{ourEmail}}
+
+*Documento generado el {{currentDate}}*
+                                    </textarea>
+                                </div>
+                            </div>
+
+                            <!-- Preview Panel -->
+                            <div class="preview-panel">
+                                <div class="panel-header">
+                                    <h5><i class="fas fa-eye"></i> Vista Previa</h5>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-success" id="refreshPreview">
+                                            <i class="fas fa-sync"></i> Actualizar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary" id="printPreview">
+                                            <i class="fas fa-print"></i> Imprimir
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="preview-content" id="previewContent">
+                                    <!-- Preview will be rendered here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-action-btn btn btn-success" title="Vista previa" id="quickPreview">
+            <i class="fas fa-eye"></i>
+        </button>
+        <button class="quick-action-btn btn btn-primary" title="Guardar plantilla" id="quickSave">
+            <i class="fas fa-save"></i>
+        </button>
+    </div>
+
+    <!-- Add Variable Modal -->
+    <div class="modal fade" id="addVariableModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Variable Personalizada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVariableForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Variable</label>
+                            <input type="text" class="form-control" placeholder="ej: customField1" pattern="[a-zA-Z][a-zA-Z0-9]*">
+                            <div class="form-text">Solo letras y números, debe empezar con letra</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <input type="text" class="form-control" placeholder="Descripción de la variable">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select">
+                                <option value="client">Cliente</option>
+                                <option value="proposal">Propuesta</option>
+                                <option value="company">Empresa</option>
+                                <option value="system">Sistema</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Valor por Defecto</label>
+                            <input type="text" class="form-control" placeholder="Valor opcional por defecto">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveCustomVariable">Añadir Variable</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Template Modal -->
+    <div class="modal fade" id="newTemplateModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear Nueva Plantilla</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newTemplateForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Plantilla</label>
+                            <input type="text" class="form-control" placeholder="Ej: Propuesta Servicios Premium">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <input type="text" class="form-control" placeholder="Breve descripción de la plantilla">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select">
+                                <option value="commercial">Comercial</option>
+                                <option value="technical">Técnica</option>
+                                <option value="consulting">Consultoría</option>
+                                <option value="product">Producto</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Basada en Plantilla Existente</label>
+                            <select class="form-select">
+                                <option value="">Empezar desde cero</option>
+                                <option value="comercial-basica">Propuesta Comercial Básica</option>
+                                <option value="tecnologia-avanzada">Tecnología Avanzada</option>
+                                <option value="consultoria">Consultoría Empresarial</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="createNewTemplate">Crear Plantilla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Sample data for preview
+            const sampleData = {
+                clientName: 'María García López',
+                companyName: 'Innovaciones Tech S.L.',
+                contactEmail: 'maria.garcia@innovacionestech.com',
+                contactPhone: '+34 912 345 678',
+                industryType: 'Tecnología',
+                proposalDate: new Date().toLocaleDateString('es-ES'),
+                proposalId: 'PROP-2024-001',
+                totalAmount: '15.750,00 €',
+                discountPercentage: '10',
+                validUntil: new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('es-ES'),
+                deliveryDate: new Date(Date.now() + 45*24*60*60*1000).toLocaleDateString('es-ES'),
+                ourCompanyName: 'ERP13 Enterprise Solutions',
+                ourAddress: 'Calle Gran Vía 123, 28013 Madrid',
+                ourPhone: '+34 911 222 333',
+                ourEmail: 'info@erp13enterprise.com',
+                assignedSalesperson: 'Carlos López Martín',
+                currentDate: new Date().toLocaleDateString('es-ES'),
+                currentYear: new Date().getFullYear()
+            };
+
+            // Initialize editor
+            updatePreview();
+
+            // Template selection
+            $('.template-card').click(function() {
+                $('.template-card').removeClass('active');
+                $(this).addClass('active');
+                
+                const template = $(this).data('template');
+                loadTemplate(template);
+            });
+
+            // Variable insertion
+            $('.variable-item').click(function() {
+                const variable = $(this).data('variable');
+                insertVariable(variable);
+            });
+
+            // Real-time preview update
+            $('#templateEditor').on('input', function() {
+                updatePreview();
+            });
+
+            // Template actions
+            $('#previewTemplate, #refreshPreview, #quickPreview').click(function() {
+                updatePreview();
+                showToast('Vista previa actualizada', 'info');
+            });
+
+            $('#saveTemplate, #quickSave').click(function() {
+                saveTemplate();
+            });
+
+            $('#testTemplate').click(function() {
+                testTemplateWithData();
+            });
+
+            $('#duplicateTemplate').click(function() {
+                duplicateCurrentTemplate();
+            });
+
+            $('#printPreview').click(function() {
+                printPreview();
+            });
+
+            // Format template
+            $('#formatTemplate').click(function() {
+                formatTemplate();
+            });
+
+            // Create new template
+            $('#createNewTemplate').click(function() {
+                const formData = $('#newTemplateForm').serialize();
+                console.log('Creating template:', formData);
+                
+                $('#newTemplateModal').modal('hide');
+                showToast('Nueva plantilla creada exitosamente', 'success');
+            });
+
+            // Add custom variable
+            $('#saveCustomVariable').click(function() {
+                const formData = $('#addVariableForm').serialize();
+                console.log('Adding variable:', formData);
+                
+                $('#addVariableModal').modal('hide');
+                showToast('Variable personalizada añadida', 'success');
+            });
+
+            function insertVariable(variable) {
+                const textarea = document.getElementById('templateEditor');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const text = textarea.value;
+                
+                const before = text.substring(0, start);
+                const after = text.substring(end);
+                
+                textarea.value = before + variable + after;
+                textarea.focus();
+                textarea.setSelectionRange(start + variable.length, start + variable.length);
+                
+                updatePreview();
+                
+                // Highlight the variable item briefly
+                $(`.variable-item[data-variable="${variable}"]`).addClass('highlight-variable');
+                setTimeout(() => {
+                    $(`.variable-item[data-variable="${variable}"]`).removeClass('highlight-variable');
+                }, 1000);
+            }
+
+            function updatePreview() {
+                const template = $('#templateEditor').val();
+                let preview = template;
+                
+                // Replace variables with sample data
+                Object.keys(sampleData).forEach(key => {
+                    const variable = `{{${key}}}`;
+                    const regex = new RegExp(escapeRegExp(variable), 'g');
+                    preview = preview.replace(regex, `<span class="highlight-variable">${sampleData[key]}</span>`);
+                });
+                
+                // Convert markdown-like formatting to HTML
+                preview = preview.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                preview = preview.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+                preview = preview.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                preview = preview.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                preview = preview.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                preview = preview.replace(/^---$/gm, '<hr>');
+                preview = preview.replace(/\n/g, '<br>');
+                
+                $('#previewContent').html(preview);
+            }
+
+            function saveTemplate() {
+                const templateData = {
+                    name: $('.template-card.active').find('h6').text(),
+                    content: $('#templateEditor').val(),
+                    variables: extractVariables($('#templateEditor').val())
+                };
+                
+                console.log('Saving template:', templateData);
+                showToast('Plantilla guardada exitosamente', 'success');
+            }
+
+            function loadTemplate(templateId) {
+                // This would normally load from the server
+                console.log('Loading template:', templateId);
+                showToast(`Plantilla "${templateId}" cargada`, 'info');
+            }
+
+            function testTemplateWithData() {
+                updatePreview();
+                showToast('Plantilla probada con datos de ejemplo', 'success');
+            }
+
+            function duplicateCurrentTemplate() {
+                const currentTemplate = $('#templateEditor').val();
+                console.log('Duplicating template');
+                showToast('Plantilla duplicada. Puedes editarla y guardarla con un nuevo nombre.', 'info');
+            }
+
+            function formatTemplate() {
+                const content = $('#templateEditor').val();
+                // Basic formatting - add proper line breaks and indentation
+                let formatted = content
+                    .replace(/\n\s*\n\s*\n/g, '\n\n') // Remove excessive line breaks
+                    .replace(/([.!?])\s*\n([a-zA-Z])/g, '$1\n\n$2') // Add spacing after sentences
+                    .trim();
+                
+                $('#templateEditor').val(formatted);
+                updatePreview();
+                showToast('Plantilla formateada', 'success');
+            }
+
+            function printPreview() {
+                const content = $('#previewContent').html();
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Vista Previa - Plantilla</title>
+                        <style>
+                            body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; }
+                            .highlight-variable { background: #FEF3C7; padding: 2px 4px; border-radius: 3px; }
+                            h1, h2, h3 { color: #333; }
+                            hr { margin: 20px 0; }
+                        </style>
+                    </head>
+                    <body>${content}</body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            }
+
+            function extractVariables(template) {
+                const variableRegex = /\{\{([^}]+)\}\}/g;
+                const variables = [];
+                let match;
+                
+                while ((match = variableRegex.exec(template)) !== null) {
+                    if (!variables.includes(match[1])) {
+                        variables.push(match[1]);
+                    }
+                }
+                
+                return variables;
+            }
+
+            function escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function showToast(message, type) {
+                const toast = $(`
+                    <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} border-0 position-fixed" 
+                         style="top: 20px; right: 20px; z-index: 9999;" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                `);
+                
+                $('body').append(toast);
+                
+                const bsToast = new bootstrap.Toast(toast[0]);
+                bsToast.show();
+                
+                toast.on('hidden.bs.toast', function() {
+                    $(this).remove();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

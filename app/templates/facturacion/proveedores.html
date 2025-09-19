@@ -369,7 +369,7 @@
                     <p class="subtitle">Maestro de Proveedores | CRUD Completo | Integración con Sistema de Facturas</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="facturas_proveedores.html" class="btn btn-light btn-lg">
+                    <a href="{{ url_for('facturacion_facturas_proveedores') }}" class="btn btn-light btn-lg">
                         <i class="fas fa-receipt me-2"></i>Ir a Facturas
                     </a>
                 </div>
@@ -1053,7 +1053,7 @@
         }
 
         function viewFacturasFromDetail() {
-            window.open('facturas_proveedores.html?proveedor=1', '_blank');
+            window.open('{{ url_for("facturacion_facturas_proveedores") }}?proveedor=1', '_blank');
         }
 
         // Form Management
@@ -1213,7 +1213,7 @@
         }
 
         function viewFacturas(id) {
-            window.open(`facturas_proveedores.html?proveedor=${id}`, '_blank');
+            window.open(`{{ url_for('facturacion_facturas_proveedores') }}?proveedor=${id}`, '_blank');
         }
 
         // Filtering and Search

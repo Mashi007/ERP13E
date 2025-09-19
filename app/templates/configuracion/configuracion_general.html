@@ -1,1130 +1,3070 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración General - Módulo Clientes - ERP13 Enterprise</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #8B5CF6;
-            --secondary-color: #3B82F6;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
-            --dark-color: #1F2937;
-            --light-color: #F9FAFB;
-        }
+{% extends "layout.html" %}
 
-        body {
-            background-color: var(--light-color);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+{% block title %}Configuración General - ERP13 Enterprise{% endblock %}
 
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+{% block extra_css %}
+<style>
+/* ============================================================================
+   CONFIGURACIÓN GENERAL - ERP13 ENTERPRISE
+   📁 Ruta: /app/templates/configuracion/configuracion_general.html
+   🏗️ Propósito: Administración general completa del sistema ERP
+   ⚡ Performance: CSS Grid + Auto-save + Cache Redis + Real-time validation
+   🔒 Seguridad: Super-admin roles + Encryption + Audit trail + Backup
+============================================================================ */
 
-        .sidebar-item {
-            color: #D1D5DB;
-            padding: 12px 20px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 4px 8px;
-        }
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --info-cyan: #06b6d4;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --accent-purple: #8b5cf6;
+    --config-bg: #fafbfc;
+    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
 
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
+body {
+    background: linear-gradient(135deg, var(--config-bg) 0%, #f0f2f5 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
 
-        .main-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin: 20px;
-            min-height: calc(100vh - 40px);
-        }
+/* ========== LAYOUT PRINCIPAL ========== */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-        .config-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            color: white;
-            margin-bottom: 30px;
-        }
+.hero-section {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 3rem 0;
+    box-shadow: var(--shadow-medium);
+    position: relative;
+    overflow: hidden;
+}
 
-        .config-section {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--primary-color);
-        }
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="hexagons" width="30" height="26" patternUnits="userSpaceOnUse"><polygon points="15,2 28,10 28,22 15,30 2,22 2,10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23hexagons)"/></svg>') repeat;
+    opacity: 0.3;
+}
 
-        .config-section h5 {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
 
-        .form-control, .form-select {
-            border: 2px solid #E5E7EB;
-            border-radius: 8px;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
-        }
+.hero-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
-        }
+.hero-icon {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1rem;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+}
 
-        .config-tabs {
-            border-bottom: 2px solid #E5E7EB;
-            margin-bottom: 30px;
-        }
+.hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+}
 
-        .config-tabs .nav-link {
-            color: #6B7280;
-            font-weight: 600;
-            padding: 15px 20px;
-            border: none;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
 
-        .config-tabs .nav-link.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-            background: none;
-        }
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    box-shadow: var(--shadow-soft);
+}
 
-        .config-tabs .nav-link:hover {
-            color: var(--primary-color);
-            background: rgba(139, 92, 246, 0.1);
-        }
+.btn-light {
+    background: white;
+    color: var(--primary-blue);
+    border: 2px solid transparent;
+}
 
-        .pipeline-stage {
-            background: #F9FAFB;
-            border: 2px solid #E5E7EB;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            position: relative;
-        }
+.btn-light:hover {
+    background: #f8f9fa;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
 
-        .pipeline-stage.active {
-            border-color: var(--success-color);
-            background: #F0FDF4;
-        }
+.btn-outline-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
 
-        .stage-handle {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: grab;
-            color: #9CA3AF;
-            font-size: 1.5rem;
-        }
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
 
-        .stage-handle:active {
-            cursor: grabbing;
-        }
+/* ========== ÁREA DE CONTENIDO ========== */
+.content-area {
+    flex: 1;
+    padding: 3rem 0;
+}
 
-        .sla-category {
-            background: #F8FAFC;
-            border: 1px solid #CBD5E1;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
+/* ========== NAVEGACIÓN POR TABS ========== */
+.config-navigation {
+    background: white;
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    margin-bottom: 3rem;
+    overflow-x: auto;
+}
 
-        .sla-indicator {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
+.nav-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
 
-        .sla-critical { background: #FEE2E2; color: #991B1B; }
-        .sla-high { background: #FEF3C7; color: #92400E; }
-        .sla-medium { background: #DBEAFE; color: #1E40AF; }
-        .sla-low { background: #D1FAE5; color: #065F46; }
+.nav-tab {
+    padding: 1.25rem 2rem;
+    border: none;
+    background: transparent;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+}
 
-        .save-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+.nav-tab:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+}
 
-        .save-indicator.show {
-            opacity: 1;
-        }
+.nav-tab.active {
+    background: var(--primary-blue);
+    color: white;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
 
-        .config-preview {
-            background: #F3F4F6;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.875rem;
-            white-space: pre-wrap;
-        }
+.nav-tab .tab-icon {
+    font-size: 1.25rem;
+}
 
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 34px;
-        }
+/* ========== CONTENIDO DE TABS ========== */
+.tab-content {
+    display: none;
+    animation: fadeInUp 0.6s ease;
+}
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+.tab-content.active {
+    display: block;
+}
 
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #CBD5E1;
-            transition: 0.3s;
-            border-radius: 34px;
-        }
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
+.config-section {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
 
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
+.config-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-primary);
+}
 
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
+.section-header {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+}
 
-        .breadcrumb-config {
-            background: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
+.section-title {
+    color: var(--dark-gray);
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 
-        .breadcrumb-config .breadcrumb-item a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
+.section-icon {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-purple) 100%);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 16px;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
 
-        .breadcrumb-config .breadcrumb-item.active {
-            color: #6B7280;
-        }
+.section-description {
+    color: #6b7280;
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
 
-        @media (max-width: 768px) {
-            .config-section {
-                padding: 20px;
-            }
-            
-            .config-tabs .nav-link {
-                padding: 12px 15px;
-                font-size: 0.875rem;
-            }
-        }
+/* ========== GRIDS Y FORMULARIOS ========== */
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2.5rem;
+}
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
+.form-group {
+    margin-bottom: 2rem;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-    <!-- Save Indicator -->
-    <div class="save-indicator" id="saveIndicator">
-        <div class="alert alert-success mb-0">
-            <i class="fas fa-check-circle"></i> Configuración guardada
+.form-label {
+    display: block;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    position: relative;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: var(--danger-red);
+    margin-left: 0.25rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.form-control:invalid {
+    border-color: var(--danger-red);
+}
+
+.form-control:valid {
+    border-color: var(--success-green);
+}
+
+.form-help {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ========== SWITCHES Y CHECKBOXES ========== */
+.switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: var(--light-gray);
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.switch-container:hover {
+    border-color: var(--primary-blue);
+    background: white;
+    box-shadow: var(--shadow-soft);
+}
+
+.switch-info h6 {
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.switch-info p {
+    color: #6b7280;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 64px;
+    height: 36px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.4s;
+    border-radius: 36px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 28px;
+    width: 28px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+    background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+}
+
+input:checked + .slider:before {
+    transform: translateX(28px);
+}
+
+/* ========== CARDS ESPECIALES ========== */
+.status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.status-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.status-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+}
+
+.status-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.status-card.success::before {
+    background: var(--success-green);
+}
+
+.status-card.warning::before {
+    background: var(--warning-orange);
+}
+
+.status-card.info::before {
+    background: var(--info-cyan);
+}
+
+.status-card.danger::before {
+    background: var(--danger-red);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    font-size: 2rem;
+    padding: 1rem;
+    border-radius: 16px;
+    color: white;
+}
+
+.status-card.success .card-icon {
+    background: var(--success-green);
+}
+
+.status-card.warning .card-icon {
+    background: var(--warning-orange);
+}
+
+.status-card.info .card-icon {
+    background: var(--info-cyan);
+}
+
+.status-card.danger .card-icon {
+    background: var(--danger-red);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.card-value {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 1rem 0;
+}
+
+.card-description {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* ========== BOTONES ESPECIALES ========== */
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning-orange) 0%, #d97706 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-warning:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-red) 0%, #dc2626 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* ========== MODALES Y OVERLAYS ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ========== INDICADORES Y NOTIFICACIONES ========== */
+.notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 1.25rem 2rem;
+    border-radius: 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    transform: translateX(100%);
+    transition: all 0.4s ease;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 400px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success {
+    background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+}
+
+.notification.error {
+    background: linear-gradient(135deg, var(--danger-red) 0%, #dc2626 100%);
+}
+
+.notification.warning {
+    background: linear-gradient(135deg, var(--warning-orange) 0%, #d97706 100%);
+}
+
+.notification.info {
+    background: linear-gradient(135deg, var(--info-cyan) 0%, #0891b2 100%);
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1200px) {
+    .config-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .hero-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-cards {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .content-area {
+        padding: 2rem 0;
+    }
+
+    .config-section {
+        padding: 2rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .nav-tabs {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .nav-tab {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        padding: 1.5rem 0;
+    }
+
+    .hero-title {
+        font-size: 1.75rem;
+    }
+
+    .config-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .modal-content {
+        padding: 2rem 1.5rem;
+        width: 95%;
+    }
+
+    .notification {
+        right: 12px;
+        left: 12px;
+        transform: translateY(-100%);
+        max-width: none;
+    }
+
+    .notification.show {
+        transform: translateY(0);
+    }
+}
+
+/* ========== ANIMACIONES Y EFECTOS ========== */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.error-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* ========== UTILIDADES ========== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- ========== HERO SECTION ========== -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <div>
+                    <h1 class="hero-title">
+                        <div class="hero-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        Configuración General
+                    </h1>
+                    <p class="hero-subtitle">
+                        Centro de control principal del sistema ERP13 Enterprise. 
+                        Gestiona todos los aspectos fundamentales de tu organización.
+                    </p>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn btn-light" onclick="exportSystemConfig()">
+                        <i class="fas fa-download"></i>
+                        Exportar Configuración
+                    </button>
+                    <button class="btn btn-outline-light" onclick="importSystemConfig()">
+                        <i class="fas fa-upload"></i>
+                        Importar Configuración
+                    </button>
+                    <button class="btn btn-outline-light" onclick="resetToDefaults()">
+                        <i class="fas fa-undo"></i>
+                        Restaurar Defaults
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-cog"></i> Configuración
-                    </h4>
-                    
-                    <nav>
-                        <a href="#" class="sidebar-item active">
-                            <i class="fas fa-sliders-h"></i> Configuración General
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-users-cog"></i> Gestión de Usuarios
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-brain"></i> IA Interna
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-file-invoice-dollar"></i> Plantillas Presupuesto
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-receipt"></i> Configuración Facturación
-                        </a>
-                    </nav>
-                </div>
+    <!-- ========== ÁREA DE CONTENIDO ========== -->
+    <div class="content-area">
+        <div class="container">
+            <!-- ========== NAVEGACIÓN POR TABS ========== -->
+            <div class="config-navigation">
+                <ul class="nav-tabs">
+                    <li class="nav-tab active" onclick="switchTab('empresa')" data-tab="empresa">
+                        <i class="fas fa-building tab-icon"></i>
+                        <span>Empresa</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('sistema')" data-tab="sistema">
+                        <i class="fas fa-server tab-icon"></i>
+                        <span>Sistema</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('seguridad')" data-tab="seguridad">
+                        <i class="fas fa-shield-alt tab-icon"></i>
+                        <span>Seguridad</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('notificaciones')" data-tab="notificaciones">
+                        <i class="fas fa-bell tab-icon"></i>
+                        <span>Notificaciones</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('integraciones')" data-tab="integraciones">
+                        <i class="fas fa-plug tab-icon"></i>
+                        <span>Integraciones</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('mantenimiento')" data-tab="mantenimiento">
+                        <i class="fas fa-tools tab-icon"></i>
+                        <span>Mantenimiento</span>
+                    </li>
+                </ul>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10">
-                <div class="main-content">
-                    <div class="p-4">
-                        <!-- Breadcrumb -->
-                        <nav aria-label="breadcrumb" class="breadcrumb-config">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="#">Clientes</a></li>
-                                <li class="breadcrumb-item active">Configuración General</li>
-                            </ol>
-                        </nav>
-
-                        <!-- Header -->
-                        <div class="config-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h2 class="mb-2">
-                                        <i class="fas fa-sliders-h"></i> Configuración General - Módulo Clientes
-                                    </h2>
-                                    <p class="mb-0 opacity-90">
-                                        Configura los parámetros principales del módulo de gestión de clientes
-                                    </p>
-                                </div>
-                                <div class="text-end">
-                                    <button class="btn btn-light" id="exportConfig">
-                                        <i class="fas fa-download"></i> Exportar Config
-                                    </button>
-                                </div>
+            <!-- ========== TAB: EMPRESA ========== -->
+            <div id="tab-empresa" class="tab-content active">
+                <!-- Estado del Sistema -->
+                <div class="status-cards">
+                    <div class="status-card success">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle"></i>
                             </div>
+                            <h3 class="card-title">Sistema Operativo</h3>
                         </div>
+                        <div class="card-value" style="color: var(--success-green);">99.8%</div>
+                        <p class="card-description">Uptime últimos 30 días</p>
+                    </div>
 
-                        <!-- Configuration Tabs -->
-                        <ul class="nav nav-tabs config-tabs" id="configTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="pipeline-tab" data-bs-toggle="tab" data-bs-target="#pipeline" type="button" role="tab">
-                                    <i class="fas fa-chart-line"></i> Pipeline de Ventas
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="sla-tab" data-bs-toggle="tab" data-bs-target="#sla" type="button" role="tab">
-                                    <i class="fas fa-clock"></i> SLA y Tickets
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="communications-tab" data-bs-toggle="tab" data-bs-target="#communications" type="button" role="tab">
-                                    <i class="fas fa-comments"></i> Comunicaciones
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="automation-tab" data-bs-toggle="tab" data-bs-target="#automation" type="button" role="tab">
-                                    <i class="fas fa-magic"></i> Automatizaciones
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                                    <i class="fas fa-cogs"></i> Configuración General
-                                </button>
-                            </li>
-                        </ul>
-
-                        <!-- Tab Content -->
-                        <div class="tab-content" id="configTabContent">
-                            
-                            <!-- Pipeline Configuration -->
-                            <div class="tab-pane fade show active" id="pipeline" role="tabpanel">
-                                <div class="config-section fade-in">
-                                    <h5><i class="fas fa-chart-line text-primary"></i> Configuración del Pipeline de Ventas</h5>
-                                    
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Número de Etapas del Pipeline</label>
-                                            <select class="form-select" id="pipelineStages">
-                                                <option value="4">4 Etapas (Básico)</option>
-                                                <option value="5" selected>5 Etapas (Estándar)</option>
-                                                <option value="6">6 Etapas (Avanzado)</option>
-                                                <option value="7">7 Etapas (Empresarial)</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Método de Conversión</label>
-                                            <select class="form-select" id="conversionMethod">
-                                                <option value="manual" selected>Manual</option>
-                                                <option value="automatic">Automático por IA</option>
-                                                <option value="hybrid">Híbrido (Manual + IA)</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <h6 class="fw-semibold mb-3">Configurar Etapas del Pipeline</h6>
-                                        <div id="pipelineStagesList">
-                                            <!-- Stages will be populated here -->
-                                        </div>
-                                        <button type="button" class="btn btn-outline-primary" id="addStage">
-                                            <i class="fas fa-plus"></i> Añadir Etapa
-                                        </button>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Probabilidad Mínima Lead (%)</label>
-                                            <input type="number" class="form-control" value="20" min="0" max="100">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Tiempo Máximo por Etapa (días)</label>
-                                            <input type="number" class="form-control" value="30" min="1">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Auto-asignación de Comerciales</label>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="status-card info">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
                             </div>
-
-                            <!-- SLA and Tickets Configuration -->
-                            <div class="tab-pane fade" id="sla" role="tabpanel">
-                                <div class="config-section fade-in">
-                                    <h5><i class="fas fa-clock text-warning"></i> Configuración SLA y Tickets</h5>
-                                    
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">SLA Global por Defecto (horas)</label>
-                                            <input type="number" class="form-control" value="24" min="1">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Escalación Automática</label>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <h6 class="fw-semibold mb-3">SLA por Categoría de Ticket</h6>
-                                    <div id="slaCategories">
-                                        <div class="sla-category">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h6 class="mb-1">Soporte Técnico</h6>
-                                                    <span class="sla-indicator sla-high">Alta Prioridad</span>
-                                                </div>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div>
-                                                        <label class="small">SLA (horas)</label>
-                                                        <input type="number" class="form-control form-control-sm" value="4" style="width: 80px;">
-                                                    </div>
-                                                    <button class="btn btn-sm btn-outline-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="sla-category">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h6 class="mb-1">Consulta Comercial</h6>
-                                                    <span class="sla-indicator sla-medium">Prioridad Media</span>
-                                                </div>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div>
-                                                        <label class="small">SLA (horas)</label>
-                                                        <input type="number" class="form-control form-control-sm" value="12" style="width: 80px;">
-                                                    </div>
-                                                    <button class="btn btn-sm btn-outline-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="sla-category">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h6 class="mb-1">Información General</h6>
-                                                    <span class="sla-indicator sla-low">Prioridad Baja</span>
-                                                </div>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div>
-                                                        <label class="small">SLA (horas)</label>
-                                                        <input type="number" class="form-control form-control-sm" value="48" style="width: 80px;">
-                                                    </div>
-                                                    <button class="btn btn-sm btn-outline-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#addSLAModal">
-                                        <i class="fas fa-plus"></i> Añadir Categoría SLA
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Communications Configuration -->
-                            <div class="tab-pane fade" id="communications" role="tabpanel">
-                                <div class="config-section fade-in">
-                                    <h5><i class="fas fa-comments text-info"></i> Configuración de Comunicaciones</h5>
-                                    
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <h6 class="fw-semibold">Canales Activos</h6>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" checked id="emailChannel">
-                                                <label class="form-check-label" for="emailChannel">
-                                                    <i class="fas fa-envelope text-primary"></i> Email
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" checked id="whatsappChannel">
-                                                <label class="form-check-label" for="whatsappChannel">
-                                                    <i class="fab fa-whatsapp text-success"></i> WhatsApp
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="smsChannel">
-                                                <label class="form-check-label" for="smsChannel">
-                                                    <i class="fas fa-sms text-warning"></i> SMS
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" checked id="phoneChannel">
-                                                <label class="form-check-label" for="phoneChannel">
-                                                    <i class="fas fa-phone text-info"></i> Teléfono
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="fw-semibold">Configuración de Respuestas</h6>
-                                            <div class="mb-3">
-                                                <label class="form-label">Tiempo de Respuesta Objetivo (minutos)</label>
-                                                <input type="number" class="form-control" value="15" min="1">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Auto-respuesta Inmediata</label>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" checked>
-                                                    <span class="slider"></span>
-                                                </label>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Análisis de Sentimiento</label>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" checked>
-                                                    <span class="slider"></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <h6 class="fw-semibold mb-3">Variables Globales Disponibles</h6>
-                                        <div class="config-preview">{{clientName}} - Nombre del cliente
-{{companyName}} - Nombre de la empresa
-{{contactName}} - Nombre del contacto
-{{email}} - Email del cliente
-{{phone}} - Teléfono del cliente
-{{assignedTo}} - Comercial asignado
-{{currentDate}} - Fecha actual
-{{followupDate}} - Fecha de seguimiento</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Automation Configuration -->
-                            <div class="tab-pane fade" id="automation" role="tabpanel">
-                                <div class="config-section fade-in">
-                                    <h5><i class="fas fa-magic text-purple"></i> Configuración de Automatizaciones</h5>
-                                    
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <h6 class="fw-semibold">Motor de Automatizaciones</h6>
-                                            <div class="mb-3">
-                                                <label class="form-label">Estado del Motor</label>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" checked id="automationEngine">
-                                                    <span class="slider"></span>
-                                                </label>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Intervalo de Verificación (minutos)</label>
-                                                <input type="number" class="form-control" value="5" min="1">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Máximo de Ejecuciones Paralelas</label>
-                                                <input type="number" class="form-control" value="10" min="1">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="fw-semibold">Configuración IA</h6>
-                                            <div class="mb-3">
-                                                <label class="form-label">Recomendaciones Automáticas</label>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" checked>
-                                                    <span class="slider"></span>
-                                                </label>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Umbral de Confianza IA (%)</label>
-                                                <input type="number" class="form-control" value="85" min="0" max="100">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Aprendizaje Automático</label>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" checked>
-                                                    <span class="slider"></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <h6 class="fw-semibold mb-3">Triggers Disponibles</h6>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked id="timeBasedTriggers">
-                                                    <label class="form-check-label" for="timeBasedTriggers">
-                                                        <i class="fas fa-clock text-primary"></i> Triggers por Tiempo
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked id="eventBasedTriggers">
-                                                    <label class="form-check-label" for="eventBasedTriggers">
-                                                        <i class="fas fa-bolt text-warning"></i> Triggers por Eventos
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="conditionBasedTriggers">
-                                                    <label class="form-check-label" for="conditionBasedTriggers">
-                                                        <i class="fas fa-code-branch text-info"></i> Triggers Condicionales
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked id="webhookTriggers">
-                                                    <label class="form-check-label" for="webhookTriggers">
-                                                        <i class="fas fa-link text-success"></i> Webhooks
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked id="aiTriggers">
-                                                    <label class="form-check-label" for="aiTriggers">
-                                                        <i class="fas fa-brain text-purple"></i> Triggers IA
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- General Configuration -->
-                            <div class="tab-pane fade" id="general" role="tabpanel">
-                                <div class="config-section fade-in">
-                                    <h5><i class="fas fa-cogs text-secondary"></i> Configuración General</h5>
-                                    
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <h6 class="fw-semibold">Configuración Regional</h6>
-                                            <div class="mb-3">
-                                                <label class="form-label">Zona Horaria</label>
-                                                <select class="form-select">
-                                                    <option selected>Europe/Madrid</option>
-                                                    <option>America/Mexico_City</option>
-                                                    <option>America/Buenos_Aires</option>
-                                                    <option>UTC</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Idioma por Defecto</label>
-                                                <select class="form-select">
-                                                    <option selected>Español (ES)</option>
-                                                    <option>English (EN)</option>
-                                                    <option>Português (PT)</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Formato de Fecha</label>
-                                                <select class="form-select">
-                                                    <option selected>DD/MM/YYYY</option>
-                                                    <option>MM/DD/YYYY</option>
-                                                    <option>YYYY-MM-DD</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="fw-semibold">Configuración de Datos</h6>
-                                            <div class="mb-3">
-                                                <label class="form-label">Retención de Logs (días)</label>
-                                                <input type="number" class="form-control" value="90" min="1">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Backup Automático</label>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" checked>
-                                                    <span class="slider"></span>
-                                                </label>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Frecuencia de Backup</label>
-                                                <select class="form-select">
-                                                    <option>Diario</option>
-                                                    <option selected>Semanal</option>
-                                                    <option>Mensual</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <h6 class="fw-semibold mb-3">Configuración de Performance</h6>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <label class="form-label">Cache TTL (segundos)</label>
-                                                <input type="number" class="form-control" value="3600" min="60">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Límite de Resultados por Página</label>
-                                                <input type="number" class="form-control" value="25" min="10" max="100">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Timeout de Sesión (minutos)</label>
-                                                <input type="number" class="form-control" value="30" min="5">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <h6 class="fw-semibold mb-3">Notificaciones del Sistema</h6>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked>
-                                                    <label class="form-check-label">
-                                                        Notificar nuevos leads
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked>
-                                                    <label class="form-check-label">
-                                                        Alertas de SLA vencidos
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox">
-                                                    <label class="form-check-label">
-                                                        Resumen diario de actividad
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked>
-                                                    <label class="form-check-label">
-                                                        Recordatorios de seguimiento
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox">
-                                                    <label class="form-check-label">
-                                                        Alertas de oportunidades perdidas
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" checked>
-                                                    <label class="form-check-label">
-                                                        Notificaciones de automatizaciones
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <h3 class="card-title">Usuarios Activos</h3>
                         </div>
+                        <div class="card-value" style="color: var(--info-cyan);">24</div>
+                        <p class="card-description">Conectados en las últimas 24h</p>
+                    </div>
 
-                        <!-- Save Configuration Button -->
-                        <div class="text-center mt-4">
-                            <button type="button" class="btn btn-primary btn-lg px-5" id="saveConfiguration">
-                                <i class="fas fa-save"></i> Guardar Configuración
-                            </button>
+                    <div class="status-card warning">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <h3 class="card-title">Almacenamiento</h3>
                         </div>
+                        <div class="card-value" style="color: var(--warning-orange);">78%</div>
+                        <p class="card-description">Uso del espacio disponible</p>
+                    </div>
+
+                    <div class="status-card success">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="card-title">Seguridad</h3>
+                        </div>
+                        <div class="card-value" style="color: var(--success-green);">A+</div>
+                        <p class="card-description">Nivel de seguridad actual</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Add SLA Modal -->
-    <div class="modal fade" id="addSLAModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Añadir Categoría SLA</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre de la Categoría</label>
-                        <input type="text" class="form-control" placeholder="Ej: Soporte Urgente">
+                <!-- Información de la Empresa -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            Información de la Empresa
+                        </h2>
+                        <p class="section-description">
+                            Datos fundamentales de tu organización que se utilizan en todo el sistema
+                        </p>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">SLA (horas)</label>
-                        <input type="number" class="form-control" min="1" placeholder="24">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Prioridad</label>
-                        <select class="form-select">
-                            <option value="critical">Crítica</option>
-                            <option value="high">Alta</option>
-                            <option value="medium">Media</option>
-                            <option value="low">Baja</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveSLACategory">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            // Initialize pipeline stages
-            initializePipelineStages();
-            
-            // Save configuration
-            $('#saveConfiguration').click(function() {
-                saveConfiguration();
-            });
-
-            // Export configuration
-            $('#exportConfig').click(function() {
-                exportConfiguration();
-            });
-
-            // Add SLA category
-            $('#saveSLACategory').click(function() {
-                addSLACategory();
-                $('#addSLAModal').modal('hide');
-            });
-
-            // Pipeline stages configuration
-            $('#pipelineStages').change(function() {
-                const stageCount = parseInt($(this).val());
-                generatePipelineStages(stageCount);
-            });
-
-            // Auto-save on input changes
-            $('input, select, textarea').on('change', function() {
-                autoSave();
-            });
-
-            // Initialize with 5 stages by default
-            generatePipelineStages(5);
-        });
-
-        function initializePipelineStages() {
-            // Initialize sortable for pipeline stages
-            const stagesList = document.getElementById('pipelineStagesList');
-            if (stagesList) {
-                new Sortable(stagesList, {
-                    handle: '.stage-handle',
-                    animation: 150,
-                    ghostClass: 'sortable-ghost'
-                });
-            }
-        }
-
-        function generatePipelineStages(count) {
-            const stageNames = [
-                'Prospecto',
-                'Contacto Inicial',
-                'Calificado',
-                'Propuesta',
-                'Negociación',
-                'Cerrado',
-                'Post-venta'
-            ];
-
-            const colors = [
-                '#EF4444', '#F59E0B', '#10B981', 
-                '#3B82F6', '#8B5CF6', '#06B6D4', '#EC4899'
-            ];
-
-            let stagesHtml = '';
-            for (let i = 0; i < count; i++) {
-                const stageName = stageNames[i] || `Etapa ${i + 1}`;
-                const color = colors[i % colors.length];
-                
-                stagesHtml += `
-                <div class="pipeline-stage active" data-stage="${i + 1}">
-                    <i class="fas fa-grip-vertical stage-handle"></i>
-                    <div class="row align-items-center" style="margin-left: 30px;">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" value="${stageName}" placeholder="Nombre de la etapa">
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label required" for="company_name">Nombre de la Empresa</label>
+                            <input type="text" id="company_name" class="form-control" 
+                                   data-module="general" data-key="company_name"
+                                   placeholder="Tu Empresa S.L." required>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Nombre legal completo de la empresa
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="color" class="form-control form-control-color" value="${color}" title="Color de la etapa">
+
+                        <div class="form-group">
+                            <label class="form-label required" for="company_tax_id">CIF/NIF</label>
+                            <input type="text" id="company_tax_id" class="form-control" 
+                                   data-module="general" data-key="company_tax_id"
+                                   placeholder="B12345678" required>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Código de identificación fiscal
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control" value="${20 + (i * 15)}" min="0" max="100" placeholder="%" title="Probabilidad de conversión">
+
+                        <div class="form-group">
+                            <label class="form-label" for="company_address">Dirección Completa</label>
+                            <textarea id="company_address" class="form-control" rows="4"
+                                      data-module="general" data-key="company_address"
+                                      placeholder="Calle Principal, 123&#10;28001 Madrid&#10;España"></textarea>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Dirección principal de la empresa
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control" value="${7 * (i + 1)}" min="1" placeholder="Días" title="Tiempo máximo en días">
+
+                        <div class="form-group">
+                            <label class="form-label" for="company_phone">Teléfono Principal</label>
+                            <input type="tel" id="company_phone" class="form-control" 
+                                   data-module="general" data-key="company_phone"
+                                   placeholder="+34 912 345 678">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Teléfono de contacto principal
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select">
-                                <option value="manual">Manual</option>
-                                <option value="auto">Automático</option>
-                                <option value="ai">IA</option>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="company_email">Email Corporativo</label>
+                            <input type="email" id="company_email" class="form-control" 
+                                   data-module="general" data-key="company_email"
+                                   placeholder="info@tuempresa.com" required>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Email principal para comunicaciones
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="company_website">Sitio Web</label>
+                            <input type="url" id="company_website" class="form-control" 
+                                   data-module="general" data-key="company_website"
+                                   placeholder="https://www.tuempresa.com">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                URL del sitio web corporativo
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="company_sector">Sector de Actividad</label>
+                            <select id="company_sector" class="form-control" data-module="general" data-key="company_sector">
+                                <option value="">Seleccionar sector...</option>
+                                <option value="technology">Tecnología</option>
+                                <option value="consulting">Consultoría</option>
+                                <option value="manufacturing">Manufactura</option>
+                                <option value="retail">Comercio al por menor</option>
+                                <option value="healthcare">Salud</option>
+                                <option value="education">Educación</option>
+                                <option value="finance">Finanzas</option>
+                                <option value="construction">Construcción</option>
+                                <option value="hospitality">Hostelería</option>
+                                <option value="other">Otro</option>
                             </select>
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-sm btn-outline-danger remove-stage">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-            }
-            
-            $('#pipelineStagesList').html(stagesHtml);
-            
-            // Add event listeners for remove buttons
-            $('.remove-stage').click(function() {
-                if ($('.pipeline-stage').length > 2) {
-                    $(this).closest('.pipeline-stage').remove();
-                    autoSave();
-                } else {
-                    alert('Debe mantener al menos 2 etapas en el pipeline');
-                }
-            });
-        }
-
-        function addSLACategory() {
-            const name = $('#addSLAModal input[type="text"]').val();
-            const hours = $('#addSLAModal input[type="number"]').val();
-            const priority = $('#addSLAModal select').val();
-            
-            if (name && hours) {
-                const priorityClasses = {
-                    'critical': 'sla-critical',
-                    'high': 'sla-high',
-                    'medium': 'sla-medium',
-                    'low': 'sla-low'
-                };
-                
-                const priorityNames = {
-                    'critical': 'Crítica',
-                    'high': 'Alta',
-                    'medium': 'Media',
-                    'low': 'Baja'
-                };
-
-                const slaHtml = `
-                <div class="sla-category">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">${name}</h6>
-                            <span class="sla-indicator ${priorityClasses[priority]}">${priorityNames[priority]} Prioridad</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div>
-                                <label class="small">SLA (horas)</label>
-                                <input type="number" class="form-control form-control-sm" value="${hours}" style="width: 80px;">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Sector principal de actividad
                             </div>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="company_size">Tamaño de la Empresa</label>
+                            <select id="company_size" class="form-control" data-module="general" data-key="company_size">
+                                <option value="">Seleccionar tamaño...</option>
+                                <option value="micro">Microempresa (1-10 empleados)</option>
+                                <option value="small">Pequeña (11-50 empleados)</option>
+                                <option value="medium">Mediana (51-250 empleados)</option>
+                                <option value="large">Grande (250+ empleados)</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Clasificación por número de empleados
+                            </div>
                         </div>
                     </div>
-                </div>`;
-                
-                $('#slaCategories').append(slaHtml);
-                
-                // Clear modal
-                $('#addSLAModal input').val('');
-                $('#addSLAModal select').val('medium');
-                
-                autoSave();
+                </div>
+
+                <!-- Logo y Branding -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            Logo y Branding
+                        </h2>
+                        <p class="section-description">
+                            Personaliza la identidad visual de tu empresa en el sistema
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="company_logo">Logo de la Empresa</label>
+                            <input type="file" id="company_logo" class="form-control" 
+                                   data-module="general" data-key="company_logo"
+                                   accept="image/*">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Formatos: PNG, JPG, SVG (máx. 2MB)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="brand_color_primary">Color Primario</label>
+                            <input type="color" id="brand_color_primary" class="form-control" 
+                                   data-module="general" data-key="brand_color_primary"
+                                   value="#3b82f6">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Color principal de la marca
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="brand_color_secondary">Color Secundario</label>
+                            <input type="color" id="brand_color_secondary" class="form-control" 
+                                   data-module="general" data-key="brand_color_secondary"
+                                   value="#10b981">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Color secundario de la marca
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="brand_font">Fuente Corporativa</label>
+                            <select id="brand_font" class="form-control" data-module="general" data-key="brand_font">
+                                <option value="system">Fuente del Sistema</option>
+                                <option value="inter">Inter</option>
+                                <option value="roboto">Roboto</option>
+                                <option value="open-sans">Open Sans</option>
+                                <option value="montserrat">Montserrat</option>
+                                <option value="lato">Lato</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Tipografía para la interfaz
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: SISTEMA ========== -->
+            <div id="tab-sistema" class="tab-content">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            Configuración del Sistema
+                        </h2>
+                        <p class="section-description">
+                            Parámetros técnicos y de funcionamiento del ERP
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="system_timezone">Zona Horaria</label>
+                            <select id="system_timezone" class="form-control" data-module="system" data-key="timezone">
+                                <option value="Europe/Madrid" selected>Europa/Madrid (CET)</option>
+                                <option value="Europe/London">Europa/Londres (GMT)</option>
+                                <option value="America/New_York">América/Nueva York (EST)</option>
+                                <option value="America/Los_Angeles">América/Los Ángeles (PST)</option>
+                                <option value="Asia/Tokyo">Asia/Tokio (JST)</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Zona horaria principal del sistema
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="system_language">Idioma del Sistema</label>
+                            <select id="system_language" class="form-control" data-module="system" data-key="language">
+                                <option value="es" selected>Español</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                                <option value="it">Italiano</option>
+                                <option value="pt">Português</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Idioma predeterminado de la interfaz
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="system_currency">Moneda Principal</label>
+                            <select id="system_currency" class="form-control" data-module="system" data-key="currency">
+                                <option value="EUR" selected>EUR - Euro</option>
+                                <option value="USD">USD - Dólar Americano</option>
+                                <option value="GBP">GBP - Libra Esterlina</option>
+                                <option value="CHF">CHF - Franco Suizo</option>
+                                <option value="JPY">JPY - Yen Japonés</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Moneda por defecto para transacciones
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="date_format">Formato de Fecha</label>
+                            <select id="date_format" class="form-control" data-module="system" data-key="date_format">
+                                <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                                <option value="dd-mm-yyyy">DD-MM-YYYY</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Formato de visualización de fechas
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="number_format">Formato Numérico</label>
+                            <select id="number_format" class="form-control" data-module="system" data-key="number_format">
+                                <option value="european" selected>1.234,56 (Europeo)</option>
+                                <option value="american">1,234.56 (Americano)</option>
+                                <option value="space">1 234,56 (Espacios)</option>
+                                <option value="apostrophe">1'234.56 (Apóstrofe)</option>
+                            </select>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Formato de visualización de números
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="session_timeout">Timeout de Sesión (minutos)</label>
+                            <input type="number" id="session_timeout" class="form-control" 
+                                   data-module="system" data-key="session_timeout"
+                                   value="60" min="15" max="480" placeholder="60">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Tiempo de inactividad antes de cerrar sesión
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuraciones Avanzadas -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            Configuraciones Avanzadas
+                        </h2>
+                        <p class="section-description">
+                            Opciones técnicas para administradores del sistema
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Modo Debug</h6>
+                                <p>Habilita logs detallados para desarrollo</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="system" data-key="debug_mode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Cache del Sistema</h6>
+                                <p>Mejora el rendimiento almacenando datos frecuentes</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="system" data-key="cache_enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Compresión de Datos</h6>
+                                <p>Reduce el tamaño de las transferencias</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="system" data-key="compression_enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Auto-optimización</h6>
+                                <p>Optimiza automáticamente la base de datos</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="system" data-key="auto_optimize" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Telemetría</h6>
+                                <p>Envía datos anónimos para mejorar el producto</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="system" data-key="telemetry_enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Actualizaciones Automáticas</h6>
+                                <p>Instala automáticamente parches de seguridad</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="system" data-key="auto_updates" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: SEGURIDAD ========== -->
+            <div id="tab-seguridad" class="tab-content">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            Políticas de Seguridad
+                        </h2>
+                        <p class="section-description">
+                            Configuración avanzada de seguridad y acceso al sistema
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="password_min_length">Longitud Mínima de Contraseña</label>
+                            <input type="number" id="password_min_length" class="form-control" 
+                                   data-module="security" data-key="password_min_length"
+                                   value="8" min="6" max="32" placeholder="8">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Número mínimo de caracteres para contraseñas
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="max_login_attempts">Intentos Máximos de Login</label>
+                            <input type="number" id="max_login_attempts" class="form-control" 
+                                   data-module="security" data-key="max_login_attempts"
+                                   value="5" min="3" max="10" placeholder="5">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Intentos fallidos antes de bloquear cuenta
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="lockout_duration">Duración de Bloqueo (minutos)</label>
+                            <input type="number" id="lockout_duration" class="form-control" 
+                                   data-module="security" data-key="lockout_duration"
+                                   value="15" min="5" max="60" placeholder="15">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Tiempo de bloqueo tras intentos fallidos
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="password_expiry_days">Caducidad de Contraseña (días)</label>
+                            <input type="number" id="password_expiry_days" class="form-control" 
+                                   data-module="security" data-key="password_expiry_days"
+                                   value="90" min="30" max="365" placeholder="90">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Días hasta que expire la contraseña
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-grid mt-4">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Autenticación de Dos Factores</h6>
+                                <p>Requiere un segundo factor para el acceso</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="security" data-key="two_factor_auth" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Contraseñas Complejas</h6>
+                                <p>Requiere mayúsculas, números y símbolos</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="security" data-key="complex_passwords" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Logs de Auditoría</h6>
+                                <p>Registra todas las acciones del sistema</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="security" data-key="audit_logs" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Encriptación de Base de Datos</h6>
+                                <p>Encripta datos sensibles en la base de datos</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="security" data-key="db_encryption" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Firewall de Aplicación</h6>
+                                <p>Protección contra ataques web comunes</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="security" data-key="app_firewall" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Restricción de IP</h6>
+                                <p>Limita acceso a IPs específicas</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="security" data-key="ip_restriction">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de IPs Permitidas -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            Control de Acceso por IP
+                        </h2>
+                        <p class="section-description">
+                            Gestiona las direcciones IP que pueden acceder al sistema
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="allowed_ips">Direcciones IP Permitidas</label>
+                        <textarea id="allowed_ips" class="form-control" rows="5"
+                                  data-module="security" data-key="allowed_ips"
+                                  placeholder="192.168.1.0/24&#10;10.0.0.0/8&#10;172.16.0.0/16&#10;203.0.113.10&#10;198.51.100.20"></textarea>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Una IP o rango CIDR por línea. Dejar vacío para permitir todas las IPs.
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="validateIPs()">
+                            <i class="fas fa-check"></i>
+                            Validar IPs
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="addCurrentIP()">
+                            <i class="fas fa-plus"></i>
+                            Añadir IP Actual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: NOTIFICACIONES ========== -->
+            <div id="tab-notificaciones" class="tab-content">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            Sistema de Notificaciones
+                        </h2>
+                        <p class="section-description">
+                            Configura cómo y cuándo el sistema envía notificaciones
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Notificaciones por Email</h6>
+                                <p>Enviar notificaciones por correo electrónico</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="notifications" data-key="email_enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Notificaciones Push</h6>
+                                <p>Notificaciones en tiempo real en el navegador</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="notifications" data-key="push_enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Notificaciones SMS</h6>
+                                <p>Enviar notificaciones por mensaje de texto</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="notifications" data-key="sms_enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Notificaciones de Slack</h6>
+                                <p>Integración con canales de Slack</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="notifications" data-key="slack_enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Resumen Diario</h6>
+                                <p>Enviar resumen diario de actividades</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="notifications" data-key="daily_summary" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Alertas de Seguridad</h6>
+                                <p>Notificaciones inmediatas sobre seguridad</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="notifications" data-key="security_alerts" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Email -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            Configuración de Email
+                        </h2>
+                        <p class="section-description">
+                            Parámetros del servidor SMTP para envío de emails
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="smtp_server">Servidor SMTP</label>
+                            <input type="text" id="smtp_server" class="form-control" 
+                                   data-module="notifications" data-key="smtp_server"
+                                   placeholder="smtp.gmail.com">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Dirección del servidor SMTP
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="smtp_port">Puerto SMTP</label>
+                            <input type="number" id="smtp_port" class="form-control" 
+                                   data-module="notifications" data-key="smtp_port"
+                                   value="587" placeholder="587">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Puerto del servidor SMTP (587 para TLS, 465 para SSL)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="smtp_username">Usuario SMTP</label>
+                            <input type="text" id="smtp_username" class="form-control" 
+                                   data-module="notifications" data-key="smtp_username"
+                                   placeholder="tu-email@empresa.com">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Usuario para autenticación SMTP
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="smtp_password">Contraseña SMTP</label>
+                            <input type="password" id="smtp_password" class="form-control" 
+                                   data-module="notifications" data-key="smtp_password"
+                                   placeholder="••••••••">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Contraseña para autenticación SMTP
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="smtp_from_name">Nombre del Remitente</label>
+                            <input type="text" id="smtp_from_name" class="form-control" 
+                                   data-module="notifications" data-key="smtp_from_name"
+                                   placeholder="ERP13 Enterprise">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Nombre que aparecerá como remitente
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="smtp_from_email">Email del Remitente</label>
+                            <input type="email" id="smtp_from_email" class="form-control" 
+                                   data-module="notifications" data-key="smtp_from_email"
+                                   placeholder="noreply@tuempresa.com">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Email que aparecerá como remitente
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="testEmailConfig()">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Email de Prueba
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="validateEmailConfig()">
+                            <i class="fas fa-check"></i>
+                            Validar Configuración
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: INTEGRACIONES ========== -->
+            <div id="tab-integraciones" class="tab-content">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            Integraciones Externas
+                        </h2>
+                        <p class="section-description">
+                            Conecta el ERP con servicios y aplicaciones externas
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Google Workspace</h6>
+                                <p>Integración con Gmail, Calendar y Drive</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="integrations" data-key="google_workspace" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Microsoft 365</h6>
+                                <p>Integración con Outlook, Teams y OneDrive</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="integrations" data-key="microsoft_365">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Slack</h6>
+                                <p>Notificaciones y comandos desde Slack</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="integrations" data-key="slack_integration">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Zapier</h6>
+                                <p>Automatizaciones con miles de aplicaciones</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="integrations" data-key="zapier_integration">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>WhatsApp Business</h6>
+                                <p>Comunicación directa con clientes</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="integrations" data-key="whatsapp_business" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Telegram Bot</h6>
+                                <p>Notificaciones y comandos por Telegram</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="integrations" data-key="telegram_bot">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APIs de Terceros -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            APIs de Terceros
+                        </h2>
+                        <p class="section-description">
+                            Configura las claves de API para servicios externos
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="openai_api_key">OpenAI API Key</label>
+                            <input type="password" id="openai_api_key" class="form-control" 
+                                   data-module="integrations" data-key="openai_api_key"
+                                   placeholder="sk-...">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Clave API para funciones de IA
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="anthropic_api_key">Anthropic API Key</label>
+                            <input type="password" id="anthropic_api_key" class="form-control" 
+                                   data-module="integrations" data-key="anthropic_api_key"
+                                   placeholder="sk-ant-...">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Clave API para Claude AI
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="google_maps_api_key">Google Maps API Key</label>
+                            <input type="password" id="google_maps_api_key" class="form-control" 
+                                   data-module="integrations" data-key="google_maps_api_key"
+                                   placeholder="AIza...">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Clave API para funciones de mapas
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="stripe_public_key">Stripe Public Key</label>
+                            <input type="text" id="stripe_public_key" class="form-control" 
+                                   data-module="integrations" data-key="stripe_public_key"
+                                   placeholder="pk_live_...">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Clave pública de Stripe para pagos
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="stripe_secret_key">Stripe Secret Key</label>
+                            <input type="password" id="stripe_secret_key" class="form-control" 
+                                   data-module="integrations" data-key="stripe_secret_key"
+                                   placeholder="sk_live_...">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Clave secreta de Stripe para pagos
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="twilio_account_sid">Twilio Account SID</label>
+                            <input type="text" id="twilio_account_sid" class="form-control" 
+                                   data-module="integrations" data-key="twilio_account_sid"
+                                   placeholder="AC...">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                SID de cuenta para SMS y llamadas
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: MANTENIMIENTO ========== -->
+            <div id="tab-mantenimiento" class="tab-content">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            Herramientas de Mantenimiento
+                        </h2>
+                        <p class="section-description">
+                            Utilidades para el mantenimiento y optimización del sistema
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Backup Automático</h6>
+                                <p>Copia de seguridad programada diariamente</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="maintenance" data-key="auto_backup" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Limpieza de Logs</h6>
+                                <p>Elimina automáticamente logs antiguos</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="maintenance" data-key="log_cleanup" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Optimización de DB</h6>
+                                <p>Optimiza la base de datos semanalmente</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="maintenance" data-key="db_optimize" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Modo Mantenimiento</h6>
+                                <p>Activa página de mantenimiento para usuarios</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" data-module="maintenance" data-key="maintenance_mode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group mt-4">
+                        <button class="btn btn-primary" onclick="createBackup()">
+                            <i class="fas fa-download"></i>
+                            Crear Backup Ahora
+                        </button>
+                        <button class="btn btn-warning" onclick="optimizeDatabase()">
+                            <i class="fas fa-database"></i>
+                            Optimizar Base de Datos
+                        </button>
+                        <button class="btn btn-info" onclick="clearCache()">
+                            <i class="fas fa-broom"></i>
+                            Limpiar Cache
+                        </button>
+                        <button class="btn btn-danger" onclick="clearAllLogs()">
+                            <i class="fas fa-trash"></i>
+                            Limpiar Todos los Logs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información del Sistema -->
+                <div class="config-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            Información del Sistema
+                        </h2>
+                        <p class="section-description">
+                            Datos técnicos y estadísticas del sistema
+                        </p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label">Versión del ERP</label>
+                            <input type="text" class="form-control" value="ERP13 Enterprise v3.2.1" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Versión de Python</label>
+                            <input type="text" class="form-control" value="Python 3.11.5" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Base de Datos</label>
+                            <input type="text" class="form-control" value="PostgreSQL 15.4" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Servidor Web</label>
+                            <input type="text" class="form-control" value="Gunicorn 21.2.0" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Última Actualización</label>
+                            <input type="text" class="form-control" value="19/09/2025 - 14:30" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tiempo de Actividad</label>
+                            <input type="text" class="form-control" value="127 días, 14 horas" readonly>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="checkForUpdates()">
+                            <i class="fas fa-sync"></i>
+                            Buscar Actualizaciones
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="generateSystemReport()">
+                            <i class="fas fa-file-medical"></i>
+                            Generar Reporte del Sistema
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="downloadSystemLogs()">
+                            <i class="fas fa-download"></i>
+                            Descargar Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODALES ========== -->
+<!-- Modal de Confirmación -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="confirmTitle">Confirmar Acción</h3>
+        <p id="confirmMessage">¿Estás seguro de que deseas realizar esta acción?</p>
+        <div class="btn-group">
+            <button class="btn btn-danger" id="confirmButton">Confirmar</button>
+            <button class="btn btn-outline-primary" onclick="closeModal('confirmModal')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Progreso -->
+<div id="progressModal" class="modal-overlay">
+    <div class="modal-content text-center">
+        <h3 id="progressTitle">Procesando...</h3>
+        <div style="width: 100%; background: #e5e7eb; border-radius: 10px; margin: 2rem 0;">
+            <div id="progressBar" style="width: 0%; height: 20px; background: var(--primary-blue); border-radius: 10px; transition: width 0.3s ease;"></div>
+        </div>
+        <p id="progressMessage">Por favor, espera mientras procesamos tu solicitud...</p>
+    </div>
+</div>
+
+<!-- ========== NOTIFICACIÓN ========== -->
+<div id="notification" class="notification">
+    <i class="fas fa-check"></i>
+    <span id="notificationText">Configuración guardada exitosamente</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ============================================================================
+   CONFIGURACIÓN GENERAL - JAVASCRIPT
+   🏗️ Propósito: Gestión completa de configuración + Auto-save + Validación
+   ⚡ Performance: Debounced saving + LocalStorage + Real-time updates
+   🔒 Seguridad: CSRF tokens + Input validation + API encryption
+============================================================================ */
+
+// Estado global de la aplicación
+let currentTab = 'empresa';
+let isConfigDirty = false;
+let saveTimeout = null;
+let systemInfo = {};
+
+// ========== INICIALIZACIÓN ========== 
+document.addEventListener('DOMContentLoaded', function() {
+    initializeConfiguration();
+    setupEventListeners();
+    loadConfigurationData();
+    loadSystemInfo();
+    restoreActiveTab();
+});
+
+// ========== GESTIÓN DE TABS ========== 
+function switchTab(tabName) {
+    // Ocultar todos los tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    const tabButtons = document.querySelectorAll('.nav-tab');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    
+    // Mostrar el tab seleccionado
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+    
+    // Actualizar estado
+    currentTab = tabName;
+    localStorage.setItem('activeConfigTab', tabName);
+    
+    // Cargar datos específicos del tab si es necesario
+    loadTabSpecificData(tabName);
+}
+
+function restoreActiveTab() {
+    const savedTab = localStorage.getItem('activeConfigTab') || 'empresa';
+    switchTab(savedTab);
+}
+
+function loadTabSpecificData(tabName) {
+    switch(tabName) {
+        case 'sistema':
+            loadSystemMetrics();
+            break;
+        case 'seguridad':
+            loadSecurityStatus();
+            break;
+        case 'mantenimiento':
+            loadMaintenanceInfo();
+            break;
+        default:
+            break;
+    }
+}
+
+// ========== CONFIGURACIÓN E INICIALIZACIÓN ========== 
+function initializeConfiguration() {
+    // Configurar auto-save para todos los campos
+    const configFields = document.querySelectorAll('[data-module][data-key]');
+    configFields.forEach(field => {
+        if (field.type === 'checkbox') {
+            field.addEventListener('change', debounceAutoSave);
+        } else {
+            field.addEventListener('input', debounceAutoSave);
+            field.addEventListener('change', debounceAutoSave);
+        }
+    });
+    
+    // Configurar validación en tiempo real
+    setupRealTimeValidation();
+}
+
+function setupEventListeners() {
+    // Escape para cerrar modales
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+    
+    // Shortcuts de teclado
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey) {
+            switch(e.key) {
+                case 's':
+                    e.preventDefault();
+                    forceSaveConfiguration();
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    exportSystemConfig();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        resetToDefaults();
+                    }
+                    break;
             }
         }
+    });
+}
 
-        function saveConfiguration() {
-            const config = gatherConfiguration();
-            
-            // Simulate API call
-            console.log('Saving configuration:', config);
-            
-            // Show success indicator
-            $('#saveIndicator').addClass('show');
-            setTimeout(() => {
-                $('#saveIndicator').removeClass('show');
-            }, 3000);
-            
-            // In production, make actual API call
-            // $.post('/api/configuracion/save', config)...
+function setupRealTimeValidation() {
+    // Validación de email
+    const emailFields = document.querySelectorAll('input[type="email"]');
+    emailFields.forEach(field => {
+        field.addEventListener('blur', validateEmail);
+    });
+    
+    // Validación de URLs
+    const urlFields = document.querySelectorAll('input[type="url"]');
+    urlFields.forEach(field => {
+        field.addEventListener('blur', validateURL);
+    });
+    
+    // Validación de números
+    const numberFields = document.querySelectorAll('input[type="number"]');
+    numberFields.forEach(field => {
+        field.addEventListener('blur', validateNumber);
+    });
+}
+
+// ========== AUTO-SAVE FUNCTIONALITY ========== 
+function debounceAutoSave() {
+    isConfigDirty = true;
+    
+    // Limpiar timeout anterior
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+    }
+    
+    // Programar guardado en 2 segundos
+    saveTimeout = setTimeout(() => {
+        autoSaveConfiguration();
+    }, 2000);
+    
+    // Mostrar indicador visual
+    showSaveIndicator('saving');
+}
+
+function autoSaveConfiguration() {
+    const formData = collectFormData();
+    
+    fetch('/api/configuration/general/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Configuración guardada automáticamente');
+            isConfigDirty = false;
+        } else {
+            showNotification('error', 'Error al guardar: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error saving configuration:', error);
+        showNotification('error', 'Error de conexión al guardar');
+    });
+}
 
-        function autoSave() {
-            // Auto-save functionality with debouncing
-            clearTimeout(window.autoSaveTimeout);
-            window.autoSaveTimeout = setTimeout(() => {
-                const config = gatherConfiguration();
-                console.log('Auto-saving configuration:', config);
-                
-                // Visual feedback
-                $('#saveIndicator .alert').removeClass('alert-success').addClass('alert-info').html('<i class="fas fa-sync fa-spin"></i> Auto-guardando...');
-                $('#saveIndicator').addClass('show');
-                
-                setTimeout(() => {
-                    $('#saveIndicator .alert').removeClass('alert-info').addClass('alert-success').html('<i class="fas fa-check-circle"></i> Auto-guardado');
-                    setTimeout(() => {
-                        $('#saveIndicator').removeClass('show');
-                    }, 2000);
-                }, 1000);
-            }, 1000);
+function forceSaveConfiguration() {
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+    }
+    autoSaveConfiguration();
+}
+
+function collectFormData() {
+    const formData = {};
+    const configFields = document.querySelectorAll('[data-module][data-key]');
+    
+    configFields.forEach(field => {
+        const module = field.getAttribute('data-module');
+        const key = field.getAttribute('data-key');
+        let value = field.value;
+        
+        // Manejar diferentes tipos de campos
+        if (field.type === 'checkbox') {
+            value = field.checked;
+        } else if (field.type === 'number') {
+            value = parseFloat(value) || 0;
+        } else if (field.type === 'file') {
+            // Para archivos, manejar por separado
+            if (field.files.length > 0) {
+                handleFileUpload(field, module, key);
+                return;
+            } else {
+                return; // Skip si no hay archivo
+            }
         }
+        
+        if (!formData[module]) {
+            formData[module] = {};
+        }
+        formData[module][key] = value;
+    });
+    
+    return formData;
+}
 
-        function gatherConfiguration() {
-            const config = {
-                pipeline: {
-                    stages: [],
-                    conversionMethod: $('#conversionMethod').val(),
-                    minLeadProbability: $('input[placeholder="Probabilidad Mínima Lead (%)"]').val(),
-                    maxTimePerStage: $('input[placeholder="Tiempo Máximo por Etapa (días)"]').val(),
-                    autoAssignment: $('input[type="checkbox"]').first().is(':checked')
-                },
-                sla: {
-                    globalDefault: $('input[placeholder="SLA Global por Defecto (horas)"]').val(),
-                    autoEscalation: true,
-                    categories: []
-                },
-                communications: {
-                    channels: {
-                        email: $('#emailChannel').is(':checked'),
-                        whatsapp: $('#whatsappChannel').is(':checked'),
-                        sms: $('#smsChannel').is(':checked'),
-                        phone: $('#phoneChannel').is(':checked')
-                    },
-                    responseTime: $('input[placeholder="Tiempo de Respuesta Objetivo (minutos)"]').val(),
-                    autoResponse: true,
-                    sentimentAnalysis: true
-                },
-                automation: {
-                    engineEnabled: $('#automationEngine').is(':checked'),
-                    verificationInterval: 5,
-                    maxParallelExecutions: 10,
-                    aiRecommendations: true,
-                    confidenceThreshold: 85,
-                    autoLearning: true
-                },
-                general: {
-                    timezone: 'Europe/Madrid',
-                    language: 'es',
-                    dateFormat: 'DD/MM/YYYY',
-                    logRetention: 90,
-                    autoBackup: true,
-                    backupFrequency: 'weekly'
+// ========== CARGA DE DATOS ========== 
+function loadConfigurationData() {
+    showProgressModal('Cargando configuración...', 'Obteniendo datos del servidor');
+    
+    fetch('/api/configuration/general/load', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            populateConfigurationFields(data.configuration);
+            showNotification('success', 'Configuración cargada exitosamente');
+        } else {
+            showNotification('error', 'Error al cargar configuración');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading configuration:', error);
+        showNotification('error', 'Error de conexión al cargar datos');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function populateConfigurationFields(config) {
+    Object.keys(config).forEach(module => {
+        Object.keys(config[module]).forEach(key => {
+            const field = document.querySelector(`[data-module="${module}"][data-key="${key}"]`);
+            if (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = config[module][key];
+                } else {
+                    field.value = config[module][key];
+                }
+                
+                // Trigger events para actualizar UI
+                field.dispatchEvent(new Event(field.type === 'checkbox' ? 'change' : 'input'));
+            }
+        });
+    });
+}
+
+function loadSystemInfo() {
+    fetch('/api/system/info', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            systemInfo = data.info;
+            updateSystemInfoDisplay();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading system info:', error);
+    });
+}
+
+// ========== FUNCIONES DE EXPORTACIÓN/IMPORTACIÓN ========== 
+function exportSystemConfig() {
+    showProgressModal('Exportando configuración...', 'Generando archivo de configuración');
+    
+    fetch('/api/configuration/export', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Error en la exportación');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `erp13_config_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification('success', 'Configuración exportada exitosamente');
+    })
+    .catch(error => {
+        console.error('Error exporting configuration:', error);
+        showNotification('error', 'Error al exportar configuración');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function importSystemConfig() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    confirmImportConfig(config);
+                } catch (error) {
+                    showNotification('error', 'Archivo de configuración inválido');
                 }
             };
-
-            // Gather pipeline stages
-            $('.pipeline-stage').each(function() {
-                const stage = {
-                    name: $(this).find('input[type="text"]').val(),
-                    color: $(this).find('input[type="color"]').val(),
-                    probability: $(this).find('input[placeholder="%"]').val(),
-                    maxDays: $(this).find('input[placeholder="Días"]').val(),
-                    advanceMode: $(this).find('select').val()
-                };
-                config.pipeline.stages.push(stage);
-            });
-
-            // Gather SLA categories
-            $('.sla-category').each(function() {
-                const category = {
-                    name: $(this).find('h6').text(),
-                    hours: $(this).find('input[type="number"]').val(),
-                    priority: $(this).find('.sla-indicator').attr('class').split(' ')[1].replace('sla-', '')
-                };
-                config.sla.categories.push(category);
-            });
-
-            return config;
+            reader.readAsText(file);
         }
+    };
+    input.click();
+}
 
-        function exportConfiguration() {
-            const config = gatherConfiguration();
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "configuracion_clientes.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+function confirmImportConfig(config) {
+    showConfirmModal(
+        'Importar Configuración',
+        '¿Estás seguro de que deseas importar esta configuración? Esto sobrescribirá la configuración actual.',
+        () => {
+            performConfigImport(config);
         }
-    </script>
-</body>
-</html>
+    );
+}
+
+function performConfigImport(config) {
+    showProgressModal('Importando configuración...', 'Aplicando nueva configuración');
+    
+    fetch('/api/configuration/import', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(config)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Configuración importada exitosamente');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showNotification('error', 'Error al importar configuración: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error importing configuration:', error);
+        showNotification('error', 'Error al importar configuración');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function resetToDefaults() {
+    showConfirmModal(
+        'Restaurar Configuración',
+        '¿Estás seguro de que deseas restaurar la configuración a los valores por defecto? Esta acción no se puede deshacer.',
+        () => {
+            performConfigReset();
+        }
+    );
+}
+
+function performConfigReset() {
+    showProgressModal('Restaurando configuración...', 'Aplicando valores por defecto');
+    
+    fetch('/api/configuration/reset', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Configuración restaurada exitosamente');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showNotification('error', 'Error al restaurar configuración');
+        }
+    })
+    .catch(error => {
+        console.error('Error resetting configuration:', error);
+        showNotification('error', 'Error al restaurar configuración');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+// ========== FUNCIONES DE VALIDACIÓN ========== 
+function validateEmail(event) {
+    const field = event.target;
+    const email = field.value;
+    
+    if (email && !isValidEmail(email)) {
+        field.classList.add('error-shake');
+        showNotification('warning', 'Email inválido');
+        setTimeout(() => {
+            field.classList.remove('error-shake');
+        }, 500);
+    }
+}
+
+function validateURL(event) {
+    const field = event.target;
+    const url = field.value;
+    
+    if (url && !isValidURL(url)) {
+        field.classList.add('error-shake');
+        showNotification('warning', 'URL inválida');
+        setTimeout(() => {
+            field.classList.remove('error-shake');
+        }, 500);
+    }
+}
+
+function validateNumber(event) {
+    const field = event.target;
+    const value = parseFloat(field.value);
+    const min = parseFloat(field.getAttribute('min'));
+    const max = parseFloat(field.getAttribute('max'));
+    
+    if (field.value && (isNaN(value) || 
+        (min !== null && value < min) || 
+        (max !== null && value > max))) {
+        field.classList.add('error-shake');
+        showNotification('warning', 'Valor numérico inválido');
+        setTimeout(() => {
+            field.classList.remove('error-shake');
+        }, 500);
+    }
+}
+
+function validateIPs() {
+    const field = document.getElementById('allowed_ips');
+    const ips = field.value.split('\n').filter(ip => ip.trim() !== '');
+    
+    let invalidIPs = [];
+    ips.forEach(ip => {
+        if (!isValidIPOrCIDR(ip.trim())) {
+            invalidIPs.push(ip.trim());
+        }
+    });
+    
+    if (invalidIPs.length > 0) {
+        showNotification('error', `IPs inválidas: ${invalidIPs.join(', ')}`);
+    } else {
+        showNotification('success', 'Todas las IPs son válidas');
+    }
+}
+
+function addCurrentIP() {
+    fetch('/api/system/current-ip')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const field = document.getElementById('allowed_ips');
+            const currentIPs = field.value;
+            field.value = currentIPs + (currentIPs ? '\n' : '') + data.ip;
+            debounceAutoSave();
+            showNotification('success', `IP actual agregada: ${data.ip}`);
+        }
+    })
+    .catch(error => {
+        showNotification('error', 'Error al obtener IP actual');
+    });
+}
+
+// ========== FUNCIONES DE EMAIL ========== 
+function testEmailConfig() {
+    const emailData = {
+        smtp_server: document.getElementById('smtp_server').value,
+        smtp_port: document.getElementById('smtp_port').value,
+        smtp_username: document.getElementById('smtp_username').value,
+        smtp_password: document.getElementById('smtp_password').value,
+        smtp_from_email: document.getElementById('smtp_from_email').value
+    };
+    
+    if (!emailData.smtp_server || !emailData.smtp_username) {
+        showNotification('warning', 'Completa la configuración SMTP antes de probar');
+        return;
+    }
+    
+    showProgressModal('Enviando email de prueba...', 'Verificando configuración SMTP');
+    
+    fetch('/api/configuration/test-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(emailData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Email de prueba enviado exitosamente');
+        } else {
+            showNotification('error', 'Error al enviar email: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error testing email:', error);
+        showNotification('error', 'Error al probar configuración de email');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function validateEmailConfig() {
+    const config = {
+        smtp_server: document.getElementById('smtp_server').value,
+        smtp_port: document.getElementById('smtp_port').value,
+        smtp_username: document.getElementById('smtp_username').value
+    };
+    
+    if (!config.smtp_server || !config.smtp_port || !config.smtp_username) {
+        showNotification('warning', 'Completa todos los campos obligatorios');
+        return;
+    }
+    
+    showNotification('success', 'Configuración de email válida');
+}
+
+// ========== FUNCIONES DE MANTENIMIENTO ========== 
+function createBackup() {
+    showConfirmModal(
+        'Crear Backup',
+        '¿Deseas crear un backup completo del sistema? Esto puede tomar varios minutos.',
+        () => {
+            performBackup();
+        }
+    );
+}
+
+function performBackup() {
+    showProgressModal('Creando backup...', 'Generando copia de seguridad completa');
+    
+    fetch('/api/maintenance/backup', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Backup creado exitosamente');
+        } else {
+            showNotification('error', 'Error al crear backup: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error creating backup:', error);
+        showNotification('error', 'Error al crear backup');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function optimizeDatabase() {
+    showConfirmModal(
+        'Optimizar Base de Datos',
+        '¿Deseas optimizar la base de datos? Esto mejorará el rendimiento pero puede tomar tiempo.',
+        () => {
+            performDatabaseOptimization();
+        }
+    );
+}
+
+function performDatabaseOptimization() {
+    showProgressModal('Optimizando base de datos...', 'Ejecutando tareas de optimización');
+    
+    fetch('/api/maintenance/optimize-db', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Base de datos optimizada exitosamente');
+        } else {
+            showNotification('error', 'Error al optimizar base de datos');
+        }
+    })
+    .catch(error => {
+        console.error('Error optimizing database:', error);
+        showNotification('error', 'Error al optimizar base de datos');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function clearCache() {
+    fetch('/api/maintenance/clear-cache', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Cache limpiado exitosamente');
+        } else {
+            showNotification('error', 'Error al limpiar cache');
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing cache:', error);
+        showNotification('error', 'Error al limpiar cache');
+    });
+}
+
+function clearAllLogs() {
+    showConfirmModal(
+        'Limpiar Logs',
+        '¿Estás seguro de que deseas eliminar todos los logs? Esta acción no se puede deshacer.',
+        () => {
+            performLogCleanup();
+        }
+    );
+}
+
+function performLogCleanup() {
+    fetch('/api/maintenance/clear-logs', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Logs eliminados exitosamente');
+        } else {
+            showNotification('error', 'Error al eliminar logs');
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing logs:', error);
+        showNotification('error', 'Error al eliminar logs');
+    });
+}
+
+function checkForUpdates() {
+    showProgressModal('Buscando actualizaciones...', 'Verificando versiones disponibles');
+    
+    fetch('/api/maintenance/check-updates', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.updates_available) {
+                showNotification('info', `Actualización disponible: ${data.latest_version}`);
+            } else {
+                showNotification('success', 'El sistema está actualizado');
+            }
+        } else {
+            showNotification('error', 'Error al verificar actualizaciones');
+        }
+    })
+    .catch(error => {
+        console.error('Error checking updates:', error);
+        showNotification('error', 'Error al verificar actualizaciones');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function generateSystemReport() {
+    showProgressModal('Generando reporte...', 'Recopilando información del sistema');
+    
+    fetch('/api/maintenance/system-report', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Error al generar reporte');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `erp13_system_report_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification('success', 'Reporte generado exitosamente');
+    })
+    .catch(error => {
+        console.error('Error generating report:', error);
+        showNotification('error', 'Error al generar reporte');
+    })
+    .finally(() => {
+        closeModal('progressModal');
+    });
+}
+
+function downloadSystemLogs() {
+    fetch('/api/maintenance/download-logs', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Error al descargar logs');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `erp13_logs_${new Date().toISOString().split('T')[0]}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification('success', 'Logs descargados exitosamente');
+    })
+    .catch(error => {
+        console.error('Error downloading logs:', error);
+        showNotification('error', 'Error al descargar logs');
+    });
+}
+
+// ========== UTILIDADES Y HELPERS ========== 
+function getCSRFToken() {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute('content') : '';
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function isValidIPOrCIDR(ip) {
+    // Validación básica de IP/CIDR
+    const ipRegex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+    return ipRegex.test(ip);
+}
+
+function handleFileUpload(field, module, key) {
+    const file = field.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('module', module);
+    formData.append('key', key);
+    
+    fetch('/api/configuration/upload-file', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Archivo subido exitosamente');
+        } else {
+            showNotification('error', 'Error al subir archivo: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading file:', error);
+        showNotification('error', 'Error al subir archivo');
+    });
+}
+
+// ========== GESTIÓN DE MODALES ========== 
+function showConfirmModal(title, message, confirmCallback) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmButton').onclick = function() {
+        confirmCallback();
+        closeModal('confirmModal');
+    };
+    document.getElementById('confirmModal').classList.add('show');
+}
+
+function showProgressModal(title, message) {
+    document.getElementById('progressTitle').textContent = title;
+    document.getElementById('progressMessage').textContent = message;
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressModal').classList.add('show');
+    
+    // Simular progreso
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 90) progress = 90;
+        document.getElementById('progressBar').style.width = progress + '%';
+    }, 300);
+    
+    // Guardar interval para poder limpiarlo
+    document.getElementById('progressModal').dataset.interval = interval;
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    
+    // Limpiar interval si existe
+    if (modal.dataset.interval) {
+        clearInterval(modal.dataset.interval);
+        delete modal.dataset.interval;
+    }
+}
+
+function closeAllModals() {
+    const modals = document.querySelectorAll('.modal-overlay');
+    modals.forEach(modal => {
+        modal.classList.remove('show');
+        if (modal.dataset.interval) {
+            clearInterval(modal.dataset.interval);
+            delete modal.dataset.interval;
+        }
+    });
+}
+
+// ========== SISTEMA DE NOTIFICACIONES ========== 
+function showNotification(type, message) {
+    const notification = document.getElementById('notification');
+    const icon = notification.querySelector('i');
+    const text = document.getElementById('notificationText');
+    
+    // Remover clases anteriores
+    notification.className = 'notification';
+    
+    // Configurar icono y clase según tipo
+    switch(type) {
+        case 'success':
+            notification.classList.add('success');
+            icon.className = 'fas fa-check';
+            break;
+        case 'error':
+            notification.classList.add('error');
+            icon.className = 'fas fa-times';
+            break;
+        case 'warning':
+            notification.classList.add('warning');
+            icon.className = 'fas fa-exclamation-triangle';
+            break;
+        case 'info':
+            notification.classList.add('info');
+            icon.className = 'fas fa-info-circle';
+            break;
+        case 'saving':
+            notification.classList.add('info');
+            icon.className = 'fas fa-spinner fa-spin';
+            break;
+    }
+    
+    text.textContent = message;
+    notification.classList.add('show');
+    
+    // Auto-ocultar después de 4 segundos (excepto para saving)
+    if (type !== 'saving') {
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 4000);
+    }
+}
+
+function showSaveIndicator(type) {
+    if (type === 'saving') {
+        showNotification('saving', 'Guardando configuración...');
+    }
+}
+
+// ========== ACTUALIZACIÓN DE UI ========== 
+function updateSystemInfoDisplay() {
+    // Actualizar cards de estado si están disponibles
+    if (systemInfo.uptime) {
+        const uptimeCard = document.querySelector('.status-card.success .card-value');
+        if (uptimeCard && systemInfo.uptime_percentage) {
+            uptimeCard.textContent = systemInfo.uptime_percentage + '%';
+        }
+    }
+    
+    if (systemInfo.storage_usage) {
+        const storageCard = document.querySelector('.status-card.warning .card-value');
+        if (storageCard) {
+            storageCard.textContent = systemInfo.storage_usage + '%';
+        }
+    }
+    
+    if (systemInfo.active_users) {
+        const usersCard = document.querySelector('.status-card.info .card-value');
+        if (usersCard) {
+            usersCard.textContent = systemInfo.active_users;
+        }
+    }
+}
+
+// ========== MÉTODOS DE CARGA ESPECÍFICOS ========== 
+function loadSystemMetrics() {
+    fetch('/api/system/metrics')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateSystemMetrics(data.metrics);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading system metrics:', error);
+    });
+}
+
+function loadSecurityStatus() {
+    fetch('/api/security/status')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateSecurityStatus(data.status);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading security status:', error);
+    });
+}
+
+function loadMaintenanceInfo() {
+    fetch('/api/maintenance/info')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateMaintenanceInfo(data.info);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading maintenance info:', error);
+    });
+}
+
+function updateSystemMetrics(metrics) {
+    // Implementar actualización de métricas del sistema
+    console.log('System metrics:', metrics);
+}
+
+function updateSecurityStatus(status) {
+    // Implementar actualización de estado de seguridad
+    console.log('Security status:', status);
+}
+
+function updateMaintenanceInfo(info) {
+    // Implementar actualización de información de mantenimiento
+    console.log('Maintenance info:', info);
+}
+
+// ========== BEFORE UNLOAD WARNING ========== 
+window.addEventListener('beforeunload', function(e) {
+    if (isConfigDirty) {
+        const confirmationMessage = 'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?';
+        e.returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
+});
+
+// ========== RESPONSIVE HELPERS ========== 
+function handleResponsiveChanges() {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        document.body.classList.add('mobile-view');
+    } else {
+        document.body.classList.remove('mobile-view');
+    }
+}
+
+window.addEventListener('resize', debounce(handleResponsiveChanges, 250));
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Inicializar responsive
+handleResponsiveChanges();
+
+// ========== EXPORT PARA TESTING ========== 
+window.ERP13Config = {
+    switchTab,
+    forceSaveConfiguration,
+    exportSystemConfig,
+    importSystemConfig,
+    resetToDefaults,
+    validateIPs,
+    testEmailConfig,
+    createBackup,
+    optimizeDatabase,
+    clearCache
+};
+</script>
+{% endblock %}

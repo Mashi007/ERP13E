@@ -1,0 +1,2374 @@
+{% extends "layout.html" %}
+
+{% block title %}Proyectos de Auditoría - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =============================================================================
+   PROYECTOS DE AUDITORÍA - SISTEMA WORKFLOW COMPLETO
+   Arquitectura: /templates/auditoria/auditoria_proyectos.html
+   Performance: Cross-module integration + WhatsApp + IA workflow
+   Compatibilidad: Microsoft Forms + Real-time updates
+   Integración: auditoria_configuracion.html + gestion_clientes + WhatsApp API
+============================================================================= */
+
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --audit-purple: #8b5cf6;
+    --progreso-blue: #3b82f6;
+    --completados-green: #10b981;
+    --con-ia-purple: #8b5cf6;
+    --total-orange: #f59e0b;
+}
+
+body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Section - Imagen 1 exacta */
+.proyectos-header {
+    background: white;
+    padding: 2rem 0 1rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.proyectos-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.proyectos-header .header-icon {
+    font-size: 1.8rem;
+    color: var(--audit-purple);
+}
+
+.proyectos-header .subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-nuevo-proyecto {
+    background: linear-gradient(135deg, var(--audit-purple) 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-nuevo-proyecto:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+/* KPIs Dashboard - Imagen 1 exacta */
+.kpis-section {
+    margin: 2rem 0;
+}
+
+.kpis-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.kpi-progreso {
+    background: linear-gradient(135deg, var(--progreso-blue) 0%, #1e40af 100%);
+    color: white;
+}
+
+.kpi-completados {
+    background: linear-gradient(135deg, var(--completados-green) 0%, #059669 100%);
+    color: white;
+}
+
+.kpi-con-ia {
+    background: linear-gradient(135deg, var(--con-ia-purple) 0%, #7c3aed 100%);
+    color: white;
+}
+
+.kpi-total {
+    background: linear-gradient(135deg, var(--total-orange) 0%, #d97706 100%);
+    color: white;
+}
+
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.kpi-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.kpi-icon {
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1;
+}
+
+/* Barra de búsqueda y filtros - Imagen 1 exacta */
+.busqueda-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.busqueda-input {
+    flex: 1;
+    position: relative;
+}
+
+.busqueda-input input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.busqueda-input input:focus {
+    outline: none;
+    border-color: var(--audit-purple);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.busqueda-input i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+}
+
+.btn-filtros {
+    background: #f8fafc;
+    color: var(--dark-gray);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-filtros:hover {
+    background: #f3f4f6;
+    border-color: var(--audit-purple);
+}
+
+/* Lista de Proyectos - Imagen 1 exacta */
+.proyectos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.proyecto-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.proyecto-item:hover {
+    border-color: var(--audit-purple);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.proyecto-item.planificado {
+    border-left: 4px solid var(--progreso-blue);
+}
+
+.proyecto-item.en-progreso {
+    border-left: 4px solid var(--total-orange);
+}
+
+.proyecto-item.completado {
+    border-left: 4px solid var(--completados-green);
+}
+
+.proyecto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.proyecto-info h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0 0 0.25rem 0;
+}
+
+.proyecto-estado {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.estado-planificado {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--progreso-blue);
+}
+
+.estado-en-progreso {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--total-orange);
+}
+
+.estado-completado {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--completados-green);
+}
+
+.proyecto-norma {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.norma-badge {
+    background: #f0f9ff;
+    color: #0ea5e9;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.norma-descripcion {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.proyecto-detalles {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.detalle-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.detalle-item i {
+    color: var(--audit-purple);
+}
+
+.progreso-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.progreso-bar {
+    flex: 1;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progreso-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--audit-purple) 0%, var(--progreso-blue) 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progreso-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    min-width: 80px;
+}
+
+/* Vista Detallada del Proyecto - Imagen 2 exacta */
+.proyecto-detalle {
+    display: none;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.proyecto-detalle.show {
+    display: block;
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.detalle-header {
+    background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.detalle-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detalle-info h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0 0 0.25rem 0;
+}
+
+.detalle-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.detalle-stats {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-cerrar-detalle {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.btn-cerrar-detalle:hover {
+    background: white;
+    color: var(--dark-gray);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabs del proyecto - Imagen 2 exacta */
+.proyecto-tabs {
+    display: flex;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.proyecto-tab {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    border-right: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.proyecto-tab:last-child {
+    border-right: none;
+}
+
+.proyecto-tab.active {
+    background: white;
+    color: var(--dark-gray);
+    border-bottom: 3px solid var(--audit-purple);
+}
+
+.proyecto-tab:hover:not(.active) {
+    background: #f3f4f6;
+    color: var(--dark-gray);
+}
+
+.tab-count {
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.proyecto-tab.active .tab-count {
+    background: var(--audit-purple);
+    color: white;
+}
+
+/* Contenido de tabs */
+.tab-content {
+    display: none;
+    padding: 2rem;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Tab Documentos */
+.documentos-content {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+}
+
+.documentos-content i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+/* Tab Formularios - Imagen 2 exacta */
+.formularios-content {
+    /* Actividad Reciente */
+}
+
+.actividad-reciente {
+    margin-bottom: 2rem;
+}
+
+.actividad-reciente h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0 0 1rem 0;
+}
+
+.actividad-empty {
+    color: #6b7280;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+/* Formularios para norma */
+.formularios-norma {
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.formularios-norma h4 {
+    color: #0ea5e9;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.formularios-norma p {
+    color: #374151;
+    font-size: 0.9rem;
+    margin: 0 0 1rem 0;
+}
+
+.formulario-item {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.formulario-info h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0 0 0.25rem 0;
+}
+
+.formulario-descripcion {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.btn-responder {
+    background: var(--completados-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Gestión de Formularios - Workflow */
+.gestion-formularios {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.gestion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.gestion-header h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.btn-enviar-formulario {
+    background: linear-gradient(135deg, var(--audit-purple) 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Workflow de 5 pasos */
+.workflow-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.workflow-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #e5e7eb;
+    z-index: 1;
+}
+
+.workflow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 0.5rem;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 2px solid #e5e7eb;
+    background: white;
+    color: #6b7280;
+}
+
+.workflow-step.active .step-circle {
+    background: var(--audit-purple);
+    border-color: var(--audit-purple);
+    color: white;
+}
+
+.workflow-step.completed .step-circle {
+    background: var(--completados-green);
+    border-color: var(--completados-green);
+    color: white;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-align: center;
+    max-width: 80px;
+}
+
+.workflow-step.active .step-label {
+    color: var(--audit-purple);
+}
+
+.workflow-step.completed .step-label {
+    color: var(--completados-green);
+}
+
+.formularios-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.formularios-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+/* Tab Mensajes - WhatsApp Integration */
+.mensajes-content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.whatsapp-integration {
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.whatsapp-integration i {
+    font-size: 1.5rem;
+}
+
+.whatsapp-info h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.whatsapp-info p {
+    font-size: 0.8rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.chat-container {
+    background: #f8fafc;
+    border-radius: 8px;
+    height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.chat-message.enviado {
+    justify-content: flex-end;
+}
+
+.chat-message.enviado .message-bubble {
+    background: var(--audit-purple);
+    color: white;
+}
+
+.message-bubble {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 12px;
+    max-width: 70%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message-time {
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.chat-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.btn-enviar-mensaje {
+    background: #25d366;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tab Estado */
+.estado-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.estado-progreso {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.estado-progreso h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0 0 1rem 0;
+}
+
+.progreso-circular {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem auto;
+    position: relative;
+}
+
+.actividades-timeline {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.actividades-timeline h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0 0 1rem 0;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.timeline-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--audit-purple);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.timeline-content h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0 0 0.25rem 0;
+}
+
+.timeline-content p {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Modal Nuevo Proyecto */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.modal-header .subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0.25rem 0 0 0;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    background: #f3f4f6;
+    color: var(--dark-gray);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--audit-purple);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-cancelar {
+    background: #f3f4f6;
+    color: var(--dark-gray);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover {
+    background: #e5e7eb;
+}
+
+.btn-crear-proyecto {
+    background: linear-gradient(135deg, var(--audit-purple) 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-crear-proyecto:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .kpis-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .proyecto-detalles {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .estado-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .proyectos-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .kpis-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .busqueda-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .proyecto-detalles {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .proyecto-tabs {
+        flex-direction: column;
+    }
+    
+    .proyecto-tab {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .workflow-steps {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .workflow-steps::before {
+        display: none;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Loading States */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Estados adicionales */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="proyectos-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1>
+                    <i class="fas fa-clipboard-check header-icon"></i>
+                    Proyectos de Auditoría
+                </h1>
+                <p class="subtitle">Gestión integral de auditorías y certificaciones</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-nuevo-proyecto" onclick="abrirModalNuevoProyecto()">
+                    <i class="fas fa-plus"></i>
+                    Nuevo Proyecto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- KPIs Dashboard - Imagen 1 exacta -->
+    <div class="kpis-section">
+        <div class="kpis-row">
+            <!-- En Progreso -->
+            <div class="kpi-card kpi-progreso">
+                <div class="kpi-header">
+                    <p class="kpi-title">En Progreso</p>
+                    <i class="fas fa-chart-line kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="proyectosProgresoCount">1</div>
+            </div>
+
+            <!-- Completados -->
+            <div class="kpi-card kpi-completados">
+                <div class="kpi-header">
+                    <p class="kpi-title">Completados</p>
+                    <i class="fas fa-check-circle kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="proyectosCompletadosCount">0</div>
+            </div>
+
+            <!-- Con IA -->
+            <div class="kpi-card kpi-con-ia">
+                <div class="kpi-header">
+                    <p class="kpi-title">Con IA</p>
+                    <i class="fas fa-brain kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="proyectosIACount">2</div>
+            </div>
+
+            <!-- Total -->
+            <div class="kpi-card kpi-total">
+                <div class="kpi-header">
+                    <p class="kpi-title">Total</p>
+                    <i class="fas fa-folder kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="proyectosTotalCount">2</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de búsqueda y filtros - Imagen 1 exacta -->
+    <div class="busqueda-section">
+        <div class="busqueda-input">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Buscar por cliente o norma..." id="busquedaProyectos">
+        </div>
+        <button class="btn-filtros" onclick="abrirFiltros()">
+            <i class="fas fa-filter"></i>
+            Filtros
+        </button>
+    </div>
+
+    <!-- Vista Detallada del Proyecto - Imagen 2 exacta -->
+    <div class="proyecto-detalle" id="proyectoDetalle">
+        <div class="detalle-header">
+            <div class="detalle-header-content">
+                <div class="detalle-info">
+                    <h3 id="detalleNombre">Innovate Group</h3>
+                    <p class="detalle-meta" id="detalleMeta">Verificado</p>
+                </div>
+                <div class="detalle-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-book"></i>
+                        <span id="detalleNorma">ISO 14001:2015 (ISO-14001)</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="detalleFecha">26 Ago 2025</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-user"></i>
+                        <span id="detalleConsultor">Sin asignar</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-cerrar-detalle" onclick="cerrarDetalleProyecto()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Tabs del proyecto - Imagen 2 exacta -->
+        <div class="proyecto-tabs">
+            <button class="proyecto-tab active" data-tab="documentos">
+                Documentos
+                <span class="tab-count">0</span>
+            </button>
+            <button class="proyecto-tab" data-tab="formularios">
+                Formularios
+                <span class="tab-count">0</span>
+            </button>
+            <button class="proyecto-tab" data-tab="mensajes">
+                Mensajes
+                <span class="tab-count">0</span>
+            </button>
+            <button class="proyecto-tab" data-tab="estado">
+                Estado
+                <span class="tab-count estado-badge">Planificado</span>
+            </button>
+        </div>
+
+        <!-- Contenido de tabs -->
+        <div class="tab-content active" id="tab-documentos">
+            <div class="documentos-content">
+                <i class="fas fa-file-alt"></i>
+                <h5>No hay documentos aún</h5>
+                <p>Los documentos del proyecto aparecerán aquí</p>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-formularios">
+            <div class="formularios-content">
+                <!-- Actividad Reciente -->
+                <div class="actividad-reciente">
+                    <h4>Actividad Reciente</h4>
+                    <div class="actividad-empty">
+                        No hay actividad reciente
+                    </div>
+                </div>
+
+                <!-- Formularios para ISO-14001 -->
+                <div class="formularios-norma">
+                    <h4>
+                        <i class="fas fa-clipboard-list"></i>
+                        Formularios para ISO-14001
+                    </h4>
+                    <p>Formularios que configuraste específicamente para la norma Sistema de Gestión Ambiental ISO 14001:2015</p>
+
+                    <div class="formulario-item">
+                        <div class="formulario-info">
+                            <h5>Cuestionario de Auditoría ISO-14001</h5>
+                            <p class="formulario-descripcion">Formulario analítico para identificar necesidades del cliente sobre procesos de reducción</p>
+                        </div>
+                        <button class="btn-responder" onclick="responderFormulario('ISO-14001')">
+                            <i class="fas fa-clipboard-check"></i>
+                            Responder
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gestión de Formularios -->
+                <div class="gestion-formularios">
+                    <div class="gestion-header">
+                        <h4>Gestión de Formularios</h4>
+                        <button class="btn-enviar-formulario" onclick="enviarNuevoFormulario()">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Nuevo Formulario
+                        </button>
+                    </div>
+
+                    <!-- Workflow de 5 pasos - Imagen 2 exacta -->
+                    <div class="workflow-steps">
+                        <div class="workflow-step">
+                            <div class="step-circle">1</div>
+                            <span class="step-label">Crear Form<br>Planning - Set Forms</span>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-circle">2</div>
+                            <span class="step-label">Envío<br>Envío vía email cliente</span>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Completar<br>Cliente rellena formulario</span>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-circle">4</div>
+                            <span class="step-label">IA Procesa<br>Análisis e información</span>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-circle">5</div>
+                            <span class="step-label">Documentos<br>Genera documentos</span>
+                        </div>
+                    </div>
+
+                    <div class="formularios-empty">
+                        <i class="fas fa-envelope"></i>
+                        <p>No se han enviado formularios aún</p>
+                        <p>Envía el primer formulario para el cliente para recibir información</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-mensajes">
+            <div class="mensajes-content">
+                <!-- Integración WhatsApp -->
+                <div class="whatsapp-integration">
+                    <i class="fab fa-whatsapp"></i>
+                    <div class="whatsapp-info">
+                        <h5>Chat con Cliente - WhatsApp Integration</h5>
+                        <p>Comunícate directamente con el cliente a través de WhatsApp Business API</p>
+                    </div>
+                </div>
+
+                <!-- Chat Container -->
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-message">
+                        <div class="message-bubble">
+                            <p>¡Hola! Bienvenido al sistema de auditoría. Estaremos en contacto durante todo el proceso.</p>
+                            <div class="message-time">09:30</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-message enviado">
+                        <div class="message-bubble">
+                            <p>Perfecto, muchas gracias. ¿Cuándo empezamos con el proceso?</p>
+                            <div class="message-time">09:32</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input de chat -->
+                <div class="chat-input">
+                    <input type="text" placeholder="Escribe un mensaje..." id="mensajeInput">
+                    <button class="btn-enviar-mensaje" onclick="enviarMensajeWhatsApp()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-estado">
+            <div class="estado-content">
+                <div class="estado-progreso">
+                    <h5>Progreso del Proyecto</h5>
+                    <div class="progreso-circular">
+                        <canvas id="progresoChart" width="120" height="120"></canvas>
+                    </div>
+                    <div class="text-center">
+                        <h6 id="porcentajeProgreso">0% Completado</h6>
+                        <p>Fecha límite: <span id="fechaLimite">16/12/2025</span></p>
+                    </div>
+                </div>
+
+                <div class="actividades-timeline">
+                    <h5>Historial de Actividades</h5>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h6>Proyecto creado</h6>
+                            <p>26 de agosto de 2025 - 09:15</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h6>Cliente asignado</h6>
+                            <p>26 de agosto de 2025 - 09:20</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h6>Norma ISO-14001 configurada</h6>
+                            <p>26 de agosto de 2025 - 09:25</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Proyectos - Imagen 1 exacta -->
+    <div class="proyectos-lista" id="proyectosLista">
+        <!-- Proyecto 1: Innovate Group -->
+        <div class="proyecto-item planificado" data-proyecto-id="1" onclick="abrirDetalleProyecto(1)">
+            <div class="proyecto-header">
+                <div class="proyecto-info">
+                    <h3>Innovate Group</h3>
+                    <span class="proyecto-fecha">sep 2025</span>
+                </div>
+                <span class="proyecto-estado estado-planificado">Planificado</span>
+            </div>
+
+            <div class="proyecto-norma">
+                <span class="norma-badge">ISO-14001</span>
+                <span class="norma-descripcion">Sistema de Gestión Ambiental ISO 14001:2015</span>
+            </div>
+
+            <div class="proyecto-detalles">
+                <div class="detalle-item">
+                    <i class="fas fa-user"></i>
+                    <span>Sin asignar</span>
+                </div>
+                <div class="detalle-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>18/12/2025</span>
+                </div>
+                <div class="progreso-container">
+                    <div class="progreso-bar">
+                        <div class="progreso-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="progreso-text">0% completado</span>
+                </div>
+                <div class="detalle-item">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proyecto 2: Acme Corporation S.L. -->
+        <div class="proyecto-item en-progreso" data-proyecto-id="2" onclick="abrirDetalleProyecto(2)">
+            <div class="proyecto-header">
+                <div class="proyecto-info">
+                    <h3>Acme Corporation S.L.</h3>
+                    <span class="proyecto-fecha">ago 2025</span>
+                </div>
+                <span class="proyecto-estado estado-en-progreso">En Progreso</span>
+            </div>
+
+            <div class="proyecto-norma">
+                <span class="norma-badge">ISO-9001</span>
+                <span class="norma-descripcion">Sistema de Gestión de Calidad ISO 9001:2015</span>
+            </div>
+
+            <div class="proyecto-detalles">
+                <div class="detalle-item">
+                    <i class="fas fa-user"></i>
+                    <span>Sin asignar</span>
+                </div>
+                <div class="detalle-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>18/11/2025</span>
+                </div>
+                <div class="progreso-container">
+                    <div class="progreso-bar">
+                        <div class="progreso-fill" style="width: 35.5%;"></div>
+                    </div>
+                    <span class="progreso-text">35.5% completado</span>
+                </div>
+                <div class="detalle-item">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Proyecto -->
+<div class="modal-overlay" id="modalNuevoProyecto">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div>
+                <h4>Crear Nuevo Proyecto de Auditoría</h4>
+                <p class="subtitle">Configura un nuevo proyecto usando normas y consultores</p>
+            </div>
+            <button class="btn-close-modal" onclick="cerrarModalNuevoProyecto()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="formNuevoProyecto">
+                <div class="form-group">
+                    <label>Nombre del Cliente *</label>
+                    <select id="clienteProyecto" required>
+                        <option value="">Selecciona un cliente...</option>
+                        <!-- Se cargarán dinámicamente desde gestión_clientes -->
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Norma ISO *</label>
+                        <select id="normaProyecto" required>
+                            <option value="">Selecciona una norma...</option>
+                            <!-- Se cargarán desde auditoria_configuracion.html -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Consultor Asignado</label>
+                        <select id="consultorProyecto">
+                            <option value="">Sin asignar</option>
+                            <!-- Se cargarán desde auditoria_configuracion.html -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Inicio *</label>
+                        <input type="date" id="fechaInicioProyecto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Límite *</label>
+                        <input type="date" id="fechaLimiteProyecto" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Propuesta/Descripción</label>
+                    <textarea id="propuestaProyecto" placeholder="Describe el alcance y objetivos del proyecto de auditoría..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" onclick="cerrarModalNuevoProyecto()">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
+            <button class="btn-crear-proyecto" onclick="crearNuevoProyecto()">
+                <i class="fas fa-plus"></i>
+                Crear Proyecto
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* =============================================================================
+   PROYECTOS DE AUDITORÍA - JAVASCRIPT COMPLETO
+   Integración: Cross-module + WhatsApp + IA workflow + Microsoft Forms
+   Performance: Real-time updates + Cross-template communication
+============================================================================= */
+
+$(document).ready(function() {
+    inicializarProyectosAuditoria();
+    configurarEventos();
+    cargarDatosIniciales();
+    cargarDatosConfiguracion();
+});
+
+// Variables globales
+let proyectosData = [];
+let normasDisponibles = [];
+let consultoresDisponibles = [];
+let clientesDisponibles = [];
+let proyectoActualDetalle = null;
+
+// Inicialización del sistema
+function inicializarProyectosAuditoria() {
+    console.log('🔄 Inicializando Proyectos de Auditoría...');
+    
+    // Establecer comunicación con auditoria_configuracion.html
+    establecerConexionConfiguracion();
+    
+    // Conectar con gestión_clientes
+    establecerConexionClientes();
+    
+    // Configurar WhatsApp integration
+    configurarWhatsAppAPI();
+    
+    console.log('✅ Proyectos de Auditoría inicializados');
+}
+
+// Configurar eventos
+function configurarEventos() {
+    // Modal nuevo proyecto
+    $('#modalNuevoProyecto').click(function(e) {
+        if (e.target === this) {
+            cerrarModalNuevoProyecto();
+        }
+    });
+    
+    // Búsqueda en tiempo real
+    $('#busquedaProyectos').on('input', filtrarProyectos);
+    
+    // Tabs del proyecto detalle
+    $('.proyecto-tab').click(function() {
+        const tab = $(this).data('tab');
+        cambiarTabProyecto(tab);
+    });
+    
+    // Enter en chat
+    $('#mensajeInput').keypress(function(e) {
+        if (e.which === 13) {
+            enviarMensajeWhatsApp();
+        }
+    });
+}
+
+// Cargar datos iniciales
+function cargarDatosIniciales() {
+    Promise.all([
+        cargarProyectos(),
+        cargarClientesDesdeGestion()
+    ]).then(() => {
+        actualizarKPIs();
+        console.log('📊 Datos iniciales cargados');
+    });
+}
+
+// =============================================================================
+// INTEGRACIÓN CROSS-MODULE CON AUDITORIA_CONFIGURACION.HTML
+// =============================================================================
+
+function establecerConexionConfiguracion() {
+    // Escuchar cambios desde auditoria_configuracion.html
+    window.addEventListener('auditoriaConfigChange', (event) => {
+        const { tipo, data } = event.detail;
+        console.log(`📡 Cambio recibido desde configuración: ${tipo}`, data);
+        
+        switch(tipo) {
+            case 'nueva':
+                normasDisponibles.push(data);
+                actualizarSelectNormas();
+                break;
+            case 'consultor':
+                consultoresDisponibles.push(data);
+                actualizarSelectConsultores();
+                break;
+        }
+    });
+    
+    console.log('🔗 Conexión con auditoria_configuracion.html establecida');
+}
+
+function cargarDatosConfiguracion() {
+    // Cargar datos desde auditoria_configuracion.html
+    if (window.auditoriaConfig) {
+        normasDisponibles = window.auditoriaConfig.normas || [];
+        consultoresDisponibles = window.auditoriaConfig.consultores || [];
+    } else {
+        // Fallback: cargar datos simulados
+        cargarNormasSimuladas();
+        cargarConsultoresSimulados();
+    }
+    
+    actualizarSelectNormas();
+    actualizarSelectConsultores();
+}
+
+function cargarNormasSimuladas() {
+    normasDisponibles = [
+        {
+            id: 1,
+            codigo: 'ISO-14001',
+            version: '2015',
+            nombre: 'Sistema de Gestión Ambiental ISO 14001:2015',
+            formularioConfigurado: true
+        },
+        {
+            id: 2,
+            codigo: 'ISO-45001',
+            version: '2018',
+            nombre: 'Sistema de Gestión de Seguridad y Salud en el Trabajo',
+            formularioConfigurado: false
+        },
+        {
+            id: 3,
+            codigo: 'ISO-9001',
+            version: '2015',
+            nombre: 'Sistema de Gestión de Calidad ISO 9001:2015',
+            formularioConfigurado: false
+        }
+    ];
+}
+
+function cargarConsultoresSimulados() {
+    consultoresDisponibles = [
+        { id: 1, nombre: 'Carmen Rodríguez', email: 'carmen.rodriguez@auditpro.com' },
+        { id: 2, nombre: 'José Luis Martínez', email: 'joseluis.martinez@auditpro.com' },
+        { id: 3, nombre: 'Ana Sánchez', email: 'ana.sanchez@auditpro.com' },
+        { id: 4, nombre: 'Pedro Fernández', email: 'pedro.fernandez@auditpro.com' },
+        { id: 5, nombre: 'Laura García', email: 'laura.garcia@auditpro.com' }
+    ];
+}
+
+function actualizarSelectNormas() {
+    const select = $('#normaProyecto');
+    select.find('option:not(:first)').remove();
+    
+    normasDisponibles.forEach(norma => {
+        select.append(`
+            <option value="${norma.codigo}" data-norma-id="${norma.id}">
+                ${norma.codigo} - ${norma.nombre}
+            </option>
+        `);
+    });
+}
+
+function actualizarSelectConsultores() {
+    const select = $('#consultorProyecto');
+    select.find('option:not(:first)').remove();
+    
+    consultoresDisponibles.forEach(consultor => {
+        select.append(`
+            <option value="${consultor.id}">
+                ${consultor.nombre} (${consultor.email})
+            </option>
+        `);
+    });
+}
+
+// =============================================================================
+// INTEGRACIÓN CON GESTIÓN_CLIENTES
+// =============================================================================
+
+function establecerConexionClientes() {
+    console.log('🔗 Estableciendo conexión con gestión_clientes...');
+    
+    // En implementación real: conectar con gestión_clientes module
+    // window.gestionClientesAPI.getClientes().then(clientes => ...)
+}
+
+function cargarClientesDesdeGestion() {
+    return new Promise((resolve) => {
+        // Simular carga desde gestión_clientes
+        setTimeout(() => {
+            clientesDisponibles = [
+                { id: 1, nombre: 'Innovate Group', email: 'contact@innovategroup.com', telefono: '+34 600 123 456' },
+                { id: 2, nombre: 'Acme Corporation S.L.', email: 'info@acmecorp.es', telefono: '+34 600 789 012' },
+                { id: 3, nombre: 'TechSolutions Ltd.', email: 'hello@techsolutions.com', telefono: '+34 600 345 678' },
+                { id: 4, nombre: 'Global Industries', email: 'contact@globalind.com', telefono: '+34 600 901 234' }
+            ];
+            
+            actualizarSelectClientes();
+            resolve(clientesDisponibles);
+        }, 800);
+    });
+}
+
+function actualizarSelectClientes() {
+    const select = $('#clienteProyecto');
+    select.find('option:not(:first)').remove();
+    
+    clientesDisponibles.forEach(cliente => {
+        select.append(`
+            <option value="${cliente.id}">
+                ${cliente.nombre}
+            </option>
+        `);
+    });
+}
+
+// =============================================================================
+// GESTIÓN DE PROYECTOS
+// =============================================================================
+
+function cargarProyectos() {
+    return new Promise((resolve) => {
+        // Simular carga desde BD
+        setTimeout(() => {
+            proyectosData = [
+                {
+                    id: 1,
+                    nombre: 'Innovate Group',
+                    cliente: { id: 1, nombre: 'Innovate Group' },
+                    norma: { codigo: 'ISO-14001', nombre: 'Sistema de Gestión Ambiental ISO 14001:2015' },
+                    consultor: null,
+                    estado: 'planificado',
+                    progreso: 0,
+                    fechaInicio: '2025-09-01',
+                    fechaLimite: '2025-12-18',
+                    propuesta: 'Implementación completa ISO 14001',
+                    conIA: true,
+                    fechaCreacion: '2025-08-26'
+                },
+                {
+                    id: 2,
+                    nombre: 'Acme Corporation S.L.',
+                    cliente: { id: 2, nombre: 'Acme Corporation S.L.' },
+                    norma: { codigo: 'ISO-9001', nombre: 'Sistema de Gestión de Calidad ISO 9001:2015' },
+                    consultor: null,
+                    estado: 'en-progreso',
+                    progreso: 35.5,
+                    fechaInicio: '2025-08-01',
+                    fechaLimite: '2025-11-18',
+                    propuesta: 'Certificación ISO 9001 para procesos de calidad',
+                    conIA: true,
+                    fechaCreacion: '2025-07-15'
+                }
+            ];
+            
+            resolve(proyectosData);
+        }, 600);
+    });
+}
+
+function actualizarKPIs() {
+    const enProgreso = proyectosData.filter(p => p.estado === 'en-progreso').length;
+    const completados = proyectosData.filter(p => p.estado === 'completado').length;
+    const conIA = proyectosData.filter(p => p.conIA).length;
+    const total = proyectosData.length;
+    
+    $('#proyectosProgresoCount').text(enProgreso);
+    $('#proyectosCompletadosCount').text(completados);
+    $('#proyectosIACount').text(conIA);
+    $('#proyectosTotalCount').text(total);
+}
+
+function filtrarProyectos() {
+    const busqueda = $('#busquedaProyectos').val().toLowerCase();
+    
+    $('.proyecto-item').each(function() {
+        const nombre = $(this).find('h3').text().toLowerCase();
+        const norma = $(this).find('.norma-descripcion').text().toLowerCase();
+        
+        if (nombre.includes(busqueda) || norma.includes(busqueda)) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+
+// =============================================================================
+// MODAL NUEVO PROYECTO
+// =============================================================================
+
+function abrirModalNuevoProyecto() {
+    // Configurar fechas por defecto
+    const hoy = new Date();
+    const fechaLimite = new Date();
+    fechaLimite.setMonth(fechaLimite.getMonth() + 3);
+    
+    $('#fechaInicioProyecto').val(hoy.toISOString().split('T')[0]);
+    $('#fechaLimiteProyecto').val(fechaLimite.toISOString().split('T')[0]);
+    
+    $('#modalNuevoProyecto').addClass('show');
+    $('#clienteProyecto').focus();
+}
+
+function cerrarModalNuevoProyecto() {
+    $('#modalNuevoProyecto').removeClass('show');
+    $('#formNuevoProyecto')[0].reset();
+}
+
+function crearNuevoProyecto() {
+    const clienteId = $('#clienteProyecto').val();
+    const normaCodigo = $('#normaProyecto').val();
+    const consultorId = $('#consultorProyecto').val();
+    const fechaInicio = $('#fechaInicioProyecto').val();
+    const fechaLimite = $('#fechaLimiteProyecto').val();
+    const propuesta = $('#propuestaProyecto').val();
+    
+    if (!clienteId || !normaCodigo || !fechaInicio || !fechaLimite) {
+        mostrarNotificacion('error', 'Error', 'Todos los campos obligatorios deben completarse');
+        return;
+    }
+    
+    mostrarLoading();
+    
+    // Simular creación en BD
+    setTimeout(() => {
+        const cliente = clientesDisponibles.find(c => c.id == clienteId);
+        const norma = normasDisponibles.find(n => n.codigo === normaCodigo);
+        const consultor = consultorId ? consultoresDisponibles.find(c => c.id == consultorId) : null;
+        
+        const nuevoProyecto = {
+            id: Date.now(),
+            nombre: cliente.nombre,
+            cliente,
+            norma,
+            consultor,
+            estado: 'planificado',
+            progreso: 0,
+            fechaInicio,
+            fechaLimite,
+            propuesta,
+            conIA: norma.formularioConfigurado,
+            fechaCreacion: new Date().toISOString().split('T')[0]
+        };
+        
+        proyectosData.push(nuevoProyecto);
+        
+        // Actualizar UI
+        agregarProyectoALista(nuevoProyecto);
+        actualizarKPIs();
+        
+        ocultarLoading();
+        cerrarModalNuevoProyecto();
+        
+        mostrarNotificacion('success', 'Éxito', `Proyecto ${cliente.nombre} creado correctamente`);
+        
+        console.log('📝 Nuevo proyecto creado:', nuevoProyecto);
+    }, 1500);
+}
+
+function agregarProyectoALista(proyecto) {
+    const proyectoHTML = generarHTMLProyecto(proyecto);
+    $('#proyectosLista').prepend(proyectoHTML);
+}
+
+function generarHTMLProyecto(proyecto) {
+    const estadoClass = proyecto.estado.replace('-', '-');
+    const consultorTexto = proyecto.consultor ? proyecto.consultor.nombre : 'Sin asignar';
+    
+    return `
+        <div class="proyecto-item ${estadoClass}" data-proyecto-id="${proyecto.id}" onclick="abrirDetalleProyecto(${proyecto.id})">
+            <div class="proyecto-header">
+                <div class="proyecto-info">
+                    <h3>${proyecto.nombre}</h3>
+                    <span class="proyecto-fecha">${formatearFechaMes(proyecto.fechaCreacion)}</span>
+                </div>
+                <span class="proyecto-estado estado-${estadoClass}">${capitalizarPrimera(proyecto.estado)}</span>
+            </div>
+
+            <div class="proyecto-norma">
+                <span class="norma-badge">${proyecto.norma.codigo}</span>
+                <span class="norma-descripcion">${proyecto.norma.nombre}</span>
+            </div>
+
+            <div class="proyecto-detalles">
+                <div class="detalle-item">
+                    <i class="fas fa-user"></i>
+                    <span>${consultorTexto}</span>
+                </div>
+                <div class="detalle-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>${formatearFecha(proyecto.fechaLimite)}</span>
+                </div>
+                <div class="progreso-container">
+                    <div class="progreso-bar">
+                        <div class="progreso-fill" style="width: ${proyecto.progreso}%;"></div>
+                    </div>
+                    <span class="progreso-text">${proyecto.progreso}% completado</span>
+                </div>
+                <div class="detalle-item">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// =============================================================================
+// VISTA DETALLADA DEL PROYECTO
+// =============================================================================
+
+function abrirDetalleProyecto(proyectoId) {
+    const proyecto = proyectosData.find(p => p.id == proyectoId);
+    if (!proyecto) return;
+    
+    proyectoActualDetalle = proyecto;
+    
+    // Actualizar header del detalle
+    $('#detalleNombre').text(proyecto.nombre);
+    $('#detalleMeta').text('Verificado');
+    $('#detalleNorma').text(`${proyecto.norma.nombre} (${proyecto.norma.codigo})`);
+    $('#detalleFecha').text(formatearFechaCompleta(proyecto.fechaCreacion));
+    $('#detalleConsultor').text(proyecto.consultor ? proyecto.consultor.nombre : 'Sin asignar');
+    
+    // Actualizar badge de estado
+    $('.estado-badge').text(capitalizarPrimera(proyecto.estado));
+    
+    // Mostrar detalle
+    $('#proyectoDetalle').addClass('show');
+    
+    // Scroll suave al detalle
+    $('html, body').animate({
+        scrollTop: $('#proyectoDetalle').offset().top - 100
+    }, 500);
+    
+    // Cargar datos específicos según la norma
+    cargarFormulariosNorma(proyecto.norma.codigo);
+    
+    // Actualizar progreso circular
+    actualizarProgresoCircular(proyecto.progreso);
+}
+
+function cerrarDetalleProyecto() {
+    $('#proyectoDetalle').removeClass('show');
+    proyectoActualDetalle = null;
+}
+
+function cambiarTabProyecto(tab) {
+    // Actualizar tabs
+    $('.proyecto-tab').removeClass('active');
+    $(`.proyecto-tab[data-tab="${tab}"]`).addClass('active');
+    
+    // Actualizar contenido
+    $('.tab-content').removeClass('active');
+    $(`#tab-${tab}`).addClass('active');
+    
+    // Cargar datos específicos del tab
+    switch(tab) {
+        case 'formularios':
+            cargarDatosFormularios();
+            break;
+        case 'mensajes':
+            cargarHistorialWhatsApp();
+            break;
+        case 'estado':
+            cargarEstadoProyecto();
+            break;
+    }
+}
+
+function cargarFormulariosNorma(codigoNorma) {
+    // Verificar si la norma tiene formularios configurados
+    const norma = normasDisponibles.find(n => n.codigo === codigoNorma);
+    
+    if (norma && norma.formularioConfigurado) {
+        // Mostrar formulario específico
+        $('.formularios-norma h4').html(`
+            <i class="fas fa-clipboard-list"></i>
+            Formularios para ${codigoNorma}
+        `);
+        
+        $('.formulario-item h5').text(`Cuestionario de Auditoría ${codigoNorma}`);
+    } else {
+        // Mostrar mensaje de sin formularios
+        $('.formularios-norma').html(`
+            <div class="text-center p-4">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                <h5>No hay formularios configurados para ${codigoNorma}</h5>
+                <p>Configure formularios en Auditoría > Configuración</p>
+            </div>
+        `);
+    }
+}
+
+// =============================================================================
+// GESTIÓN DE FORMULARIOS Y WORKFLOW
+// =============================================================================
+
+function cargarDatosFormularios() {
+    console.log('📋 Cargando datos de formularios...');
+    // Los datos ya están en el HTML, aquí se actualizarían dinámicamente
+}
+
+function responderFormulario(codigoNorma) {
+    console.log(`📝 Abriendo formulario para ${codigoNorma}...`);
+    
+    // En implementación real: abrir Microsoft Forms
+    const formUrl = 'https://forms.office.com/r/abc123yz';
+    
+    mostrarNotificacion('info', 'Microsoft Forms', `Abriendo formulario de ${codigoNorma}...`);
+    
+    // Simular apertura
+    setTimeout(() => {
+        // window.open(formUrl, '_blank');
+        console.log(`🔗 Formulario abierto: ${formUrl}`);
+    }, 1000);
+}
+
+function enviarNuevoFormulario() {
+    if (!proyectoActualDetalle) return;
+    
+    console.log('📤 Enviando nuevo formulario al cliente...');
+    
+    mostrarLoading();
+    
+    // Simular envío por email
+    setTimeout(() => {
+        ocultarLoading();
+        
+        // Actualizar workflow
+        actualizarWorkflowStep(2); // Paso 2: Envío
+        
+        mostrarNotificacion('success', 'Formulario Enviado', 
+            `Formulario enviado a ${proyectoActualDetalle.cliente.nombre} por email`);
+        
+        // Simular progreso en workflow
+        setTimeout(() => {
+            actualizarWorkflowStep(3); // Paso 3: Cliente completa
+        }, 3000);
+        
+    }, 2000);
+}
+
+function actualizarWorkflowStep(step) {
+    // Actualizar pasos del workflow
+    $('.workflow-step').each(function(index) {
+        const stepNumber = index + 1;
+        
+        if (stepNumber < step) {
+            $(this).addClass('completed').removeClass('active');
+        } else if (stepNumber === step) {
+            $(this).addClass('active').removeClass('completed');
+        } else {
+            $(this).removeClass('active completed');
+        }
+    });
+}
+
+// =============================================================================
+// WHATSAPP INTEGRATION
+// =============================================================================
+
+function configurarWhatsAppAPI() {
+    console.log('📱 Configurando WhatsApp Business API...');
+    
+    // En implementación real: configurar webhook y API
+    window.whatsAppAPI = {
+        apiKey: 'your-whatsapp-business-api-key',
+        webhook: '/webhook/whatsapp',
+        phoneNumber: '+34600123456'
+    };
+}
+
+function cargarHistorialWhatsApp() {
+    if (!proyectoActualDetalle) return;
+    
+    console.log('💬 Cargando historial WhatsApp...');
+    
+    // En implementación real: cargar mensajes desde BD/API
+    // Los mensajes ya están hardcodeados en el HTML para demo
+}
+
+function enviarMensajeWhatsApp() {
+    const mensaje = $('#mensajeInput').val().trim();
+    if (!mensaje) return;
+    
+    // Agregar mensaje al chat
+    const mensajeHTML = `
+        <div class="chat-message enviado">
+            <div class="message-bubble">
+                <p>${mensaje}</p>
+                <div class="message-time">${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</div>
+            </div>
+        </div>
+    `;
+    
+    $('#chatContainer').append(mensajeHTML);
+    $('#mensajeInput').val('');
+    
+    // Scroll al final
+    $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+    
+    // En implementación real: enviar vía WhatsApp API
+    console.log('📱 Mensaje enviado vía WhatsApp:', mensaje);
+    
+    // Simular respuesta automática
+    setTimeout(() => {
+        const respuestaHTML = `
+            <div class="chat-message">
+                <div class="message-bubble">
+                    <p>Mensaje recibido. Gracias por la información.</p>
+                    <div class="message-time">${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+            </div>
+        `;
+        
+        $('#chatContainer').append(respuestaHTML);
+        $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+    }, 2000);
+}
+
+// =============================================================================
+// ESTADO Y PROGRESO DEL PROYECTO
+// =============================================================================
+
+function cargarEstadoProyecto() {
+    if (!proyectoActualDetalle) return;
+    
+    console.log('📊 Cargando estado del proyecto...');
+    
+    // Actualizar datos de estado
+    $('#porcentajeProgreso').text(`${proyectoActualDetalle.progreso}% Completado`);
+    $('#fechaLimite').text(formatearFecha(proyectoActualDetalle.fechaLimite));
+    
+    // Actualizar progreso circular
+    actualizarProgresoCircular(proyectoActualDetalle.progreso);
+}
+
+function actualizarProgresoCircular(progreso) {
+    const canvas = document.getElementById('progresoChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 45;
+    
+    // Limpiar canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Círculo de fondo
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+    
+    // Círculo de progreso
+    const endAngle = (progreso / 100) * 2 * Math.PI - Math.PI / 2;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle);
+    ctx.strokeStyle = '#8b5cf6';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    
+    // Texto central
+    ctx.fillStyle = '#374151';
+    ctx.font = 'bold 18px "Segoe UI"';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${progreso}%`, centerX, centerY);
+}
+
+// =============================================================================
+// FUNCIONES AUXILIARES
+// =============================================================================
+
+function abrirFiltros() {
+    console.log('🔍 Abriendo panel de filtros...');
+    mostrarNotificacion('info', 'Filtros', 'Panel de filtros - Próximamente disponible');
+}
+
+function formatearFecha(fecha) {
+    return new Date(fecha).toLocaleDateString('es-ES');
+}
+
+function formatearFechaCompleta(fecha) {
+    return new Date(fecha).toLocaleDateString('es-ES', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+}
+
+function formatearFechaMes(fecha) {
+    return new Date(fecha).toLocaleDateString('es-ES', { 
+        month: 'short', 
+        year: 'numeric' 
+    });
+}
+
+function capitalizarPrimera(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).replace('-', ' ');
+}
+
+function mostrarLoading() {
+    $('body').append(`
+        <div id="loadingOverlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        ">
+            <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+                <div class="loading-spinner"></div>
+                <p style="margin: 1rem 0 0 0;">Procesando...</p>
+            </div>
+        </div>
+    `);
+}
+
+function ocultarLoading() {
+    $('#loadingOverlay').fadeOut(300, function() {
+        $(this).remove();
+    });
+}
+
+function mostrarNotificacion(tipo, titulo, mensaje) {
+    const tipoColor = {
+        'success': 'success',
+        'error': 'danger',
+        'warning': 'warning',
+        'info': 'info'
+    };
+    
+    const toast = `
+        <div class="toast align-items-center text-white bg-${tipoColor[tipo]} border-0" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 10000;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${titulo}</strong><br>
+                    ${mensaje}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(toast);
+    $('.toast:last').toast('show');
+    
+    setTimeout(() => {
+        $('.toast:last').toast('hide');
+    }, 5000);
+}
+
+console.log('✅ Proyectos de Auditoría - Sistema completamente cargado con integraciones cross-module');
+</script>
+{% endblock %}

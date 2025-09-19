@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Pro - Gestión de Proveedores | CRUD Master</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --dark-gray: #374151;
+            --light-gray: #f8fafc;
+            --border-color: #e5e7eb;
+            --purple-accent: #8b5cf6;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--purple-accent) 0%, #7c3aed 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .main-header h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .main-header .subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Statistics Cards */
+        .stats-section {
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        .stat-total { color: var(--primary-blue); }
+        .stat-active { color: var(--success-green); }
+        .stat-new { color: var(--warning-orange); }
+        .stat-integration { color: var(--purple-accent); }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn-large {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .action-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+            color: white;
+        }
+
+        .action-btn-secondary {
+            background: linear-gradient(135deg, var(--purple-accent) 0%, #7c3aed 100%);
+        }
+
+        .action-btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Proveedores Management Section */
+        .proveedores-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Search and Filters */
+        .search-filters {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--light-gray);
+            border: none;
+            font-weight: 600;
+            color: var(--dark-gray);
+            padding: 1rem 0.75rem;
+        }
+
+        .table tbody td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+
+        .table tbody tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-green);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-red);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-orange);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.5rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-view { background: var(--primary-blue); }
+        .btn-edit { background: var(--warning-orange); }
+        .btn-delete { background: var(--danger-red); }
+        .btn-facturas { background: var(--purple-accent); }
+
+        /* Modal Styling */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--purple-accent) 0%, #7c3aed 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        /* Form Styling */
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--purple-accent);
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+
+        /* Integration Info */
+        .integration-info {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .integration-badge {
+            background: var(--purple-accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--dark-gray);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card {
+                height: auto;
+                margin-bottom: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            .action-btn-large {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            z-index: 1000;
+        }
+
+        .spinner-custom {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--purple-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success States */
+        .success-highlight {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-building me-3"></i>Gestión de Proveedores</h1>
+                    <p class="subtitle">Maestro de Proveedores | CRUD Completo | Integración con Sistema de Facturas</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="facturas_proveedores.html" class="btn btn-light btn-lg">
+                        <i class="fas fa-receipt me-2"></i>Ir a Facturas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <!-- Statistics Dashboard -->
+        <section class="stats-section">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card animate__animated animate__fadeInUp">
+                        <div class="stat-icon stat-total">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-value stat-total">48</div>
+                        <div class="stat-label">Total Proveedores</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                        <div class="stat-icon stat-active">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value stat-active">42</div>
+                        <div class="stat-label">Activos</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                        <div class="stat-icon stat-new">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="stat-value stat-new">6</div>
+                        <div class="stat-label">Nuevos (Este Mes)</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                        <div class="stat-icon stat-integration">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="stat-value stat-integration">35</div>
+                        <div class="stat-label">Con Facturas</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions animate__animated animate__fadeInUp">
+            <h3><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h3>
+            <div class="row mt-3">
+                <div class="col-md-3 col-sm-6">
+                    <button class="action-btn-large w-100" onclick="showAddProveedorModal()">
+                        <i class="fas fa-plus me-2"></i>Nuevo Proveedor
+                    </button>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <button class="action-btn-large action-btn-secondary w-100" onclick="importProveedores()">
+                        <i class="fas fa-upload me-2"></i>Importar CSV
+                    </button>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <button class="action-btn-large w-100" onclick="exportProveedores()">
+                        <i class="fas fa-download me-2"></i>Exportar Datos
+                    </button>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <button class="action-btn-large action-btn-secondary w-100" onclick="syncFacturas()">
+                        <i class="fas fa-sync-alt me-2"></i>Sincronizar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Info -->
+        <section class="integration-info animate__animated animate__fadeInUp">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h6><i class="fas fa-puzzle-piece me-2"></i>Integración con Sistema de Facturas</h6>
+                    <p class="mb-0">Los proveedores creados aquí se integran automáticamente con el sistema OCR de facturas. 
+                    <span class="integration-badge">Auto-sync ON</span></p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-outline-primary" onclick="viewIntegrationDetails()">
+                        <i class="fas fa-info-circle me-2"></i>Ver Detalles
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search and Filters -->
+        <section class="proveedores-section animate__animated animate__fadeInUp">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3><i class="fas fa-list me-2"></i>Listado de Proveedores</h3>
+                <div>
+                    <button class="btn btn-outline-primary me-2" onclick="refreshData()">
+                        <i class="fas fa-refresh me-2"></i>Actualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="toggleAdvancedFilters()">
+                        <i class="fas fa-filter me-2"></i>Filtros Avanzados
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-filters">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control search-input" id="searchInput" 
+                               placeholder="🔍 Buscar por nombre, CIF o dirección..." 
+                               oninput="filterProveedores()">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="statusFilter" onchange="filterProveedores()">
+                            <option value="">Todos los estados</option>
+                            <option value="active">Activos</option>
+                            <option value="inactive">Inactivos</option>
+                            <option value="pending">Pendientes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="categoryFilter" onchange="filterProveedores()">
+                            <option value="">Todas las categorías</option>
+                            <option value="suministros">Suministros</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="tecnologia">Tecnología</option>
+                            <option value="construccion">Construcción</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" id="dateFilter" onchange="filterProveedores()" title="Filtrar por fecha de registro">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-danger w-100" onclick="clearFilters()">
+                            <i class="fas fa-times me-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Filters (Hidden by default) -->
+                <div class="row mt-3" id="advancedFilters" style="display: none;">
+                    <div class="col-md-3">
+                        <label class="form-label">Provincia</label>
+                        <select class="form-select" id="provinciaFilter" onchange="filterProveedores()">
+                            <option value="">Todas las provincias</option>
+                            <option value="madrid">Madrid</option>
+                            <option value="barcelona">Barcelona</option>
+                            <option value="valencia">Valencia</option>
+                            <option value="sevilla">Sevilla</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Número de Facturas</label>
+                        <select class="form-select" id="facturasCountFilter" onchange="filterProveedores()">
+                            <option value="">Cualquier cantidad</option>
+                            <option value="0">Sin facturas</option>
+                            <option value="1-5">1-5 facturas</option>
+                            <option value="6-10">6-10 facturas</option>
+                            <option value="10+">Más de 10</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Importe Total</label>
+                        <select class="form-select" id="importeFilter" onchange="filterProveedores()">
+                            <option value="">Cualquier importe</option>
+                            <option value="0-1000">€0 - €1,000</option>
+                            <option value="1000-5000">€1,000 - €5,000</option>
+                            <option value="5000+">Más de €5,000</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Última Factura</label>
+                        <select class="form-select" id="ultimaFacturaFilter" onchange="filterProveedores()">
+                            <option value="">Cualquier fecha</option>
+                            <option value="7">Últimos 7 días</option>
+                            <option value="30">Últimos 30 días</option>
+                            <option value="90">Últimos 90 días</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted" id="resultsCount">Mostrando 48 proveedores</span>
+                <div>
+                    <select class="form-select form-select-sm" id="pageSize" onchange="changePageSize()" style="width: auto; display: inline-block;">
+                        <option value="10">10 por página</option>
+                        <option value="25" selected>25 por página</option>
+                        <option value="50">50 por página</option>
+                        <option value="100">100 por página</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Proveedores Table -->
+            <div class="table-responsive position-relative">
+                <div class="loading-overlay" id="tableLoading" style="display: none;">
+                    <div class="spinner-custom"></div>
+                </div>
+                
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('cif')" style="cursor: pointer;">
+                                CIF <i class="fas fa-sort ms-1"></i>
+                            </th>
+                            <th onclick="sortTable('nombre')" style="cursor: pointer;">
+                                Razón Social <i class="fas fa-sort ms-1"></i>
+                            </th>
+                            <th onclick="sortTable('categoria')" style="cursor: pointer;">
+                                Categoría <i class="fas fa-sort ms-1"></i>
+                            </th>
+                            <th>Contacto</th>
+                            <th onclick="sortTable('estado')" style="cursor: pointer;">
+                                Estado <i class="fas fa-sort ms-1"></i>
+                            </th>
+                            <th onclick="sortTable('facturas')" style="cursor: pointer;">
+                                Facturas <i class="fas fa-sort ms-1"></i>
+                            </th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="proveedoresTableBody">
+                        <tr>
+                            <td><strong>A12345678</strong></td>
+                            <td>
+                                <div>
+                                    <strong>Suministros Técnicos SA</strong>
+                                    <br>
+                                    <small class="text-muted">C/ Ejemplo 123, Madrid</small>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-primary">Suministros</span></td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-phone text-primary me-1"></i> 91 234 5678
+                                    <br>
+                                    <i class="fas fa-envelope text-primary me-1"></i> contacto@suministros.com
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-active">Activo</span></td>
+                            <td>
+                                <span class="badge bg-success">3 facturas</span>
+                                <br>
+                                <small class="text-muted">€1,284.63 total</small>
+                            </td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewProveedor(1)" title="Ver Detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editProveedor(1)" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-facturas" onclick="viewFacturas(1)" title="Ver Facturas">
+                                    <i class="fas fa-receipt"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteProveedor(1)" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>B87654321</strong></td>
+                            <td>
+                                <div>
+                                    <strong>Electricidad Industrial SL</strong>
+                                    <br>
+                                    <small class="text-muted">Avda. Tecnología 45, Barcelona</small>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-warning">Servicios</span></td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-phone text-primary me-1"></i> 93 876 5432
+                                    <br>
+                                    <i class="fas fa-envelope text-primary me-1"></i> info@electricidad.com
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-active">Activo</span></td>
+                            <td>
+                                <span class="badge bg-success">1 factura</span>
+                                <br>
+                                <small class="text-muted">€235.33 total</small>
+                            </td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewProveedor(2)" title="Ver Detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editProveedor(2)" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-facturas" onclick="viewFacturas(2)" title="Ver Facturas">
+                                    <i class="fas fa-receipt"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteProveedor(2)" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>C11223344</strong></td>
+                            <td>
+                                <div>
+                                    <strong>Tecnología y Sistemas Ltd</strong>
+                                    <br>
+                                    <small class="text-muted">Plaza Innovación 12, Valencia</small>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-info">Tecnología</span></td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-phone text-primary me-1"></i> 96 123 4567
+                                    <br>
+                                    <i class="fas fa-envelope text-primary me-1"></i> ventas@tecnosistemas.com
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-pending">Pendiente</span></td>
+                            <td>
+                                <span class="badge bg-secondary">0 facturas</span>
+                                <br>
+                                <small class="text-muted">€0.00 total</small>
+                            </td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewProveedor(3)" title="Ver Detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editProveedor(3)" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-facturas" onclick="viewFacturas(3)" title="Ver Facturas" disabled>
+                                    <i class="fas fa-receipt"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteProveedor(3)" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Navegación de proveedores">
+                <ul class="pagination justify-content-center mt-4">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+
+    <!-- Modal: Add/Edit Proveedor -->
+    <div class="modal fade" id="proveedorModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proveedorModalTitle">
+                        <i class="fas fa-plus me-2"></i>Nuevo Proveedor
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="proveedorForm">
+                        <input type="hidden" id="proveedorId" name="id">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cif" class="form-label">CIF *</label>
+                                    <input type="text" class="form-control" id="cif" name="cif" required 
+                                           placeholder="Ej: A12345678" pattern="[A-Z][0-9]{8}">
+                                    <div class="invalid-feedback">
+                                        Formato de CIF inválido (Ej: A12345678)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="razonSocial" class="form-label">Razón Social *</label>
+                                    <input type="text" class="form-control" id="razonSocial" name="razonSocial" required
+                                           placeholder="Nombre completo de la empresa">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="categoria" class="form-label">Categoría *</label>
+                                    <select class="form-select" id="categoria" name="categoria" required>
+                                        <option value="">Seleccionar categoría</option>
+                                        <option value="suministros">Suministros</option>
+                                        <option value="servicios">Servicios</option>
+                                        <option value="tecnologia">Tecnología</option>
+                                        <option value="construccion">Construcción</option>
+                                        <option value="consultoria">Consultoría</option>
+                                        <option value="logistica">Logística</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="estado" class="form-label">Estado</label>
+                                    <select class="form-select" id="estado" name="estado">
+                                        <option value="active">Activo</option>
+                                        <option value="inactive">Inactivo</option>
+                                        <option value="pending">Pendiente</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección Completa *</label>
+                            <textarea class="form-control" id="direccion" name="direccion" rows="2" required
+                                      placeholder="Dirección, ciudad, código postal"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="telefono" class="form-label">Teléfono *</label>
+                                    <input type="tel" class="form-control" id="telefono" name="telefono" required
+                                           placeholder="Ej: 91 234 5678">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required
+                                           placeholder="contacto@empresa.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contactoPrincipal" class="form-label">Persona de Contacto</label>
+                                    <input type="text" class="form-control" id="contactoPrincipal" name="contactoPrincipal"
+                                           placeholder="Nombre del contacto principal">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="web" class="form-label">Sitio Web</label>
+                                    <input type="url" class="form-control" id="web" name="web"
+                                           placeholder="https://www.empresa.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notas" class="form-label">Notas Adicionales</label>
+                            <textarea class="form-control" id="notas" name="notas" rows="3"
+                                      placeholder="Información adicional sobre el proveedor..."></textarea>
+                        </div>
+
+                        <!-- Integration Preview -->
+                        <div class="integration-info">
+                            <h6><i class="fas fa-link me-2"></i>Integración Automática</h6>
+                            <p class="mb-0">Este proveedor se sincronizará automáticamente con el sistema OCR de facturas. 
+                            Las facturas futuras podrán ser reconocidas y asociadas automáticamente.</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="saveDraft()">
+                        <i class="fas fa-save me-2"></i>Guardar Borrador
+                    </button>
+                    <button type="submit" form="proveedorForm" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Guardar Proveedor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: View Proveedor Details -->
+    <div class="modal fade" id="viewProveedorModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-building me-2"></i>Detalles del Proveedor
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="proveedorDetailsBody">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="editProveedorFromView()">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="viewFacturasFromDetail()">
+                        <i class="fas fa-receipt me-2"></i>Ver Facturas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="successToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Éxito</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Operación completada correctamente
+            </div>
+        </div>
+        <div id="errorToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Ha ocurrido un error. Por favor, inténtalo de nuevo.
+            </div>
+        </div>
+        <div id="warningToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                <strong class="me-auto">Advertencia</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Advertencia: Revise los datos antes de continuar.
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentProveedores = [];
+        let filteredProveedores = [];
+        let sortColumn = '';
+        let sortDirection = 'asc';
+        let currentPage = 1;
+        let pageSize = 25;
+
+        // Modal Management
+        function showAddProveedorModal() {
+            document.getElementById('proveedorModalTitle').innerHTML = '<i class="fas fa-plus me-2"></i>Nuevo Proveedor';
+            document.getElementById('proveedorForm').reset();
+            document.getElementById('proveedorId').value = '';
+            document.getElementById('estado').value = 'active';
+            
+            const modal = new bootstrap.Modal(document.getElementById('proveedorModal'));
+            modal.show();
+        }
+
+        function editProveedor(id) {
+            document.getElementById('proveedorModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Proveedor';
+            
+            // Load proveedor data (simulated)
+            loadProveedorData(id);
+            
+            const modal = new bootstrap.Modal(document.getElementById('proveedorModal'));
+            modal.show();
+        }
+
+        function loadProveedorData(id) {
+            // Simulate loading data
+            if (id === 1) {
+                document.getElementById('proveedorId').value = '1';
+                document.getElementById('cif').value = 'A12345678';
+                document.getElementById('razonSocial').value = 'Suministros Técnicos SA';
+                document.getElementById('categoria').value = 'suministros';
+                document.getElementById('estado').value = 'active';
+                document.getElementById('direccion').value = 'C/ Ejemplo 123, 28001 Madrid';
+                document.getElementById('telefono').value = '91 234 5678';
+                document.getElementById('email').value = 'contacto@suministros.com';
+                document.getElementById('contactoPrincipal').value = 'Juan Pérez';
+                document.getElementById('web').value = 'https://www.suministros.com';
+                document.getElementById('notas').value = 'Proveedor principal de material eléctrico.';
+            }
+        }
+
+        function viewProveedor(id) {
+            const modalBody = document.getElementById('proveedorDetailsBody');
+            
+            // Load proveedor details (simulated)
+            modalBody.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-building text-primary me-2"></i>Información Empresarial</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><td><strong>CIF:</strong></td><td>A12345678</td></tr>
+                            <tr><td><strong>Razón Social:</strong></td><td>Suministros Técnicos SA</td></tr>
+                            <tr><td><strong>Categoría:</strong></td><td><span class="badge bg-primary">Suministros</span></td></tr>
+                            <tr><td><strong>Estado:</strong></td><td><span class="status-badge status-active">Activo</span></td></tr>
+                            <tr><td><strong>Web:</strong></td><td><a href="https://www.suministros.com" target="_blank">www.suministros.com</a></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-map-marker-alt text-primary me-2"></i>Información de Contacto</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><td><strong>Dirección:</strong></td><td>C/ Ejemplo 123, 28001 Madrid</td></tr>
+                            <tr><td><strong>Teléfono:</strong></td><td>91 234 5678</td></tr>
+                            <tr><td><strong>Email:</strong></td><td>contacto@suministros.com</td></tr>
+                            <tr><td><strong>Contacto:</strong></td><td>Juan Pérez</td></tr>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6><i class="fas fa-chart-bar text-primary me-2"></i>Estadísticas de Facturas</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h4 class="text-primary">3</h4>
+                                    <small>Total Facturas</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h4 class="text-success">€1,284.63</h4>
+                                    <small>Importe Total</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h4 class="text-info">€428.21</h4>
+                                    <small>Promedio</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <h4 class="text-warning">15/09/24</h4>
+                                    <small>Última Factura</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6><i class="fas fa-sticky-note text-primary me-2"></i>Notas</h6>
+                        <p class="text-muted">Proveedor principal de material eléctrico. Excelente servicio y puntualidad en entregas.</p>
+                    </div>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('viewProveedorModal'));
+            modal.show();
+        }
+
+        function editProveedorFromView() {
+            bootstrap.Modal.getInstance(document.getElementById('viewProveedorModal')).hide();
+            setTimeout(() => editProveedor(1), 300);
+        }
+
+        function viewFacturasFromDetail() {
+            window.open('facturas_proveedores.html?proveedor=1', '_blank');
+        }
+
+        // Form Management
+        document.getElementById('proveedorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveProveedor();
+        });
+
+        function saveProveedor() {
+            const formData = new FormData(document.getElementById('proveedorForm'));
+            const isEdit = document.getElementById('proveedorId').value !== '';
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Show loading
+            showTableLoading(true);
+            
+            // Simulate API call
+            setTimeout(() => {
+                showTableLoading(false);
+                
+                if (isEdit) {
+                    showToast('successToast', 'Proveedor actualizado correctamente');
+                    updateProveedorInTable(formData);
+                } else {
+                    showToast('successToast', 'Proveedor creado correctamente');
+                    addProveedorToTable(formData);
+                    updateStats();
+                }
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('proveedorModal')).hide();
+                
+                // Highlight new/updated row
+                highlightTableRow(isEdit ? formData.get('id') : 'new');
+                
+            }, 1500);
+        }
+
+        function validateForm() {
+            const form = document.getElementById('proveedorForm');
+            const inputs = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                }
+            });
+            
+            // Validate CIF format
+            const cifInput = document.getElementById('cif');
+            const cifPattern = /^[A-Z][0-9]{8}$/;
+            if (cifInput.value && !cifPattern.test(cifInput.value)) {
+                cifInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            // Validate email format
+            const emailInput = document.getElementById('email');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (emailInput.value && !emailPattern.test(emailInput.value)) {
+                emailInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                showToast('warningToast', 'Por favor, complete todos los campos obligatorios correctamente.');
+            }
+            
+            return isValid;
+        }
+
+        function saveDraft() {
+            showToast('successToast', 'Borrador guardado correctamente');
+        }
+
+        // Table Management
+        function addProveedorToTable(formData) {
+            const tbody = document.getElementById('proveedoresTableBody');
+            const newId = Date.now();
+            
+            const row = document.createElement('tr');
+            row.id = `proveedor-${newId}`;
+            row.innerHTML = `
+                <td><strong>${formData.get('cif')}</strong></td>
+                <td>
+                    <div>
+                        <strong>${formData.get('razonSocial')}</strong>
+                        <br>
+                        <small class="text-muted">${formData.get('direccion').substring(0, 30)}...</small>
+                    </div>
+                </td>
+                <td><span class="badge bg-primary">${capitalize(formData.get('categoria'))}</span></td>
+                <td>
+                    <div>
+                        <i class="fas fa-phone text-primary me-1"></i> ${formData.get('telefono')}
+                        <br>
+                        <i class="fas fa-envelope text-primary me-1"></i> ${formData.get('email')}
+                    </div>
+                </td>
+                <td><span class="status-badge status-${formData.get('estado')}">${capitalize(formData.get('estado'))}</span></td>
+                <td>
+                    <span class="badge bg-secondary">0 facturas</span>
+                    <br>
+                    <small class="text-muted">€0.00 total</small>
+                </td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewProveedor(${newId})" title="Ver Detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn btn-edit" onclick="editProveedor(${newId})" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn btn-facturas" onclick="viewFacturas(${newId})" title="Ver Facturas" disabled>
+                        <i class="fas fa-receipt"></i>
+                    </button>
+                    <button class="action-btn btn-delete" onclick="deleteProveedor(${newId})" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            tbody.insertBefore(row, tbody.firstChild);
+        }
+
+        function updateProveedorInTable(formData) {
+            const id = formData.get('id');
+            const row = document.querySelector(`#proveedor-${id}`);
+            if (row) {
+                // Update row content
+                showToast('successToast', 'Fila actualizada en la tabla');
+            }
+        }
+
+        function deleteProveedor(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este proveedor?\n\nEsta acción no se puede deshacer.')) {
+                showTableLoading(true);
+                
+                setTimeout(() => {
+                    const row = document.querySelector(`#proveedor-${id}`);
+                    if (row) {
+                        row.remove();
+                    }
+                    showTableLoading(false);
+                    showToast('successToast', 'Proveedor eliminado correctamente');
+                    updateStats();
+                }, 1000);
+            }
+        }
+
+        function viewFacturas(id) {
+            window.open(`facturas_proveedores.html?proveedor=${id}`, '_blank');
+        }
+
+        // Filtering and Search
+        function filterProveedores() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            showTableLoading(true);
+            
+            setTimeout(() => {
+                // Simulate filtering
+                let filteredCount = 48;
+                
+                if (searchTerm) filteredCount -= 5;
+                if (statusFilter) filteredCount -= 10;
+                if (categoryFilter) filteredCount -= 15;
+                if (dateFilter) filteredCount -= 8;
+                
+                filteredCount = Math.max(filteredCount, 3);
+                
+                document.getElementById('resultsCount').textContent = `Mostrando ${filteredCount} proveedores`;
+                showTableLoading(false);
+                
+                if (filteredCount === 0) {
+                    showEmptyState();
+                }
+            }, 800);
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('provinciaFilter').value = '';
+            document.getElementById('facturasCountFilter').value = '';
+            document.getElementById('importeFilter').value = '';
+            document.getElementById('ultimaFacturaFilter').value = '';
+            
+            document.getElementById('resultsCount').textContent = 'Mostrando 48 proveedores';
+            showToast('successToast', 'Filtros limpiados');
+        }
+
+        function toggleAdvancedFilters() {
+            const filtersSection = document.getElementById('advancedFilters');
+            const isVisible = filtersSection.style.display !== 'none';
+            filtersSection.style.display = isVisible ? 'none' : 'block';
+        }
+
+        // Sorting
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            
+            showTableLoading(true);
+            
+            setTimeout(() => {
+                showTableLoading(false);
+                showToast('successToast', `Tabla ordenada por ${column} (${sortDirection})`);
+                
+                // Update sort indicators
+                document.querySelectorAll('th i.fa-sort').forEach(icon => {
+                    icon.className = 'fas fa-sort ms-1';
+                });
+                
+                const currentHeader = document.querySelector(`th[onclick="sortTable('${column}')"] i`);
+                if (currentHeader) {
+                    currentHeader.className = `fas fa-sort-${sortDirection === 'asc' ? 'up' : 'down'} ms-1`;
+                }
+            }, 500);
+        }
+
+        // Pagination
+        function changePageSize() {
+            const newPageSize = document.getElementById('pageSize').value;
+            pageSize = parseInt(newPageSize);
+            showToast('successToast', `Mostrando ${pageSize} elementos por página`);
+        }
+
+        // Statistics
+        function updateStats() {
+            const stats = document.querySelectorAll('.stat-value');
+            stats[0].textContent = parseInt(stats[0].textContent) + 1; // Total
+            stats[1].textContent = parseInt(stats[1].textContent) + 1; // Activos
+            stats[2].textContent = parseInt(stats[2].textContent) + 1; // Nuevos
+        }
+
+        // Quick Actions
+        function importProveedores() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv,.xlsx';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    showTableLoading(true);
+                    setTimeout(() => {
+                        showTableLoading(false);
+                        showToast('successToast', `Archivo ${file.name} importado correctamente`);
+                        updateStats();
+                    }, 2000);
+                }
+            };
+            input.click();
+        }
+
+        function exportProveedores() {
+            showToast('successToast', 'Exportando datos de proveedores...');
+            
+            // Simulate export
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = 'data:text/csv;charset=utf-8,CIF,Razon Social,Categoria,Estado\nA12345678,Suministros Técnicos SA,Suministros,Activo';
+                link.download = 'proveedores_export.csv';
+                link.click();
+                showToast('successToast', 'Datos exportados correctamente');
+            }, 1000);
+        }
+
+        function syncFacturas() {
+            showTableLoading(true);
+            
+            setTimeout(() => {
+                showTableLoading(false);
+                showToast('successToast', 'Sincronización con sistema de facturas completada');
+            }, 2500);
+        }
+
+        function refreshData() {
+            showTableLoading(true);
+            
+            setTimeout(() => {
+                showTableLoading(false);
+                showToast('successToast', 'Datos actualizados');
+            }, 1000);
+        }
+
+        // Integration
+        function viewIntegrationDetails() {
+            alert('Detalles de Integración:\n\n✅ OCR Automático: Activado\n✅ Sincronización: Tiempo Real\n✅ Validación: CIF y Nombre\n✅ Notificaciones: Email + Sistema\n\nTodos los proveedores se sincronizan automáticamente con el sistema de facturas OCR.');
+        }
+
+        // Utility Functions
+        function showTableLoading(show) {
+            document.getElementById('tableLoading').style.display = show ? 'flex' : 'none';
+        }
+
+        function showToast(toastId, message) {
+            const toastElement = document.getElementById(toastId);
+            toastElement.querySelector('.toast-body').textContent = message;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+
+        function highlightTableRow(id) {
+            const row = document.querySelector(`#proveedor-${id}`);
+            if (row) {
+                row.classList.add('success-highlight');
+                setTimeout(() => {
+                    row.classList.remove('success-highlight');
+                }, 3000);
+            }
+        }
+
+        function showEmptyState() {
+            const tbody = document.getElementById('proveedoresTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h5>No se encontraron proveedores</h5>
+                        <p>Intenta ajustar tus filtros de búsqueda</p>
+                        <button class="btn btn-outline-primary" onclick="clearFilters()">
+                            <i class="fas fa-times me-2"></i>Limpiar Filtros
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏢 ERP Proveedores - CRUD Master Cargado');
+            console.log('🔗 Integración con Facturas: Activa');
+            console.log('📊 Estadísticas Inicializadas');
+            console.log('🚀 Railway Ready');
+            
+            // Auto-focus search on load
+            document.getElementById('searchInput').focus();
+        });
+    </script>
+</body>
+</html>

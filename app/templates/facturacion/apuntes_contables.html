@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Pro - Apuntes Contables | Conciliación Bancaria IA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --dark-gray: #374151;
+            --light-gray: #f8fafc;
+            --border-color: #e5e7eb;
+            --purple-accent: #8b5cf6;
+            --indigo-accent: #6366f1;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--indigo-accent) 0%, var(--purple-accent) 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .main-header h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .main-header .subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        /* KPIs Dashboard */
+        .kpis-section {
+            margin: 2rem 0;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-card .kpi-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        .kpi-sin-procesar { color: var(--warning-orange); }
+        .kpi-pendientes { color: var(--warning-orange); }
+        .kpi-pagos { color: var(--danger-red); }
+        .kpi-conciliado { color: var(--success-green); }
+
+        /* Action Buttons Top */
+        .action-buttons {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            color: var(--dark-gray);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .action-btn.btn-primary {
+            background: var(--purple-accent);
+            color: white;
+            border-color: var(--purple-accent);
+        }
+
+        .action-btn.btn-primary:hover {
+            background: #7c3aed;
+            color: white;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs-custom {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tabs-custom .nav-link {
+            border: none;
+            background: transparent;
+            color: var(--dark-gray);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            margin: 0 0.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs-custom .nav-link.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .nav-tabs-custom .nav-link:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-blue);
+        }
+
+        /* Movimientos Section */
+        .movimientos-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            color: var(--dark-gray);
+            font-weight: 600;
+        }
+
+        .process-ai-btn {
+            background: linear-gradient(135deg, var(--purple-accent) 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .process-ai-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            color: white;
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--light-gray);
+            border: none;
+            font-weight: 600;
+            color: var(--dark-gray);
+            padding: 1rem 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .table tbody td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+
+        .table tbody tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-conciliado {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-green);
+        }
+
+        .status-pendiente {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-orange);
+        }
+
+        .status-manual {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--indigo-accent);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-red);
+        }
+
+        /* IA Confidence Badge */
+        .ia-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .ia-high { background: rgba(16, 185, 129, 0.2); color: var(--success-green); }
+        .ia-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning-orange); }
+        .ia-low { background: rgba(239, 68, 68, 0.2); color: var(--danger-red); }
+        .ia-none { background: rgba(156, 163, 175, 0.2); color: #6b7280; }
+
+        /* Action Buttons Table */
+        .action-btn-table {
+            padding: 0.5rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .action-btn-table:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-match { background: var(--success-green); }
+        .btn-manual { background: var(--indigo-accent); }
+        .btn-ignore { background: var(--dark-gray); }
+
+        /* Modals */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--purple-accent) 0%, #7c3aed 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        /* Form Styling */
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--purple-accent);
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--light-gray);
+            margin: 1rem 0;
+        }
+
+        .upload-area:hover {
+            border-color: var(--purple-accent);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--success-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--purple-accent);
+            margin-bottom: 1rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--dark-gray);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .kpi-card {
+                height: auto;
+                margin-bottom: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            .action-btn {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            z-index: 1000;
+        }
+
+        .spinner-custom {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--purple-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* AI Integration Warning */
+        .ai-warning {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .ai-warning .warning-icon {
+            color: var(--purple-accent);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-balance-scale me-3"></i>Apuntes Contables</h1>
+                    <p class="subtitle">Gestión de movimientos bancarios y conciliación automática</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button class="action-btn" onclick="showConfigModal()">
+                            <i class="fas fa-cog"></i>Configurar APIs
+                        </button>
+                        <button class="action-btn" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i>Subir Excel
+                        </button>
+                        <a href="{{ url_for('configuracion_ia_interna') }}" class="action-btn btn-primary">
+                            <i class="fas fa-brain"></i>Validación IA
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <!-- KPIs Dashboard -->
+        <section class="kpis-section">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp">
+                        <div class="kpi-icon kpi-sin-procesar">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="kpi-value kpi-sin-procesar" id="movimientosSinProcesar">0</div>
+                        <div class="kpi-label">Movimientos Sin Procesar</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                        <div class="kpi-icon kpi-pendientes">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="kpi-value kpi-pendientes" id="apuntesPendientes">0</div>
+                        <div class="kpi-label">Apuntes Pendientes</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                        <div class="kpi-icon kpi-pagos">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="kpi-value kpi-pagos" id="pagosPendientes">0</div>
+                        <div class="kpi-label">Pagos Pendientes</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                        <div class="kpi-icon kpi-conciliado">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="kpi-value kpi-conciliado" id="conciliadoMes">0</div>
+                        <div class="kpi-label">Conciliado Este Mes</div>
+                        <small class="text-muted">0€</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <section class="nav-tabs-custom animate__animated animate__fadeInUp">
+            <ul class="nav nav-tabs border-0" id="mainTabs">
+                <li class="nav-item">
+                    <button class="nav-link active" id="movimientos-tab" data-bs-toggle="tab" data-bs-target="#movimientos">
+                        <i class="fas fa-list me-2"></i>Movimientos
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="apuntes-tab" data-bs-toggle="tab" data-bs-target="#apuntes">
+                        <i class="fas fa-file-alt me-2"></i>Apuntes
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="estados-tab" data-bs-toggle="tab" data-bs-target="#estados">
+                        <i class="fas fa-chart-line me-2"></i>Estados de Pago
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="conexiones-tab" data-bs-toggle="tab" data-bs-target="#conexiones">
+                        <i class="fas fa-link me-2"></i>Conexiones
+                    </button>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Movimientos Bancarios Tab -->
+            <div class="tab-pane fade show active" id="movimientos">
+                <section class="movimientos-section animate__animated animate__fadeInUp">
+                    <div class="section-header">
+                        <h3>Movimientos Bancarios</h3>
+                        <button class="process-ai-btn" onclick="processWithAI()">
+                            <i class="fas fa-brain"></i>Procesar con IA (0)
+                        </button>
+                    </div>
+
+                    <!-- AI Integration Status -->
+                    <div class="ai-warning" id="aiWarning">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle warning-icon me-2"></i>
+                            <span>
+                                <strong>Configuración IA requerida:</strong> 
+                                Configure su token IA en 
+                                <a href="{{ url_for('configuracion_ia_interna') }}" class="text-decoration-none">
+                                    Configuración > IA Interna
+                                </a> 
+                                para habilitar la conciliación automática.
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive position-relative">
+                        <div class="loading-overlay" id="tableLoading" style="display: none;">
+                            <div class="spinner-custom"></div>
+                        </div>
+                        
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">
+                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th>Importe</th>
+                                    <th>Contrapartida</th>
+                                    <th>Estado</th>
+                                    <th>IA</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movimientosTableBody">
+                                <!-- Empty state initially -->
+                                <tr>
+                                    <td colspan="8" class="empty-state">
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-file-import"></i>
+                                        </div>
+                                        <h5>No hay movimientos bancarios</h5>
+                                        <p>Suba un archivo Excel/CSV o configure la conexión bancaria para comenzar</p>
+                                        <button class="btn btn-primary" onclick="showUploadModal()">
+                                            <i class="fas fa-upload me-2"></i>Subir Archivo
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Navegación de movimientos">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Siguiente</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </section>
+            </div>
+
+            <!-- Other tabs content placeholders -->
+            <div class="tab-pane fade" id="apuntes">
+                <section class="movimientos-section">
+                    <h3>Apuntes Contables</h3>
+                    <p class="text-muted">Gestión de apuntes contables automatizados</p>
+                </section>
+            </div>
+            
+            <div class="tab-pane fade" id="estados">
+                <section class="movimientos-section">
+                    <h3>Estados de Pago</h3>
+                    <p class="text-muted">Seguimiento de estados de pago</p>
+                </section>
+            </div>
+            
+            <div class="tab-pane fade" id="conexiones">
+                <section class="movimientos-section">
+                    <h3>Conexiones Bancarias</h3>
+                    <p class="text-muted">Gestión de conexiones API bancarias</p>
+                    <button class="btn btn-primary" onclick="showConfigModal()">
+                        <i class="fas fa-plus me-2"></i>Nueva Conexión
+                    </button>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Configurar API Bancaria -->
+    <div class="modal fade" id="configModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-link me-2"></i>Nueva Conexión Bancaria
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-4">Configure los parámetros para conectar con la API bancaria</p>
+                    
+                    <form id="configForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nombreConexion" class="form-label">Nombre de la Conexión</label>
+                                    <input type="text" class="form-control" id="nombreConexion" required
+                                           placeholder="Ej: Banco Santander Principal">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nombreBanco" class="form-label">Nombre del Banco</label>
+                                    <input type="text" class="form-control" id="nombreBanco" required
+                                           placeholder="Ej: Banco Santander">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="iban" class="form-label">IBAN</label>
+                                    <input type="text" class="form-control" id="iban" required
+                                           placeholder="ES91 2100 0418 4502 0005 1332"
+                                           pattern="[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="titularCuenta" class="form-label">Titular de la Cuenta</label>
+                                    <input type="text" class="form-control" id="titularCuenta" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="proveedorApi" class="form-label">Proveedor de API</label>
+                            <select class="form-select" id="proveedorApi" required>
+                                <option value="">Selecciona el proveedor</option>
+                                <option value="open_banking">Open Banking</option>
+                                <option value="plaid">Plaid</option>
+                                <option value="nordigen">Nordigen</option>
+                                <option value="saltedge">Salt Edge</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+
+                        <h6><i class="fas fa-key me-2"></i>Credenciales de API</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="clientId" class="form-label">Client ID</label>
+                                    <input type="text" class="form-control" id="clientId" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="clientSecret" class="form-label">Client Secret</label>
+                                    <input type="password" class="form-control" id="clientSecret" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="accessToken" class="form-label">Access Token</label>
+                                    <input type="text" class="form-control" id="accessToken">
+                                    <small class="form-text text-muted">Se generará automáticamente si está vacío</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="refreshToken" class="form-label">Refresh Token</label>
+                                    <input type="text" class="form-control" id="refreshToken">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="conexionActiva" checked>
+                                    <label class="form-check-label" for="conexionActiva">
+                                        Conexión Activa
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="sincronizacionAuto" checked>
+                                    <label class="form-check-label" for="sincronizacionAuto">
+                                        Sincronización Automática
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="frecuencia" class="form-label">Frecuencia</label>
+                            <select class="form-select" id="frecuencia">
+                                <option value="daily" selected>Diaria</option>
+                                <option value="weekly">Semanal</option>
+                                <option value="monthly">Mensual</option>
+                                <option value="manual">Manual</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="testConnection()">
+                        <i class="fas fa-plug me-2"></i>Probar Conexión
+                    </button>
+                    <button type="submit" form="configForm" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Crear Conexión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Subir Archivo -->
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-upload me-2"></i>Subir Archivo de Movimientos Bancarios
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Sube un archivo Excel o CSV con los movimientos bancarios para procesamiento automático con IA</p>
+                    
+                    <div class="upload-area" id="uploadArea" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragenter="dragEnterHandler(event);" ondragleave="dragLeaveHandler(event);">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h5>Arrastra tu archivo aquí o haz clic para seleccionar</h5>
+                        <p class="text-muted">Formatos soportados: Excel (.xlsx), CSV (.csv)</p>
+                        <input type="file" id="movimientosFile" accept=".xlsx,.csv" style="display: none;" onchange="handleFileSelect(event)">
+                        <button class="btn btn-primary mt-3" onclick="document.getElementById('movimientosFile').click()">
+                            <i class="fas fa-folder-open me-2"></i>Seleccionar Archivo
+                        </button>
+                    </div>
+
+                    <div class="ai-warning mt-3">
+                        <h6><i class="fas fa-info-circle me-2"></i>Formato esperado:</h6>
+                        <p class="mb-0">El archivo debe contener las columnas: <strong>Fecha, Importe, Descripción, Referencia</strong>. 
+                        La IA intentará mapear automáticamente otras columnas como Beneficiario, Cuenta, etc.</p>
+                    </div>
+
+                    <!-- File Preview -->
+                    <div id="filePreview" style="display: none;" class="mt-3">
+                        <h6>Vista previa del archivo:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr id="previewHeaders"></tr>
+                                </thead>
+                                <tbody id="previewBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="processFileBtn" onclick="processFile()" disabled>
+                        <i class="fas fa-cogs me-2"></i>Procesar con IA
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="successToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Éxito</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Operación completada correctamente
+            </div>
+        </div>
+        <div id="errorToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Ha ocurrido un error. Por favor, inténtalo de nuevo.
+            </div>
+        </div>
+        <div id="warningToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                <strong class="me-auto">Advertencia</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Configuración IA requerida para procesar automáticamente.
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let movimientosData = [];
+        let selectedMovimientos = [];
+        let aiConfigured = false;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏦 ERP Apuntes Contables - Conciliación IA Cargado');
+            checkAIConfiguration();
+            loadInitialData();
+        });
+
+        // Check AI Configuration
+        function checkAIConfiguration() {
+            // Simulate checking AI configuration
+            // In real implementation, this would call the AI configuration endpoint
+            fetch('/api/configuracion/ia-status')
+                .then(response => response.json())
+                .then(data => {
+                    aiConfigured = data.configured;
+                    updateAIWarning();
+                })
+                .catch(() => {
+                    aiConfigured = false;
+                    updateAIWarning();
+                });
+        }
+
+        function updateAIWarning() {
+            const warning = document.getElementById('aiWarning');
+            if (aiConfigured) {
+                warning.style.display = 'none';
+            } else {
+                warning.style.display = 'block';
+            }
+        }
+
+        // Load initial data and KPIs
+        function loadInitialData() {
+            // Simulate loading data
+            updateKPIs({
+                movimientosSinProcesar: 0,
+                apuntesPendientes: 0,
+                pagosPendientes: 0,
+                conciliadoMes: 0
+            });
+        }
+
+        function updateKPIs(data) {
+            document.getElementById('movimientosSinProcesar').textContent = data.movimientosSinProcesar;
+            document.getElementById('apuntesPendientes').textContent = data.apuntesPendientes;
+            document.getElementById('pagosPendientes').textContent = data.pagosPendientes;
+            document.getElementById('conciliadoMes').textContent = data.conciliadoMes;
+        }
+
+        // Modal Management
+        function showConfigModal() {
+            const modal = new bootstrap.Modal(document.getElementById('configModal'));
+            modal.show();
+        }
+
+        function showUploadModal() {
+            const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+            modal.show();
+        }
+
+        // Configuration Form
+        document.getElementById('configForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveConfiguration();
+        });
+
+        function saveConfiguration() {
+            const formData = new FormData(document.getElementById('configForm'));
+            
+            showTableLoading(true);
+            
+            // Simulate API call
+            setTimeout(() => {
+                showTableLoading(false);
+                showToast('successToast', 'Conexión bancaria configurada correctamente');
+                bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+                
+                // Test connection automatically
+                testConnection();
+            }, 2000);
+        }
+
+        function testConnection() {
+            showToast('warningToast', 'Probando conexión bancaria...');
+            
+            setTimeout(() => {
+                showToast('successToast', 'Conexión bancaria exitosa. Sincronizando movimientos...');
+                
+                // Simulate loading movements from bank
+                setTimeout(() => {
+                    loadSampleMovements();
+                }, 1500);
+            }, 3000);
+        }
+
+        // File Upload Handlers
+        function dragOverHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function dragEnterHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function dragLeaveHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function dropHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = ev.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        }
+
+        function handleFileUpload(file) {
+            // Validate file type
+            const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
+            
+            if (!allowedTypes.includes(file.type)) {
+                showToast('errorToast', 'Formato de archivo no válido. Use Excel (.xlsx) o CSV (.csv).');
+                return;
+            }
+
+            // Simulate file preview
+            showFilePreview(file);
+            document.getElementById('processFileBtn').disabled = false;
+        }
+
+        function showFilePreview(file) {
+            // Simulate file preview with sample data
+            const preview = document.getElementById('filePreview');
+            const headers = document.getElementById('previewHeaders');
+            const body = document.getElementById('previewBody');
+            
+            headers.innerHTML = `
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Importe</th>
+                <th>Referencia</th>
+            `;
+            
+            body.innerHTML = `
+                <tr>
+                    <td>2024-09-15</td>
+                    <td>Transferencia recibida</td>
+                    <td>€1,250.00</td>
+                    <td>TRF240915001</td>
+                </tr>
+                <tr>
+                    <td>2024-09-14</td>
+                    <td>Pago proveedor Suministros SA</td>
+                    <td>-€524.30</td>
+                    <td>PAG240914001</td>
+                </tr>
+            `;
+            
+            preview.style.display = 'block';
+        }
+
+        function processFile() {
+            if (!aiConfigured) {
+                showToast('warningToast', 'Configure la IA en Configuración > IA Interna para procesar automáticamente');
+                return;
+            }
+            
+            showTableLoading(true);
+            
+            setTimeout(() => {
+                showTableLoading(false);
+                bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+                
+                loadSampleMovements();
+                showToast('successToast', 'Archivo procesado correctamente. Movimientos cargados.');
+                
+                updateKPIs({
+                    movimientosSinProcesar: 3,
+                    apuntesPendientes: 1,
+                    pagosPendientes: 2,
+                    conciliadoMes: 1
+                });
+            }, 3000);
+        }
+
+        // Load sample movements for demo
+        function loadSampleMovements() {
+            const tbody = document.getElementById('movimientosTableBody');
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td><input type="checkbox" onchange="toggleMovimiento(1)"></td>
+                    <td>15/09/2024</td>
+                    <td>Transferencia recibida - Cliente Digital Ventures</td>
+                    <td class="text-success">€1,250.00</td>
+                    <td>Digital Ventures SL</td>
+                    <td><span class="status-badge status-conciliado">Conciliado</span></td>
+                    <td><span class="ia-badge ia-high">95%</span></td>
+                    <td>
+                        <button class="action-btn-table btn-match" title="Conciliado automáticamente">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" onchange="toggleMovimiento(2)"></td>
+                    <td>14/09/2024</td>
+                    <td>Pago proveedor - Suministros Técnicos SA</td>
+                    <td class="text-danger">-€524.30</td>
+                    <td>Suministros Técnicos SA</td>
+                    <td><span class="status-badge status-pendiente">Pendiente</span></td>
+                    <td><span class="ia-badge ia-medium">78%</span></td>
+                    <td>
+                        <button class="action-btn-table btn-match" onclick="matchMovimiento(2)" title="Conciliar">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button class="action-btn-table btn-manual" onclick="manualMatch(2)" title="Conciliación Manual">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" onchange="toggleMovimiento(3)"></td>
+                    <td>13/09/2024</td>
+                    <td>Comisión bancaria mensual</td>
+                    <td class="text-danger">-€12.50</td>
+                    <td>Banco Santander</td>
+                    <td><span class="status-badge status-manual">Manual</span></td>
+                    <td><span class="ia-badge ia-none">N/A</span></td>
+                    <td>
+                        <button class="action-btn-table btn-manual" onclick="manualMatch(3)" title="Procesar Manual">
+                            <i class="fas fa-hand-paper"></i>
+                        </button>
+                        <button class="action-btn-table btn-ignore" onclick="ignoreMovimiento(3)" title="Ignorar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            
+            // Update process button
+            document.querySelector('.process-ai-btn').innerHTML = `
+                <i class="fas fa-brain"></i>Procesar con IA (2)
+            `;
+        }
+
+        // Table Management
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#movimientosTableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            
+            updateSelectedCount();
+        }
+
+        function toggleMovimiento(id) {
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checked = document.querySelectorAll('#movimientosTableBody input[type="checkbox"]:checked');
+            const processBtn = document.querySelector('.process-ai-btn');
+            
+            processBtn.innerHTML = `
+                <i class="fas fa-brain"></i>Procesar con IA (${checked.length})
+            `;
+        }
+
+        // Movement Actions
+        function matchMovimiento(id) {
+            if (!aiConfigured) {
+                showToast('warningToast', 'Configure la IA para habilitar la conciliación automática');
+                return;
+            }
+            
+            showToast('successToast', `Movimiento ${id} conciliado automáticamente`);
+            
+            // Update row status
+            setTimeout(() => {
+                const row = document.querySelector(`input[onchange="toggleMovimiento(${id})"]`).closest('tr');
+                const statusCell = row.querySelector('.status-badge');
+                const iaCell = row.querySelector('.ia-badge');
+                
+                statusCell.className = 'status-badge status-conciliado';
+                statusCell.textContent = 'Conciliado';
+                
+                iaCell.className = 'ia-badge ia-high';
+                iaCell.textContent = '95%';
+                
+                updateKPIs({
+                    movimientosSinProcesar: 2,
+                    apuntesPendientes: 0,
+                    pagosPendientes: 1,
+                    conciliadoMes: 2
+                });
+            }, 500);
+        }
+
+        function manualMatch(id) {
+            showToast('warningToast', `Abriendo conciliación manual para movimiento ${id}...`);
+        }
+
+        function ignoreMovimiento(id) {
+            if (confirm('¿Está seguro de que desea ignorar este movimiento?')) {
+                showToast('successToast', `Movimiento ${id} marcado como ignorado`);
+            }
+        }
+
+        // AI Processing
+        function processWithAI() {
+            if (!aiConfigured) {
+                showToast('warningToast', 'Configure su token IA en Configuración > IA Interna');
+                return;
+            }
+            
+            const selected = document.querySelectorAll('#movimientosTableBody input[type="checkbox"]:checked');
+            
+            if (selected.length === 0) {
+                showToast('warningToast', 'Seleccione al menos un movimiento para procesar');
+                return;
+            }
+            
+            showTableLoading(true);
+            
+            setTimeout(() => {
+                showTableLoading(false);
+                showToast('successToast', `${selected.length} movimientos procesados con IA`);
+                
+                // Simulate automatic matching
+                selected.forEach(checkbox => {
+                    const row = checkbox.closest('tr');
+                    const statusCell = row.querySelector('.status-badge');
+                    const iaCell = row.querySelector('.ia-badge');
+                    
+                    if (statusCell.textContent !== 'Conciliado') {
+                        statusCell.className = 'status-badge status-conciliado';
+                        statusCell.textContent = 'Conciliado';
+                        
+                        iaCell.className = 'ia-badge ia-high';
+                        iaCell.textContent = '92%';
+                    }
+                });
+                
+                updateKPIs({
+                    movimientosSinProcesar: 0,
+                    apuntesPendientes: 0,
+                    pagosPendientes: 0,
+                    conciliadoMes: 3
+                });
+                
+                // Reset selection
+                document.getElementById('selectAll').checked = false;
+                updateSelectedCount();
+            }, 4000);
+        }
+
+        // Export functionality
+        function exportToExcel() {
+            showToast('successToast', 'Exportando movimientos a Excel...');
+            
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = 'data:text/csv;charset=utf-8,Fecha,Descripción,Importe,Estado\n15/09/2024,Transferencia,€1250.00,Conciliado';
+                link.download = 'movimientos_bancarios.csv';
+                link.click();
+                showToast('successToast', 'Archivo exportado correctamente');
+            }, 1000);
+        }
+
+        // Utility Functions
+        function showTableLoading(show) {
+            document.getElementById('tableLoading').style.display = show ? 'flex' : 'none';
+        }
+
+        function showToast(toastId, message) {
+            const toastElement = document.getElementById(toastId);
+            toastElement.querySelector('.toast-body').textContent = message;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+    </script>
+</body>
+</html>

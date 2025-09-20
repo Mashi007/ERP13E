@@ -556,6 +556,13 @@ def inject_global_vars():
     }
 
 # =============================================================================
+# WSGI APPLICATION OBJECT PARA RAILWAY/GUNICORN
+# =============================================================================
+
+# CRÍTICO: Gunicorn busca 'application' en main.py
+application = app
+
+# =============================================================================
 # PUNTO DE ENTRADA PRINCIPAL
 # =============================================================================
 
@@ -571,6 +578,7 @@ if __name__ == '__main__':
     logger.info("🔧 Modo desarrollo - Servidor Flask integrado" if debug else "🔧 Modo producción - Usar Gunicorn")
     logger.info("📦 Módulos: Dashboard, Clientes, Empresas, Auditoría, Formación, Facturación, Configuración")
     logger.info("🔗 31 rutas disponibles")
+    logger.info("✅ WSGI Application Object: READY")
     
     # Rutas de prueba para desarrollo
     if debug:

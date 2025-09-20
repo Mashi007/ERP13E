@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 ERP13 Enterprise - WSGI Entry Point
-Compatible con Railway deployment
+Compatible con Railway deployment.
 """
 
 import os

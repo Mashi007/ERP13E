@@ -78,7 +78,10 @@ def create_app(config_name='production'):
     Returns:
         Flask: Aplicación Flask configurada y optimizada
     """
-    app = Flask(__name__)
+    app = Flask(__name__,
+        template_folder='templates',
+        static_folder='static'
+    )
     
     # =============================================================================
     # CONFIGURACIÓN MULTI-ENTORNO

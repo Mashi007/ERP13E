@@ -12,8 +12,18 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-import redis
 import json
+import os
+import logging
+from datetime import datetime, timedelta
+
+# Redis import with error handling
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    print("Redis not available - running without cache")
 
 # =============================================================================
 # CONFIGURACIÓN Y LOGGING
@@ -48,13 +58,17 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
     
     # Inicializar Redis para cache (opcional)
-    try:
-        redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-        app.redis = redis.from_url(redis_url, decode_responses=True)
-        app.redis.ping()
-        logger.info("✅ Redis conectado exitosamente")
-    except Exception as e:
-        logger.warning(f"⚠️ Redis no disponible: {e}")
+    if REDIS_AVAILABLE:
+        try:
+            redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+            app.redis = redis.from_url(redis_url, decode_responses=True)
+            app.redis.ping()
+            logger.info("✅ Redis conectado exitosamente")
+        except Exception as e:
+            logger.warning(f"⚠️ Redis no disponible: {e}")
+            app.redis = None
+    else:
+        logger.info("⚠️ Redis no disponible - ejecutando sin cache")
         app.redis = None
     
     return app

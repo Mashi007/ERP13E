@@ -1,66 +1,30 @@
-# ============================================================================
-# 📁 Ruta: /railway.toml
-# 📄 Nombre: railway.toml
-# 🏗️ Propósito: Configuración Railway optimizada ERP13 Enterprise v3.1
-# ⚡ Performance: Health checks, restart policies, resource management
-# 🔒 Seguridad: Variables de entorno seguras, timeouts optimizados
-# ============================================================================
+# Railway Configuration - Minimal Debug Mode
+# Ruta: /railway.debug.toml
 
 [build]
 builder = "NIXPACKS"
-buildCommand = "pip install --no-cache-dir -r requirements.txt"
 
 [deploy]
-# Health check configuration optimizada
+# Configuración simplificada para debugging
 healthcheckPath = "/health"
-healthcheckTimeout = 60
-healthcheckInterval = 15
-healthcheckRetries = 5
+healthcheckTimeout = 30
+healthcheckInterval = 10
+healthcheckRetries = 10
 
-# Restart policy enterprise
+# Comando simple sin argumentos problemáticos
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 60 wsgi:application"
+
+# Política de restart permisiva para debugging
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 5
+restartPolicyMaxRetries = 10
 
-# Resource management
-numReplicas = 1
-memoryLimit = 1024
-cpuLimit = 1000
-
-# Startup configuration
-startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --threads 4 --timeout 120 --max-requests 1000 --preload wsgi:application"
+# Recursos básicos
+memoryLimit = 512
+cpuLimit = 500
 
 [environments.production]
 variables = { 
     FLASK_ENV = "production",
-    PYTHONPATH = "/app",
-    WEB_CONCURRENCY = "2",
-    GUNICORN_WORKERS = "2",
-    GUNICORN_THREADS = "4",
-    GUNICORN_TIMEOUT = "120",
-    GUNICORN_KEEPALIVE = "5",
-    GUNICORN_MAX_REQUESTS = "1000",
-    SECRET_KEY = "${{ secrets.SECRET_KEY }}",
+    WEB_CONCURRENCY = "1",
     LOG_LEVEL = "INFO"
 }
-
-[environments.development]
-variables = { 
-    FLASK_ENV = "development",
-    PYTHONPATH = "/app",
-    WEB_CONCURRENCY = "1",
-    LOG_LEVEL = "DEBUG"
-}
-
-# ============================================================================
-# CONFIGURACIÓN DE MONITOREO
-# ============================================================================
-[monitoring]
-enabled = true
-healthcheck_grace_period = 60
-startup_timeout = 300
-
-# ============================================================================
-# CONFIGURACIÓN DE RED
-# ============================================================================
-[networking]
-port = "$PORT"

@@ -1,7 +1,7 @@
 # 📁 Ruta: /app/wsgi.py
 # 📄 Nombre: wsgi.py  
 # 🏗️ Propósito: Entry point Railway deployment ERP13 Enterprise.
-# ⚡ Performance: Gunicorn + workers + health checks
+# ⚡ Performance: Gunicorn + workers + health checks.
 # 🔒 Seguridad: Environment variables + secrets management
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for

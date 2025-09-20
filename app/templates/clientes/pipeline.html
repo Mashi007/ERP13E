@@ -1,911 +1,717 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pipeline de Ventas - ERP13 Enterprise</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <!-- Sortable JS for drag & drop -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    
-    <style>
-        :root {
-            --primary-color: #8B5CF6;
-            --secondary-color: #3B82F6;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
-            --dark-color: #1F2937;
-            --light-color: #F9FAFB;
-        }
+{% extends "layout.html" %}
 
-        body {
-            background-color: var(--light-color);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            overflow-x: auto;
-        }
+{% block title %}Pipeline de Ventas - ERP Enterprise{% endblock %}
 
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+{% block extra_css %}
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
-        .sidebar-item {
-            color: #D1D5DB;
-            padding: 12px 20px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 4px 8px;
-        }
+<style>
+    body {
+        overflow-x: auto;
+    }
 
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
+    .pipeline-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 30px;
+    }
 
-        .main-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin: 20px;
-            min-height: calc(100vh - 40px);
-        }
+    .kanban-container {
+        overflow-x: auto;
+        padding: 20px 0;
+    }
 
-        .pipeline-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            color: white;
-            margin-bottom: 30px;
-        }
+    .kanban-board {
+        display: flex;
+        gap: 20px;
+        min-width: fit-content;
+        padding: 10px;
+    }
 
-        .kanban-container {
-            overflow-x: auto;
-            padding: 20px 0;
-        }
+    .kanban-column {
+        min-width: 320px;
+        max-width: 320px;
+        background: #FAFAFA;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
 
-        .kanban-board {
-            display: flex;
-            gap: 20px;
-            min-width: fit-content;
-            padding: 10px;
-        }
+    .kanban-column-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
 
+    .kanban-column-title {
+        font-weight: 700;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    .kanban-column-stats {
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin-top: 5px;
+    }
+
+    .kanban-column-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .kanban-cards {
+        min-height: 200px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+    }
+
+    .kanban-cards.drag-over {
+        background-color: #E0E7FF;
+        border: 2px dashed var(--primary-color);
+    }
+
+    .opportunity-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        cursor: grab;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .opportunity-card:active {
+        cursor: grabbing;
+    }
+
+    .opportunity-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .opportunity-card.dragging {
+        opacity: 0.5;
+        transform: rotate(5deg);
+    }
+
+    .opportunity-title {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .opportunity-client {
+        font-size: 0.875rem;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .opportunity-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--success-color);
+        margin-bottom: 10px;
+    }
+
+    .opportunity-meta {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #6B7280;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .opportunity-date {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .opportunity-priority {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+
+    .priority-high { background: #FEE2E2; color: #991B1B; }
+    .priority-medium { background: #FEF3C7; color: #92400E; }
+    .priority-low { background: #E5E7EB; color: #374151; }
+
+    .stage-colors {
+        --stage-1: #3B82F6;
+        --stage-2: #8B5CF6;
+        --stage-3: #F59E0B;
+        --stage-4: #10B981;
+        --stage-5: #EF4444;
+    }
+
+    .stage-1 { border-left-color: var(--stage-1); }
+    .stage-2 { border-left-color: var(--stage-2); }
+    .stage-3 { border-left-color: var(--stage-3); }
+    .stage-4 { border-left-color: var(--stage-4); }
+    .stage-5 { border-left-color: var(--stage-5); }
+
+    .stage-1 .kanban-column-header { border-top: 4px solid var(--stage-1); }
+    .stage-2 .kanban-column-header { border-top: 4px solid var(--stage-2); }
+    .stage-3 .kanban-column-header { border-top: 4px solid var(--stage-3); }
+    .stage-4 .kanban-column-header { border-top: 4px solid var(--stage-4); }
+    .stage-5 .kanban-column-header { border-top: 4px solid var(--stage-5); }
+
+    .pipeline-stats {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        background: #F9FAFB;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .stat-label {
+        color: #6B7280;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .filter-controls {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    .add-opportunity-btn {
+        width: 100%;
+        padding: 15px;
+        border: 2px dashed #CBD5E1;
+        background: transparent;
+        color: #64748B;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .add-opportunity-btn:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .quick-actions {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+    }
+
+    .quick-action-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .quick-action-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .conversion-rate {
+        font-size: 0.75rem;
+        padding: 3px 6px;
+        border-radius: 10px;
+        margin-left: auto;
+    }
+
+    .conversion-excellent { background: #D1FAE5; color: #065F46; }
+    .conversion-good { background: #FEF3C7; color: #92400E; }
+    .conversion-poor { background: #FEE2E2; color: #991B1B; }
+
+    .opportunity-progress {
+        width: 100%;
+        height: 3px;
+        background: #E5E7EB;
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 8px 0;
+    }
+
+    .opportunity-progress-fill {
+        height: 100%;
+        background: var(--success-color);
+        transition: width 0.3s ease;
+    }
+
+    .empty-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: #9CA3AF;
+        text-align: center;
+    }
+
+    .empty-column i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
         .kanban-column {
-            min-width: 320px;
-            max-width: 320px;
-            background: #FAFAFA;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            min-width: 280px;
+            max-width: 280px;
         }
-
-        .kanban-column-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .kanban-column-title {
-            font-weight: 700;
-            color: var(--dark-color);
-            margin: 0;
-        }
-
-        .kanban-column-stats {
-            font-size: 0.875rem;
-            color: #6B7280;
-            margin-top: 5px;
-        }
-
-        .kanban-column-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .kanban-cards {
-            min-height: 200px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-        }
-
-        .kanban-cards.drag-over {
-            background-color: #E0E7FF;
-            border: 2px dashed var(--primary-color);
-        }
-
-        .opportunity-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: grab;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .opportunity-card:active {
-            cursor: grabbing;
-        }
-
-        .opportunity-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-
-        .opportunity-card.dragging {
-            opacity: 0.5;
-            transform: rotate(5deg);
-        }
-
-        .opportunity-title {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        .opportunity-client {
-            font-size: 0.875rem;
-            color: var(--primary-color);
-            margin-bottom: 8px;
-        }
-
-        .opportunity-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--success-color);
-            margin-bottom: 10px;
-        }
-
-        .opportunity-meta {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: #6B7280;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .opportunity-date {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-
-        .opportunity-priority {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-
-        .priority-high { background: #FEE2E2; color: #991B1B; }
-        .priority-medium { background: #FEF3C7; color: #92400E; }
-        .priority-low { background: #E5E7EB; color: #374151; }
-
-        .stage-colors {
-            --stage-1: #3B82F6;
-            --stage-2: #8B5CF6;
-            --stage-3: #F59E0B;
-            --stage-4: #10B981;
-            --stage-5: #EF4444;
-        }
-
-        .stage-1 { border-left-color: var(--stage-1); }
-        .stage-2 { border-left-color: var(--stage-2); }
-        .stage-3 { border-left-color: var(--stage-3); }
-        .stage-4 { border-left-color: var(--stage-4); }
-        .stage-5 { border-left-color: var(--stage-5); }
-
-        .stage-1 .kanban-column-header { border-top: 4px solid var(--stage-1); }
-        .stage-2 .kanban-column-header { border-top: 4px solid var(--stage-2); }
-        .stage-3 .kanban-column-header { border-top: 4px solid var(--stage-3); }
-        .stage-4 .kanban-column-header { border-top: 4px solid var(--stage-4); }
-        .stage-5 .kanban-column-header { border-top: 4px solid var(--stage-5); }
-
-        .pipeline-stats {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-
+        
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
         }
+    }
 
-        .stat-item {
-            text-align: center;
-            padding: 15px;
-            border-radius: 8px;
-            background: #F9FAFB;
-        }
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
 
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
 
-        .stat-label {
-            color: #6B7280;
-            font-size: 0.875rem;
-            margin-top: 5px;
-        }
+{% block breadcrumbs %}
+<nav class="erp-breadcrumb">
+    <ol class="breadcrumb-list">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/clientes">Clientes</a></li>
+        <li class="active">Pipeline de Ventas</li>
+    </ol>
+</nav>
+{% endblock %}
 
-        .filter-controls {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-
-        .add-opportunity-btn {
-            width: 100%;
-            padding: 15px;
-            border: 2px dashed #CBD5E1;
-            background: transparent;
-            color: #64748B;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-size: 0.875rem;
-        }
-
-        .add-opportunity-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background: rgba(139, 92, 246, 0.05);
-        }
-
-        .quick-actions {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
-
-        .quick-action-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
-
-        .quick-action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .conversion-rate {
-            font-size: 0.75rem;
-            padding: 3px 6px;
-            border-radius: 10px;
-            margin-left: auto;
-        }
-
-        .conversion-excellent { background: #D1FAE5; color: #065F46; }
-        .conversion-good { background: #FEF3C7; color: #92400E; }
-        .conversion-poor { background: #FEE2E2; color: #991B1B; }
-
-        .opportunity-progress {
-            width: 100%;
-            height: 3px;
-            background: #E5E7EB;
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-
-        .opportunity-progress-fill {
-            height: 100%;
-            background: var(--success-color);
-            transition: width 0.3s ease;
-        }
-
-        .empty-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            color: #9CA3AF;
-            text-align: center;
-        }
-
-        .empty-column i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            opacity: 0.5;
-        }
-
-        @media (max-width: 768px) {
-            .kanban-column {
-                min-width: 280px;
-                max-width: 280px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-users"></i> Clientes
-                    </h4>
-                    
-                    <nav>
-                        <a href="{{ url_for('clientes.gestion_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-users-cog"></i> Gestión Clientes
-                        </a>
-                        <a href="{{ url_for('clientes.timeline_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-clock"></i> Timeline
-                        </a>
-                        <a href="{{ url_for('clientes.comunicaciones_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-comments"></i> Comunicaciones
-                        </a>
-                        <a href="{{ url_for('clientes.propuestas_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-file-alt"></i> Propuestas
-                        </a>
-                        <a href="{{ url_for('clientes.pipeline_clientes') }}" class="sidebar-item active">
-                            <i class="fas fa-chart-line"></i> Pipeline
-                        </a>
-                        <a href="{{ url_for('clientes.tickets_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-ticket-alt"></i> Tickets
-                        </a>
-                        <a href="{{ url_for('clientes.calendario_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-calendar-alt"></i> Calendario
-                        </a>
-                        <a href="{{ url_for('clientes.campanas_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-bullhorn"></i> Campañas Publicitarias
-                        </a>
-                        <a href="{{ url_for('clientes.automatizaciones_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-magic"></i> Automatizaciones
-                        </a>
-                    </nav>
+{% block content %}
+<div class="content-wrapper">
+    <!-- Header -->
+    <div class="pipeline-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2">
+                    <i class="fas fa-chart-line"></i> Pipeline de Ventas
+                    {% if selected_client %}
+                        - {{ selected_client.nombre_empresa }}
+                    {% endif %}
+                </h2>
+                <p class="mb-3 opacity-90">
+                    {% if selected_client %}
+                        Embudo de ventas para {{ selected_client.nombre_empresa }}
+                    {% else %}
+                        Gestión visual del embudo de ventas con sistema Kanban
+                    {% endif %}
+                </p>
+                <div class="d-flex align-items-center gap-3">
+                    <select id="client-selector" class="form-select" style="max-width: 300px;">
+                        <option value="">Todos los clientes</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
+                            {{ client.nombre_empresa }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
-
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10">
-                <div class="main-content">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="pipeline-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h2 class="mb-2">
-                                        <i class="fas fa-chart-line"></i> Pipeline de Ventas
-                                        {% if selected_client %}
-                                            - {{ selected_client.nombre_empresa }}
-                                        {% endif %}
-                                    </h2>
-                                    <p class="mb-3 opacity-90">
-                                        {% if selected_client %}
-                                            Embudo de ventas para {{ selected_client.nombre_empresa }}
-                                        {% else %}
-                                            Gestión visual del embudo de ventas con sistema Kanban
-                                        {% endif %}
-                                    </p>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <select id="client-selector" class="form-select" style="max-width: 300px;">
-                                            <option value="">Todos los clientes</option>
-                                            {% for client in clients %}
-                                            <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
-                                                {{ client.nombre_empresa }}
-                                            </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="fs-3 fw-bold">{{ opportunities|length }}</div>
-                                    <div class="opacity-75">oportunidades</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pipeline Stats -->
-                        <div class="pipeline-stats">
-                            <div class="stats-grid">
-                                {% for stat in stats %}
-                                <div class="stat-item">
-                                    <div class="stat-number">{{ stat.opportunity_count or 0 }}</div>
-                                    <div class="stat-label">{{ stat.stage_name or 'Sin etapa' }}</div>
-                                    <div class="small text-muted mt-1">
-                                        ${{ (stat.total_value or 0)|round(0) }}
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <!-- Filter Controls -->
-                        <div class="filter-controls">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-filter"></i> Vista del Pipeline
-                                </h5>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#stageConfigModal">
-                                        <i class="fas fa-cog"></i> Configurar Etapas
-                                    </button>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newOpportunityModal">
-                                        <i class="fas fa-plus"></i> Nueva Oportunidad
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="row align-items-center">
-                                <div class="col-md-3">
-                                    <label class="form-label small">Filtrar por valor:</label>
-                                    <select class="form-select form-select-sm" id="filter-value">
-                                        <option value="">Todos los valores</option>
-                                        <option value="0-1000">$0 - $1,000</option>
-                                        <option value="1000-10000">$1,000 - $10,000</option>
-                                        <option value="10000-50000">$10,000 - $50,000</option>
-                                        <option value="50000+">$50,000+</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Prioridad:</label>
-                                    <select class="form-select form-select-sm" id="filter-priority">
-                                        <option value="">Todas</option>
-                                        <option value="high">Alta</option>
-                                        <option value="medium">Media</option>
-                                        <option value="low">Baja</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Período:</label>
-                                    <select class="form-select form-select-sm" id="filter-period">
-                                        <option value="">Todo</option>
-                                        <option value="week">Esta semana</option>
-                                        <option value="month">Este mes</option>
-                                        <option value="quarter">Este trimestre</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Buscar:</label>
-                                    <input type="text" class="form-control form-control-sm" id="search-opportunities" 
-                                           placeholder="Buscar oportunidades...">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Kanban Board -->
-                        <div class="kanban-container">
-                            <div class="kanban-board" id="kanban-board">
-                                {% for stage_id, stage_data in kanban_data.items() %}
-                                <div class="kanban-column stage-{{ loop.index }}" data-stage-id="{{ stage_id }}">
-                                    <div class="kanban-column-header">
-                                        <div class="flex-grow-1">
-                                            <h6 class="kanban-column-title">
-                                                <i class="fas fa-{{ 'bullseye' if loop.index == 1 else 'chart-line' if loop.index == 2 else 'handshake' if loop.index == 3 else 'trophy' if loop.index == 4 else 'times' }}"></i>
-                                                {{ stage_data.stage.stage_name }}
-                                            </h6>
-                                            <div class="kanban-column-stats">
-                                                {{ stage_data.opportunities|length }} oportunidades
-                                                <span class="text-success">
-                                                    • ${{ (stage_data.opportunities|sum(attribute='estimated_value') if stage_data.opportunities else 0)|round(0) }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="kanban-column-actions">
-                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Configurar etapa">
-                                                <i class="fas fa-cog"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="kanban-cards" data-stage-id="{{ stage_id }}">
-                                        {% if stage_data.opportunities %}
-                                            {% for opportunity in stage_data.opportunities %}
-                                            <div class="opportunity-card stage-{{ loop.index }}" 
-                                                 data-opportunity-id="{{ opportunity.id }}"
-                                                 data-stage-id="{{ stage_id }}"
-                                                 data-value="{{ opportunity.estimated_value or 0 }}"
-                                                 data-priority="{{ opportunity.priority or 'medium' }}"
-                                                 data-date="{{ opportunity.created_at or '' }}">
-                                                
-                                                <div class="opportunity-title">
-                                                    {{ opportunity.title or 'Oportunidad sin título' }}
-                                                </div>
-                                                
-                                                <div class="opportunity-client">
-                                                    <i class="fas fa-building"></i>
-                                                    {{ opportunity.nombre_empresa or 'Cliente no especificado' }}
-                                                </div>
-                                                
-                                                <div class="opportunity-value">
-                                                    ${{ (opportunity.estimated_value or 0)|round(2) }}
-                                                </div>
-                                                
-                                                <div class="opportunity-progress">
-                                                    <div class="opportunity-progress-fill" style="width: {{ (opportunity.completion_percentage or 25)|round }}%"></div>
-                                                </div>
-                                                
-                                                <div class="opportunity-meta">
-                                                    <div class="opportunity-date">
-                                                        <i class="fas fa-calendar-alt"></i>
-                                                        {{ moment(opportunity.created_at).format('DD/MM') if moment and opportunity.created_at else 'N/A' }}
-                                                    </div>
-                                                    <div class="opportunity-priority priority-{{ opportunity.priority or 'medium' }}">
-                                                        {{ opportunity.priority|title or 'Media' }}
-                                                    </div>
-                                                </div>
-
-                                                {% if opportunity.days_in_stage %}
-                                                <div class="small text-muted mt-1">
-                                                    <i class="fas fa-clock"></i>
-                                                    {{ opportunity.days_in_stage }} días en etapa
-                                                </div>
-                                                {% endif %}
-                                            </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <div class="empty-column">
-                                                <i class="fas fa-inbox"></i>
-                                                <div class="small">No hay oportunidades</div>
-                                            </div>
-                                        {% endif %}
-
-                                        <button class="add-opportunity-btn" data-stage-id="{{ stage_id }}" data-stage-name="{{ stage_data.stage.stage_name }}">
-                                            <i class="fas fa-plus"></i>
-                                            Agregar oportunidad en {{ stage_data.stage.stage_name }}
-                                        </button>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <!-- Conversion Analysis -->
-                        <div class="row mt-4">
-                            <div class="col-md-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="card-title">
-                                            <i class="fas fa-chart-bar"></i> Análisis de Conversión
-                                        </h6>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            {% for stage in pipeline_stages %}
-                                            <div class="text-center">
-                                                <div class="small text-muted">{{ stage.stage_name }}</div>
-                                                <div class="fw-bold">
-                                                    {{ kanban_data[stage.id].opportunities|length if kanban_data[stage.id] else 0 }}
-                                                </div>
-                                                {% if not loop.last %}
-                                                <div class="small mt-1">
-                                                    <i class="fas fa-arrow-right text-primary"></i>
-                                                    <span class="conversion-rate conversion-good">75%</span>
-                                                </div>
-                                                {% endif %}
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="text-end">
+                <div class="fs-3 fw-bold">{{ opportunities|length }}</div>
+                <div class="opacity-75">oportunidades</div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button class="quick-action-btn btn btn-success" title="Nueva oportunidad" data-bs-toggle="modal" data-bs-target="#newOpportunityModal">
-            <i class="fas fa-plus"></i>
-        </button>
-        <button class="quick-action-btn btn btn-primary" title="Configurar pipeline" data-bs-toggle="modal" data-bs-target="#stageConfigModal">
-            <i class="fas fa-cog"></i>
-        </button>
+    <!-- Pipeline Stats -->
+    <div class="pipeline-stats">
+        <div class="stats-grid">
+            {% for stat in stats %}
+            <div class="stat-item">
+                <div class="stat-number">{{ stat.opportunity_count or 0 }}</div>
+                <div class="stat-label">{{ stat.stage_name or 'Sin etapa' }}</div>
+                <div class="small text-muted mt-1">
+                    ${{ (stat.total_value or 0)|round(0) }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
-    <!-- New Opportunity Modal -->
-    <div class="modal fade" id="newOpportunityModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nueva Oportunidad</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newOpportunityForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Cliente *</label>
-                                    <select class="form-select" name="client_id" required>
-                                        {% if selected_client %}
-                                        <option value="{{ selected_client.id }}" selected>{{ selected_client.nombre_empresa }}</option>
-                                        {% else %}
-                                        <option value="">Seleccionar cliente</option>
-                                        {% endif %}
-                                        {% for client in clients %}
-                                        {% if not selected_client or client.id != selected_client.id %}
-                                        <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Etapa del Pipeline *</label>
-                                    <select class="form-select" name="stage_id" id="stage-selector" required>
-                                        {% for stage in pipeline_stages %}
-                                        <option value="{{ stage.id }}" {% if loop.first %}selected{% endif %}>
-                                            {{ stage.stage_name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label class="form-label">Título de la Oportunidad *</label>
-                                    <input type="text" class="form-control" name="title" required 
-                                           placeholder="Ej: Proyecto de desarrollo web para Acme Corp">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Prioridad</label>
-                                    <select class="form-select" name="priority">
-                                        <option value="low">Baja</option>
-                                        <option value="medium" selected>Media</option>
-                                        <option value="high">Alta</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Valor Estimado *</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" name="estimated_value" step="0.01" min="0" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Probabilidad de Cierre</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" name="close_probability" min="0" max="100" placeholder="50">
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Fecha Estimada de Cierre</label>
-                                    <input type="date" class="form-control" name="estimated_close_date">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Fuente de la Oportunidad</label>
-                                    <select class="form-select" name="source">
-                                        <option value="">No especificada</option>
-                                        <option value="website">Sitio Web</option>
-                                        <option value="referral">Referencia</option>
-                                        <option value="cold_call">Llamada en frío</option>
-                                        <option value="social_media">Redes Sociales</option>
-                                        <option value="campaign">Campaña</option>
-                                        <option value="other">Otro</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="description" rows="4" 
-                                              placeholder="Describe los detalles de esta oportunidad de negocio..."></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Próximos Pasos</label>
-                                    <textarea class="form-control" name="next_steps" rows="3" 
-                                              placeholder="¿Cuáles son los siguientes pasos para avanzar esta oportunidad?"></textarea>
-                                </div>
-                            </div>
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="fas fa-filter"></i> Vista del Pipeline
+            </h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#stageConfigModal">
+                    <i class="fas fa-cog"></i> Configurar Etapas
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newOpportunityModal">
+                    <i class="fas fa-plus"></i> Nueva Oportunidad
+                </button>
+            </div>
+        </div>
+        
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <label class="form-label small">Filtrar por valor:</label>
+                <select class="form-select form-select-sm" id="filter-value">
+                    <option value="">Todos los valores</option>
+                    <option value="0-1000">$0 - $1,000</option>
+                    <option value="1000-10000">$1,000 - $10,000</option>
+                    <option value="10000-50000">$10,000 - $50,000</option>
+                    <option value="50000+">$50,000+</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Prioridad:</label>
+                <select class="form-select form-select-sm" id="filter-priority">
+                    <option value="">Todas</option>
+                    <option value="high">Alta</option>
+                    <option value="medium">Media</option>
+                    <option value="low">Baja</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Período:</label>
+                <select class="form-select form-select-sm" id="filter-period">
+                    <option value="">Todo</option>
+                    <option value="week">Esta semana</option>
+                    <option value="month">Este mes</option>
+                    <option value="quarter">Este trimestre</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Buscar:</label>
+                <input type="text" class="form-control form-control-sm" id="search-opportunities" 
+                       placeholder="Buscar oportunidades...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-container">
+        <div class="kanban-board" id="kanban-board">
+            {% for stage_id, stage_data in kanban_data.items() %}
+            <div class="kanban-column stage-{{ loop.index }}" data-stage-id="{{ stage_id }}">
+                <div class="kanban-column-header">
+                    <div class="flex-grow-1">
+                        <h6 class="kanban-column-title">
+                            <i class="fas fa-{{ 'bullseye' if loop.index == 1 else 'chart-line' if loop.index == 2 else 'handshake' if loop.index == 3 else 'trophy' if loop.index == 4 else 'times' }}"></i>
+                            {{ stage_data.stage.stage_name }}
+                        </h6>
+                        <div class="kanban-column-stats">
+                            {{ stage_data.opportunities|length }} oportunidades
+                            <span class="text-success">
+                                • ${{ (stage_data.opportunities|sum(attribute='estimated_value') if stage_data.opportunities else 0)|round(0) }}
+                            </span>
                         </div>
-                    </form>
+                    </div>
+                    <div class="kanban-column-actions">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Configurar etapa">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveOpportunity">
-                        <i class="fas fa-save"></i> Crear Oportunidad
+
+                <div class="kanban-cards" data-stage-id="{{ stage_id }}">
+                    {% if stage_data.opportunities %}
+                        {% for opportunity in stage_data.opportunities %}
+                        <div class="opportunity-card stage-{{ loop.index }}" 
+                             data-opportunity-id="{{ opportunity.id }}"
+                             data-stage-id="{{ stage_id }}"
+                             data-value="{{ opportunity.estimated_value or 0 }}"
+                             data-priority="{{ opportunity.priority or 'medium' }}"
+                             data-date="{{ opportunity.created_at or '' }}">
+                            
+                            <div class="opportunity-title">
+                                {{ opportunity.title or 'Oportunidad sin título' }}
+                            </div>
+                            
+                            <div class="opportunity-client">
+                                <i class="fas fa-building"></i>
+                                {{ opportunity.nombre_empresa or 'Cliente no especificado' }}
+                            </div>
+                            
+                            <div class="opportunity-value">
+                                ${{ (opportunity.estimated_value or 0)|round(2) }}
+                            </div>
+                            
+                            <div class="opportunity-progress">
+                                <div class="opportunity-progress-fill" style="width: {{ (opportunity.completion_percentage or 25)|round }}%"></div>
+                            </div>
+                            
+                            <div class="opportunity-meta">
+                                <div class="opportunity-date">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    {{ moment(opportunity.created_at).format('DD/MM') if moment and opportunity.created_at else 'N/A' }}
+                                </div>
+                                <div class="opportunity-priority priority-{{ opportunity.priority or 'medium' }}">
+                                    {{ opportunity.priority|title or 'Media' }}
+                                </div>
+                            </div>
+
+                            {% if opportunity.days_in_stage %}
+                            <div class="small text-muted mt-1">
+                                <i class="fas fa-clock"></i>
+                                {{ opportunity.days_in_stage }} días en etapa
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-column">
+                            <i class="fas fa-inbox"></i>
+                            <div class="small">No hay oportunidades</div>
+                        </div>
+                    {% endif %}
+
+                    <button class="add-opportunity-btn" data-stage-id="{{ stage_id }}" data-stage-name="{{ stage_data.stage.stage_name }}">
+                        <i class="fas fa-plus"></i>
+                        Agregar oportunidad en {{ stage_data.stage.stage_name }}
                     </button>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 
-    <!-- Stage Configuration Modal -->
-    <div class="modal fade" id="stageConfigModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Configurar Etapas del Pipeline</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        Configura las etapas de tu pipeline de ventas. Las oportunidades se moverán entre estas etapas.
-                    </div>
-                    
-                    <div id="stages-configuration">
+    <!-- Conversion Analysis -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-chart-bar"></i> Análisis de Conversión
+                    </h6>
+                    <div class="d-flex justify-content-between align-items-center">
                         {% for stage in pipeline_stages %}
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-3">
-                                        <label class="form-label small">Nombre de la Etapa</label>
-                                        <input type="text" class="form-control" value="{{ stage.stage_name }}" data-stage-id="{{ stage.id }}">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label small">Orden</label>
-                                        <input type="number" class="form-control" value="{{ stage.stage_order }}" min="1">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label small">Color</label>
-                                        <input type="color" class="form-control" value="{{ stage.stage_color or '#8B5CF6' }}" style="width: 50px; height: 38px;">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small">Automatizaciones</label>
-                                        <select class="form-select form-select-sm">
-                                            <option value="">Sin automatización</option>
-                                            <option value="email_welcome">Email de bienvenida</option>
-                                            <option value="task_create">Crear tarea</option>
-                                            <option value="notification">Notificación</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2 text-end">
-                                        <button class="btn btn-sm btn-outline-danger" type="button">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                        <div class="text-center">
+                            <div class="small text-muted">{{ stage.stage_name }}</div>
+                            <div class="fw-bold">
+                                {{ kanban_data[stage.id].opportunities|length if kanban_data[stage.id] else 0 }}
                             </div>
+                            {% if not loop.last %}
+                            <div class="small mt-1">
+                                <i class="fas fa-arrow-right text-primary"></i>
+                                <span class="conversion-rate conversion-good">75%</span>
+                            </div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>
-                    
-                    <button class="btn btn-outline-primary" type="button" id="add-stage">
-                        <i class="fas fa-plus"></i> Agregar Nueva Etapa
-                    </button>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveStageConfig">
-                        <i class="fas fa-save"></i> Guardar Configuración
-                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <button class="quick-action-btn btn btn-success" title="Nueva oportunidad" data-bs-toggle="modal" data-bs-target="#newOpportunityModal">
+        <i class="fas fa-plus"></i>
+    </button>
+    <button class="quick-action-btn btn btn-primary" title="Configurar pipeline" data-bs-toggle="modal" data-bs-target="#stageConfigModal">
+        <i class="fas fa-cog"></i>
+    </button>
+</div>
 
-    <script>
-        $(document).ready(function() {
-            // Initialize Select2
-            $('#client-selector, select[name="client_id"]').select2({
-                placeholder: 'Buscar cliente...',
-                allowClear: true,
-                width: '100%'
-            });
+<!-- New Opportunity Modal -->
+<div class="modal fade" id="newOpportunityModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Oportunidad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newOpportunityForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cliente *</label>
+                                <select class="form-select" name="client_id" required>
+                                    {% if selected_client %}
+                                    <option value="{{ selected_client.id }}" selected>{{ selected_client.nombre_empresa }}</option>
+                                    {% else %}
+                                    <option value="">Seleccionar cliente</option>
+                                    {% endif %}
+                                    {% for client in clients %}
+                                    {% if not selected_client or client.id != selected_client.id %}
+                                    <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Etapa del Pipeline *</label>
+                                <select class="form-select" name="stage_id" id="stage-selector" required>
+                                    {% for stage in pipeline_stages %}
+                                    <option value="{{ stage.id }}" {% if loop.first %}selected{% endif %}>
+                                        {{ stage.stage_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label">Título de la Oportunidad *</label>
+                                <input type="text" class="form-control" name="title" required 
+                                       placeholder="Ej: Proyecto de desarrollo web para Acme Corp">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Prioridad</label>
+                                <select class="form-select" name="priority">
+                                    <option value="low">Baja</option>
+                                    <option value="medium" selected>Media</option>
+                                    <option value="high">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Valor Estimado *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" name="estimated_value" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Probabilidad de Cierre</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="close_probability" min="0" max="100" placeholder="50">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha Estimada de Cierre</label>
+                                <input type="date" class="form-control" name="estimated_close_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fuente de la Oportunidad</label>
+                                <select class="form-select" name="source">
+                                    <option value="">No especificada</option>
+                                    <option value="website">Sitio Web</option>
+                                    <option value="referral">Referencia</option>
+                                    <option value="cold_call">Llamada en frío</option>
+                                    <option value="social_media">Redes Sociales</option>
+                                    <option value="campaign">Campaña</option>
+                                    <option value="other">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="description" rows="4" 
+                                          placeholder="Describe los detalles de esta oportunidad de negocio..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Próximos Pasos</label>
+                                <textarea class="form-control" name="next_steps" rows="3" 
+                                          placeholder="¿Cuáles son los siguientes pasos para avanzar esta oportunidad?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveOpportunity">
+                    <i class="fas fa-save"></i> Crear Oportunidad
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Initialize drag and drop
-            initializeDragAndDrop();
-
-            // Client selector change
-            $('#client-selector').change(function() {
-                const clientId = $(this).val();
-                if (clientId) {
-                    window.location.href = `/clientes/pipeline/${clientId}`;
-                } else {
-                    window.location.href = '/clientes/pipeline';
-                }
-            });
-
-            // Initialize tooltips
-            $('[data-bs-toggle="tooltip"]').tooltip();
-
-            // Add opportunity button in columns
-            $('.add-opportunity-btn').click(function() {
-                const stageId = $(this).data('stage-id');
-                const stageName = $(this).data('stage-name');
+<!-- Stage Configuration Modal -->
+<div class="modal fade" id="stageConfigModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configurar Etapas del Pipeline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Configura las etapas de tu pipeline de ventas. Las oportunidades se moverán entre estas etapas.
+                </div>
                 
-                $('#newOpportunityModal').modal('show');
-                $(`#stage-selector option[value="${stageId}"]`).prop('selected', true);
-            });
-
-            // Create new opportunity
-            $('#saveOpportunity').click(function() {
-                const formData = $('#newOpportunityForm').serialize();
-                console.log('Creating opportunity:', formData);
-                
-                // Simulate creating opportunity
-                $('#newOpportunityModal').modal('hide');
-                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                  'Oportunidad creada exitosamente en el pipeline!' +
-                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                  '</div>').prependTo('.main-content .p-4');
-
-                // Reset form
-                $('#newOpportunityForm')[0].reset();
-            });
-
-            // Stage configuration
-            $('#add-stage').click(function() {
-                const newStageHtml = `
+                <div id="stages-configuration">
+                    {% for stage in pipeline_stages %}
                     <div class="card mb-3">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-3">
                                     <label class="form-label small">Nombre de la Etapa</label>
-                                    <input type="text" class="form-control" placeholder="Nueva etapa">
+                                    <input type="text" class="form-control" value="{{ stage.stage_name }}" data-stage-id="{{ stage.id }}">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label small">Orden</label>
-                                    <input type="number" class="form-control" value="${$('#stages-configuration .card').length + 1}" min="1">
+                                    <input type="number" class="form-control" value="{{ stage.stage_order }}" min="1">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label small">Color</label>
-                                    <input type="color" class="form-control" value="#8B5CF6" style="width: 50px; height: 38px;">
+                                    <input type="color" class="form-control" value="{{ stage.stage_color or '#8B5CF6' }}" style="width: 50px; height: 38px;">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small">Automatizaciones</label>
@@ -924,158 +730,268 @@
                             </div>
                         </div>
                     </div>
-                `;
-                $('#stages-configuration').append(newStageHtml);
-            });
-
-            // Save stage configuration
-            $('#saveStageConfig').click(function() {
-                console.log('Saving stage configuration...');
-                $('#stageConfigModal').modal('hide');
+                    {% endfor %}
+                </div>
                 
-                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                  'Configuración de etapas guardada correctamente!' +
-                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                  '</div>').prependTo('.main-content .p-4');
-            });
+                <button class="btn btn-outline-primary" type="button" id="add-stage">
+                    <i class="fas fa-plus"></i> Agregar Nueva Etapa
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveStageConfig">
+                    <i class="fas fa-save"></i> Guardar Configuración
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-            // Filtering
-            $('#filter-value, #filter-priority, #filter-period, #search-opportunities')
-                .on('change input', function() {
-                    filterOpportunities();
-                });
+{% block extra_js %}
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Sortable JS for drag & drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-            function filterOpportunities() {
-                const value = $('#filter-value').val();
-                const priority = $('#filter-priority').val();
-                const period = $('#filter-period').val();
-                const searchTerm = $('#search-opportunities').val().toLowerCase();
-
-                $('.opportunity-card').each(function() {
-                    const card = $(this);
-                    const cardValue = parseFloat(card.data('value')) || 0;
-                    const cardPriority = card.data('priority') || '';
-                    const cardDate = new Date(card.data('date'));
-                    const cardText = card.text().toLowerCase();
-
-                    let show = true;
-
-                    // Value filter
-                    if (value && !matchesValueRange(cardValue, value)) {
-                        show = false;
-                    }
-
-                    // Priority filter
-                    if (priority && cardPriority !== priority) {
-                        show = false;
-                    }
-
-                    // Period filter
-                    if (period && !matchesPeriod(cardDate, period)) {
-                        show = false;
-                    }
-
-                    // Search filter
-                    if (searchTerm && !cardText.includes(searchTerm)) {
-                        show = false;
-                    }
-
-                    if (show) {
-                        card.show();
-                    } else {
-                        card.hide();
-                    }
-                });
-            }
-
-            function matchesValueRange(value, range) {
-                switch (range) {
-                    case '0-1000':
-                        return value >= 0 && value <= 1000;
-                    case '1000-10000':
-                        return value > 1000 && value <= 10000;
-                    case '10000-50000':
-                        return value > 10000 && value <= 50000;
-                    case '50000+':
-                        return value > 50000;
-                    default:
-                        return true;
-                }
-            }
-
-            function matchesPeriod(date, period) {
-                const now = new Date();
-                switch (period) {
-                    case 'week':
-                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                        return date >= weekAgo;
-                    case 'month':
-                        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                        return date >= monthAgo;
-                    case 'quarter':
-                        const quarterAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-                        return date >= quarterAgo;
-                    default:
-                        return true;
-                }
-            }
-
-            function initializeDragAndDrop() {
-                $('.kanban-cards').each(function() {
-                    const sortable = Sortable.create(this, {
-                        group: 'kanban',
-                        animation: 150,
-                        ghostClass: 'dragging',
-                        onStart: function(evt) {
-                            $(evt.item).addClass('dragging');
-                        },
-                        onEnd: function(evt) {
-                            $(evt.item).removeClass('dragging');
-                            
-                            // Get the new stage
-                            const newStageId = $(evt.to).data('stage-id');
-                            const opportunityId = $(evt.item).data('opportunity-id');
-                            const oldStageId = $(evt.from).data('stage-id');
-                            
-                            if (newStageId !== oldStageId) {
-                                // Update opportunity stage
-                                updateOpportunityStage(opportunityId, newStageId, oldStageId);
-                            }
-                        },
-                        onOver: function(evt) {
-                            $(evt.to).addClass('drag-over');
-                        },
-                        onLeave: function(evt) {
-                            $(evt.from).removeClass('drag-over');
-                        }
-                    });
-                });
-            }
-
-            function updateOpportunityStage(opportunityId, newStageId, oldStageId) {
-                console.log(`Moving opportunity ${opportunityId} from stage ${oldStageId} to stage ${newStageId}`);
-                
-                // Here you would typically make an AJAX call to update the database
-                // For now, just show a success message
-                const stageNames = {
-                    '1': 'Prospecto',
-                    '2': 'Calificado', 
-                    '3': 'Propuesta',
-                    '4': 'Negociación',
-                    '5': 'Cerrado'
-                };
-                
-                $('<div class="alert alert-success alert-dismissible fade show position-fixed" role="alert" style="top: 20px; right: 20px; z-index: 9999;">' +
-                  `Oportunidad movida a ${stageNames[newStageId] || 'Nueva etapa'}` +
-                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                  '</div>').appendTo('body').delay(3000).fadeOut();
-            }
-
-            // Set default estimated close date (30 days from now)
-            const futureDate = new Date();
-            futureDate.setDate(futureDate.getDate() + 30);
-            $('input[name="estimated_close_date"]').val(futureDate.toISOString().split('T')[0]);
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('#client-selector, select[name="client_id"]').select2({
+            placeholder: 'Buscar cliente...',
+            allowClear: true,
+            width: '100%'
         });
-    </script>
-</body>
-</html>
+
+        // Initialize drag and drop
+        initializeDragAndDrop();
+
+        // Client selector change
+        $('#client-selector').change(function() {
+            const clientId = $(this).val();
+            if (clientId) {
+                window.location.href = `/clientes/pipeline/${clientId}`;
+            } else {
+                window.location.href = '/clientes/pipeline';
+            }
+        });
+
+        // Initialize tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+        // Add opportunity button in columns
+        $('.add-opportunity-btn').click(function() {
+            const stageId = $(this).data('stage-id');
+            const stageName = $(this).data('stage-name');
+            
+            $('#newOpportunityModal').modal('show');
+            $(`#stage-selector option[value="${stageId}"]`).prop('selected', true);
+        });
+
+        // Create new opportunity
+        $('#saveOpportunity').click(function() {
+            const formData = $('#newOpportunityForm').serialize();
+            console.log('Creating opportunity:', formData);
+            
+            // Simulate creating opportunity
+            $('#newOpportunityModal').modal('hide');
+            $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+              'Oportunidad creada exitosamente en el pipeline!' +
+              '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+              '</div>').prependTo('.content-wrapper');
+
+            // Reset form
+            $('#newOpportunityForm')[0].reset();
+        });
+
+        // Stage configuration
+        $('#add-stage').click(function() {
+            const newStageHtml = `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label small">Nombre de la Etapa</label>
+                                <input type="text" class="form-control" placeholder="Nueva etapa">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Orden</label>
+                                <input type="number" class="form-control" value="${$('#stages-configuration .card').length + 1}" min="1">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Color</label>
+                                <input type="color" class="form-control" value="#8B5CF6" style="width: 50px; height: 38px;">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Automatizaciones</label>
+                                <select class="form-select form-select-sm">
+                                    <option value="">Sin automatización</option>
+                                    <option value="email_welcome">Email de bienvenida</option>
+                                    <option value="task_create">Crear tarea</option>
+                                    <option value="notification">Notificación</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button class="btn btn-sm btn-outline-danger" type="button">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#stages-configuration').append(newStageHtml);
+        });
+
+        // Save stage configuration
+        $('#saveStageConfig').click(function() {
+            console.log('Saving stage configuration...');
+            $('#stageConfigModal').modal('hide');
+            
+            $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+              'Configuración de etapas guardada correctamente!' +
+              '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+              '</div>').prependTo('.content-wrapper');
+        });
+
+        // Filtering
+        $('#filter-value, #filter-priority, #filter-period, #search-opportunities')
+            .on('change input', function() {
+                filterOpportunities();
+            });
+
+        function filterOpportunities() {
+            const value = $('#filter-value').val();
+            const priority = $('#filter-priority').val();
+            const period = $('#filter-period').val();
+            const searchTerm = $('#search-opportunities').val().toLowerCase();
+
+            $('.opportunity-card').each(function() {
+                const card = $(this);
+                const cardValue = parseFloat(card.data('value')) || 0;
+                const cardPriority = card.data('priority') || '';
+                const cardDate = new Date(card.data('date'));
+                const cardText = card.text().toLowerCase();
+
+                let show = true;
+
+                // Value filter
+                if (value && !matchesValueRange(cardValue, value)) {
+                    show = false;
+                }
+
+                // Priority filter
+                if (priority && cardPriority !== priority) {
+                    show = false;
+                }
+
+                // Period filter
+                if (period && !matchesPeriod(cardDate, period)) {
+                    show = false;
+                }
+
+                // Search filter
+                if (searchTerm && !cardText.includes(searchTerm)) {
+                    show = false;
+                }
+
+                if (show) {
+                    card.show();
+                } else {
+                    card.hide();
+                }
+            });
+        }
+
+        function matchesValueRange(value, range) {
+            switch (range) {
+                case '0-1000':
+                    return value >= 0 && value <= 1000;
+                case '1000-10000':
+                    return value > 1000 && value <= 10000;
+                case '10000-50000':
+                    return value > 10000 && value <= 50000;
+                case '50000+':
+                    return value > 50000;
+                default:
+                    return true;
+            }
+        }
+
+        function matchesPeriod(date, period) {
+            const now = new Date();
+            switch (period) {
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return date >= weekAgo;
+                case 'month':
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    return date >= monthAgo;
+                case 'quarter':
+                    const quarterAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+                    return date >= quarterAgo;
+                default:
+                    return true;
+            }
+        }
+
+        function initializeDragAndDrop() {
+            $('.kanban-cards').each(function() {
+                const sortable = Sortable.create(this, {
+                    group: 'kanban',
+                    animation: 150,
+                    ghostClass: 'dragging',
+                    onStart: function(evt) {
+                        $(evt.item).addClass('dragging');
+                    },
+                    onEnd: function(evt) {
+                        $(evt.item).removeClass('dragging');
+                        
+                        // Get the new stage
+                        const newStageId = $(evt.to).data('stage-id');
+                        const opportunityId = $(evt.item).data('opportunity-id');
+                        const oldStageId = $(evt.from).data('stage-id');
+                        
+                        if (newStageId !== oldStageId) {
+                            // Update opportunity stage
+                            updateOpportunityStage(opportunityId, newStageId, oldStageId);
+                        }
+                    },
+                    onOver: function(evt) {
+                        $(evt.to).addClass('drag-over');
+                    },
+                    onLeave: function(evt) {
+                        $(evt.from).removeClass('drag-over');
+                    }
+                });
+            });
+        }
+
+        function updateOpportunityStage(opportunityId, newStageId, oldStageId) {
+            console.log(`Moving opportunity ${opportunityId} from stage ${oldStageId} to stage ${newStageId}`);
+            
+            // Here you would typically make an AJAX call to update the database
+            // For now, just show a success message
+            const stageNames = {
+                '1': 'Prospecto',
+                '2': 'Calificado', 
+                '3': 'Propuesta',
+                '4': 'Negociación',
+                '5': 'Cerrado'
+            };
+            
+            $('<div class="alert alert-success alert-dismissible fade show position-fixed" role="alert" style="top: 20px; right: 20px; z-index: 9999;">' +
+              `Oportunidad movida a ${stageNames[newStageId] || 'Nueva etapa'}` +
+              '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+              '</div>').appendTo('body').delay(3000).fadeOut();
+        }
+
+        // Set default estimated close date (30 days from now)
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 30);
+        $('input[name="estimated_close_date"]').val(futureDate.toISOString().split('T')[0]);
+
+        console.log('✅ Pipeline de Ventas - Usando layout.html template system con Kanban drag & drop');
+    });
+</script>
+{% endblock %}

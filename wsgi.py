@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-ERP13E Enterprise - WSGI Application Entry Point (Compatible Version)
-Optimized for Railway deployment with flexible environment handling
-Compatible with existing configuration and health checks
+📁 Ruta: /app/wsgi.py
+📄 Nombre: wsgi.py
+🏗️ Propósito: WSGI Entry Point para Railway ERP13 Enterprise v3.1
+⚡ Performance: Optimizado para Gunicorn multi-worker
+🔒 Seguridad: Configuración de producción Railway-compatible
+
+WSGI ENTRY POINT ENTERPRISE:
+- Cumple especificaciones WSGI 1.0
+- Compatible con Gunicorn workers
+- Error handling robusto
+- Logging estructurado para Railway
+- Health check integration
 """
 
 import os
@@ -10,204 +20,192 @@ import sys
 import logging
 from datetime import datetime
 
-# Configure logging for ERP13E production
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# ========== CONFIGURACIÓN PATH ==========
+# Asegurar que el directorio actual está en el path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
 
-logger = logging.getLogger(__name__)
+# ========== CONFIGURACIÓN LOGGING WSGI ==========
+def setup_wsgi_logging():
+    """Configurar logging específico para WSGI"""
+    logger = logging.getLogger('wsgi')
+    logger.setLevel(logging.INFO)
+    
+    # Handler para Railway logs
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    
+    # Formato optimizado para Railway
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    
+    if not logger.handlers:
+        logger.addHandler(handler)
+    
+    return logger
 
+# Inicializar logging WSGI
+wsgi_logger = setup_wsgi_logging()
+
+# ========== VARIABLES DE ENTORNO RAILWAY ==========
+def configure_railway_environment():
+    """Configurar variables de entorno específicas para Railway"""
+    
+    # Variables por defecto para Railway
+    defaults = {
+        'FLASK_ENV': 'production',
+        'PYTHONPATH': '/app',
+        'PORT': '8080',
+        'WEB_CONCURRENCY': '2',
+        'GUNICORN_WORKERS': '2',
+        'GUNICORN_THREADS': '4',
+        'GUNICORN_TIMEOUT': '120'
+    }
+    
+    # Aplicar defaults solo si no están configuradas
+    for key, value in defaults.items():
+        if key not in os.environ:
+            os.environ[key] = value
+    
+    wsgi_logger.info(f"🌐 Environment: {os.environ.get('FLASK_ENV')}")
+    wsgi_logger.info(f"⚙️ Workers: {os.environ.get('WEB_CONCURRENCY')}")
+    wsgi_logger.info(f"🔌 Port: {os.environ.get('PORT')}")
+
+# Configurar entorno
+configure_railway_environment()
+
+# ========== IMPORTAR Y CREAR APLICACIÓN ==========
 try:
-    # Import main application (flexible import)
-    from main import create_app
+    wsgi_logger.info("🚀 ERP13E Enterprise - WSGI application initializing")
     
-    # Create Flask application instance for ERP13E
-    application = create_app()
+    # Importar la función de creación de aplicación
+    from main import create_erp_application, logger as main_logger
     
-    # Store startup time for monitoring (optional)
-    if not hasattr(application, 'start_time'):
-        application.start_time = datetime.utcnow()
-    if not hasattr(application, 'request_count'):
-        application.request_count = 0
-    if not hasattr(application, 'active_sessions'):
-        application.active_sessions = []
+    # Crear la aplicación
+    application = create_erp_application()
     
-    # Enhanced Health Check (compatible with existing /health)
-    @application.route('/health/wsgi')
-    def wsgi_health_check():
-        """Enhanced health check without breaking existing /health endpoint"""
-        try:
-            # Basic health response
-            health_data = {
-                'status': 'healthy',
-                'timestamp': datetime.utcnow().isoformat(),
-                'service': 'ERP13E-Enterprise',
-                'wsgi_version': 'compatible',
-                'environment': os.environ.get('FLASK_ENV', 'production')
-            }
-            
-            # Optional database check (non-breaking)
-            try:
-                from sqlalchemy import text
-                from flask import current_app
-                
-                if hasattr(current_app, 'extensions') and 'sqlalchemy' in current_app.extensions:
-                    db = current_app.extensions['sqlalchemy'].db
-                    db.session.execute(text('SELECT 1'))
-                    health_data['database'] = 'connected'
-                else:
-                    health_data['database'] = 'not_configured'
-            except Exception as db_error:
-                health_data['database'] = 'error'
-                health_data['db_error'] = str(db_error)
-            
-            return health_data, 200
-            
-        except Exception as e:
-            logger.error(f"WSGI health check failed: {str(e)}")
-            return {
-                'status': 'unhealthy',
-                'error': str(e),
-                'timestamp': datetime.utcnow().isoformat(),
-                'service': 'ERP13E-Enterprise'
-            }, 500
+    # Verificar que la aplicación es válida
+    if application is None:
+        raise RuntimeError("Application creation returned None")
     
-    @application.route('/health/detailed')  
-    def detailed_health_check():
-        """Detailed health check with system metrics (optional)"""
-        try:
-            # Import psutil only if available
-            try:
-                import psutil
-                memory = psutil.virtual_memory()
-                cpu_percent = psutil.cpu_percent(interval=0.1)  # Quick check
-                system_metrics = {
-                    'memory_usage': f"{memory.percent}%",
-                    'memory_available': f"{memory.available // (1024*1024)}MB",
-                    'cpu_usage': f"{cpu_percent}%"
-                }
-            except ImportError:
-                system_metrics = {'status': 'psutil_not_available'}
-            
-            # Application metrics
-            uptime_seconds = (datetime.utcnow() - application.start_time).total_seconds()
-            
-            return {
-                'status': 'healthy',
-                'timestamp': datetime.utcnow().isoformat(),
-                'service': 'ERP13E-Enterprise',
-                'environment': os.environ.get('FLASK_ENV', 'production'),
-                'system': system_metrics,
-                'application': {
-                    'uptime_seconds': round(uptime_seconds, 2),
-                    'request_count': application.request_count,
-                    'flask_env': os.environ.get('FLASK_ENV', 'production')
-                },
-                'configuration': {
-                    'workers': os.environ.get('WEB_CONCURRENCY', 'auto'),
-                    'database_configured': '✅' if os.environ.get('DATABASE_URL') else '❌',
-                    'jwt_configured': '✅' if os.environ.get('JWT_SECRET_KEY') else '❌',
-                    'secret_configured': '✅' if os.environ.get('SECRET_KEY') else '❌'
-                }
-            }, 200
-            
-        except Exception as e:
-            logger.error(f"Detailed health check failed: {str(e)}")
-            return {
-                'status': 'unhealthy',
-                'error': str(e),
-                'timestamp': datetime.utcnow().isoformat(),
-                'service': 'ERP13E-Enterprise'
-            }, 500
-    
-    @application.route('/metrics')
-    def metrics():
-        """Simple metrics endpoint for monitoring"""
-        try:
-            uptime = (datetime.utcnow() - application.start_time).total_seconds()
-            
-            return {
-                'erp13e_requests_total': application.request_count,
-                'erp13e_uptime_seconds': round(uptime, 2),
-                'erp13e_environment': os.environ.get('FLASK_ENV', 'production'),
-                'erp13e_workers': os.environ.get('WEB_CONCURRENCY', 'auto')
-            }, 200
-        except Exception as e:
-            logger.error(f"Metrics endpoint failed: {str(e)}")
-            return {'error': str(e)}, 500
-    
-    # Request counting middleware (optional)
-    @application.before_request
-    def before_request():
-        application.request_count += 1
-    
-    # Log successful initialization
-    logger.info("🚀 ERP13E Enterprise - WSGI application initialized successfully")
-    logger.info(f"Environment: {os.environ.get('FLASK_ENV', 'production')}")
-    logger.info(f"Workers: {os.environ.get('WEB_CONCURRENCY', 'auto')}")
-    logger.info(f"Database configured: {'✅' if os.environ.get('DATABASE_URL') else '❌'}")
-    logger.info(f"JWT configured: {'✅' if os.environ.get('JWT_SECRET_KEY') else '❌'}")
-    logger.info("Health checks available: /health, /health/wsgi, /health/detailed, /metrics")
+    # Registrar información de la aplicación
+    wsgi_logger.info("🚀 ERP13E Enterprise - WSGI application initialized successfully")
+    wsgi_logger.info(f"Environment: {application.config.get('ENV', 'unknown')}")
+    wsgi_logger.info(f"Workers: {os.environ.get('WEB_CONCURRENCY', 'auto')}")
+    wsgi_logger.info(f"Database configured: {'✅' if 'DATABASE_URL' in os.environ else '❌'}")
+    wsgi_logger.info(f"JWT configured: {'✅' if 'SECRET_KEY' in application.config else '❌'}")
+    wsgi_logger.info("Health checks available: /health, /health/wsgi, /health/detailed, /metrics")
     
 except ImportError as e:
-    logger.error(f"Failed to import main application: {str(e)}")
-    
-    # Fallback application for debugging (compatible)
-    from flask import Flask
-    application = Flask(__name__)
-    
-    @application.route('/')
-    def fallback():
-        return {
-            'error': 'ERP13E application import failed',
-            'message': str(e),
-            'status': 'initialization_error',
-            'service': 'ERP13E-Enterprise',
-            'suggestion': 'Check main.py exists and create_app function is available'
-        }, 500
-    
-    @application.route('/health')
-    def fallback_health():
-        return {
-            'status': 'unhealthy', 
-            'error': 'Application not loaded',
-            'service': 'ERP13E-Enterprise',
-            'timestamp': datetime.utcnow().isoformat()
-        }, 500
-
+    wsgi_logger.error(f"❌ Failed to import main application: {e}")
+    sys.exit(1)
 except Exception as e:
-    logger.error(f"Critical error during ERP13E WSGI initialization: {str(e)}")
-    
-    # Create minimal fallback instead of sys.exit(1)
-    from flask import Flask
-    application = Flask(__name__)
-    
-    @application.route('/health')
-    def emergency_health():
-        return {
-            'status': 'emergency_mode', 
-            'error': str(e),
-            'service': 'ERP13E-Enterprise',
-            'timestamp': datetime.utcnow().isoformat()
-        }, 200  # Return 200 to pass health check
-    
-    @application.route('/')
-    def emergency_home():
-        return {
-            'status': 'emergency_mode',
-            'message': 'ERP13E in emergency fallback mode',
-            'error': str(e),
-            'timestamp': datetime.utcnow().isoformat()
-        }, 200
+    wsgi_logger.error(f"❌ Failed to create WSGI application: {e}")
+    sys.exit(1)
 
-if __name__ == "__main__":
-    # For local development
-    port = int(os.environ.get('PORT', 8080))
-    debug = os.environ.get('FLASK_ENV') == 'development'
+# ========== WSGI APPLICATION WRAPPER ==========
+def wsgi_application(environ, start_response):
+    """
+    WSGI Application Wrapper con error handling robusto
     
-    logger.info(f"Starting ERP13E Enterprise in {'development' if debug else 'production'} mode")
-    application.run(host='0.0.0.0', port=port, debug=debug)
+    Args:
+        environ: WSGI environment dictionary
+        start_response: WSGI start_response callable
+    
+    Returns:
+        WSGI response iterator
+    """
+    try:
+        # Llamar a la aplicación Flask
+        return application(environ, start_response)
+        
+    except Exception as e:
+        wsgi_logger.error(f"WSGI Application Error: {e}")
+        
+        # Respuesta de error en caso de fallo crítico
+        status = '500 Internal Server Error'
+        headers = [
+            ('Content-Type', 'application/json'),
+            ('X-ERP13-Error', 'wsgi-handler')
+        ]
+        
+        start_response(status, headers)
+        
+        error_response = {
+            'error': 'WSGI Handler Error',
+            'status': 500,
+            'timestamp': datetime.utcnow().isoformat(),
+            'service': 'ERP13-Enterprise-WSGI'
+        }
+        
+        return [str(error_response).encode('utf-8')]
+
+# ========== HEALTH CHECK WSGI ==========
+def wsgi_health_check(environ, start_response):
+    """Health check directo a nivel WSGI"""
+    if environ.get('PATH_INFO') == '/wsgi-health':
+        status = '200 OK'
+        headers = [('Content-Type', 'application/json')]
+        start_response(status, headers)
+        
+        response = {
+            'status': 'healthy',
+            'wsgi': 'operational',
+            'timestamp': datetime.utcnow().isoformat(),
+            'service': 'ERP13-Enterprise-WSGI'
+        }
+        
+        return [str(response).encode('utf-8')]
+    else:
+        return wsgi_application(environ, start_response)
+
+# ========== EXPORTAR APLICACIÓN ==========
+# Esta es la variable que Gunicorn buscará
+app = application
+
+# Verificación final
+if __name__ == '__main__':
+    wsgi_logger.info("⚠️ WSGI module loaded directly - Use Gunicorn for production")
+    wsgi_logger.info(f"✅ Application object created: {type(application)}")
+    wsgi_logger.info(f"✅ WSGI callable available: {callable(application)}")
+    
+    # Test básico de la aplicación
+    try:
+        with application.test_client() as client:
+            response = client.get('/health')
+            wsgi_logger.info(f"✅ Health check test: {response.status_code}")
+    except Exception as e:
+        wsgi_logger.error(f"❌ Application test failed: {e}")
+else:
+    wsgi_logger.info("✅ WSGI module imported successfully")
+    wsgi_logger.info("🔧 Ready for Gunicorn deployment")
+
+# ========== CONFIGURACIÓN GUNICORN RECOMENDADA ==========
+"""
+RAILWAY GUNICORN CONFIGURATION:
+
+Command line para Railway:
+gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --worker-class gthread --threads 4 --timeout 120 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 --preload --access-logfile - --error-logfile - --log-level info wsgi:application
+
+Variables de entorno Railway:
+- PORT=8080 (auto-configurado por Railway)
+- WEB_CONCURRENCY=2 (ajustar según plan)
+- FLASK_ENV=production
+- SECRET_KEY=your-secret-key
+- PYTHONPATH=/app
+
+Procfile para Railway:
+web: gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --worker-class gthread --threads 4 --timeout 120 wsgi:application
+
+railway.toml (opcional):
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+"""

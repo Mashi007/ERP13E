@@ -1,45 +1,7 @@
-# ERP13 Enterprise v3.0 - Requirements
-# Railway Production Deployment
-# Python 3.13.7 Compatible
-
-# Core Framework
-Flask==3.0.0
-Werkzeug==3.0.1
-Jinja2==3.1.2
-MarkupSafe==2.1.3
-itsdangerous==2.1.2
-click==8.1.7
-
-# WSGI Server
-gunicorn==21.2.0
-
-# Database (opcional pero recomendado)
-SQLAlchemy==2.0.23
-psycopg2-binary==2.9.9
-
-# Redis Cache (opcional)
-redis==5.0.1
-hiredis==2.2.3
-
-# Security & Auth
-PyJWT==2.8.0
-cryptography==41.0.7
-python-dotenv==1.0.0
-bcrypt==4.1.2
-
-# Utilities
-python-dateutil==2.8.2
-pytz==2023.3.post1
-
-# HTTP & API
-requests==2.31.0
-urllib3==2.1.0
-certifi==2023.11.17
-
-# Data Processing (opcional)
+# Cambiar de:
 pandas==2.1.4
-numpy==1.26.2
-openpyxl==3.1.2
 
-# Monitoring & Logging (opcional)
-python-json-logger==2.0.7
+# A:
+pandas==2.2.3  # Versión compatible con Python 3.13
+# O simplemente:
+pandas>=2.2.0

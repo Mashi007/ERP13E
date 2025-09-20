@@ -3,7 +3,7 @@
 📄 Nombre: models.py
 🏗️ Propósito: Modelos de datos para configuración
 ⚡ Performance: Clases optimizadas para manejo de datos
-🔒 Seguridad: Validación de datos y tipos seguros.
+🔒 Seguridad: Validación de datos y tipos seguros
 
 ERP13 Enterprise - Modelos de Configuración
 Estructuras de datos para AI, campos dinámicos y configuraciones

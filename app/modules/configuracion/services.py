@@ -3,7 +3,7 @@
 📄 Nombre: services.py
 🏗️ Propósito: Servicios de configuración - Lógica de negocio
 ⚡ Performance: Operaciones optimizadas de BD y validación
-🔒 Seguridad: Validación de datos y configuraciones.
+🔒 Seguridad: Validación de datos y configuraciones
 
 ERP13 Enterprise - Servicios de Configuración
 Manejo de AI, campos dinámicos y configuraciones del sistema

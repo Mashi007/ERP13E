@@ -1,43 +1,66 @@
+# ============================================================================
 # 📁 Ruta: /railway.toml
 # 📄 Nombre: railway.toml
-# 🏗️ Propósito: Configuración optimizada Railway ERP13 Enterprise v3.1
+# 🏗️ Propósito: Configuración Railway optimizada ERP13 Enterprise v3.1
 # ⚡ Performance: Health checks, restart policies, resource management
 # 🔒 Seguridad: Variables de entorno seguras, timeouts optimizados
+# ============================================================================
 
 [build]
 builder = "NIXPACKS"
 buildCommand = "pip install --no-cache-dir -r requirements.txt"
 
 [deploy]
-# Health check configuration
+# Health check configuration optimizada
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 healthcheckInterval = 30
-numReplicas = 1
+healthcheckRetries = 3
 
-# Restart policy
+# Restart policy enterprise
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
-# Resource limits (adjust based on Railway plan)
+# Resource management
+numReplicas = 1
 memoryLimit = 512
 cpuLimit = 1000
 
+# Startup configuration
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --threads 4 --timeout 120 --keepalive 5 --max-requests 1000 --preload wsgi:application"
+
 [environments.production]
-# Production environment variables
 variables = { 
     FLASK_ENV = "production",
     PYTHONPATH = "/app",
     WEB_CONCURRENCY = "2",
     GUNICORN_WORKERS = "2",
     GUNICORN_THREADS = "4",
-    GUNICORN_TIMEOUT = "120"
+    GUNICORN_TIMEOUT = "120",
+    GUNICORN_KEEPALIVE = "5",
+    GUNICORN_MAX_REQUESTS = "1000",
+    SECRET_KEY = "${{ secrets.SECRET_KEY }}",
+    LOG_LEVEL = "INFO"
 }
 
 [environments.development]
-# Development environment (optional)
 variables = { 
     FLASK_ENV = "development",
     PYTHONPATH = "/app",
-    WEB_CONCURRENCY = "1"
+    WEB_CONCURRENCY = "1",
+    LOG_LEVEL = "DEBUG"
 }
+
+# ============================================================================
+# CONFIGURACIÓN DE MONITOREO
+# ============================================================================
+[monitoring]
+enabled = true
+healthcheck_grace_period = 60
+startup_timeout = 300
+
+# ============================================================================
+# CONFIGURACIÓN DE RED
+# ============================================================================
+[networking]
+port = "$PORT"

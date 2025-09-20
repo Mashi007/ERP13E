@@ -1,41 +1,53 @@
-# =================================================================
-# 📁 Ruta: /erp13-enterprise/railway.toml  
-# 📄 Nombre: railway.toml
-# 🏗️ Propósito: Configuración Railway CORREGIDA sin buildCommand problemático
-# ⚡ Performance: Usa defaults Nixpacks + deploy optimizado
-# 🔒 Seguridad: Sin comandos que rompan Dockerfile
-# =================================================================
-
 [build]
-# ✅ SIN BUILDCOMMAND PERSONALIZADO - USA NIXPACKS DEFAULTS
-# Nixpacks detecta Python automáticamente y hace:
-# - pip install -r requirements.txt 
-# - Configuración virtual environment
-# - Build optimizado automático
+builder = "nixpacks"
 
 [deploy]
-# 🚀 COMANDO START ESPECÍFICO PARA TU MAIN.PY
-startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers 2 --worker-class sync --timeout 120 --keep-alive 5 --max-requests 1000 --max-requests-jitter 50 --preload --worker-tmp-dir /dev/shm --log-level info --access-logfile - --error-logfile - --capture-output --enable-stdio-inheritance --pythonpath . wsgi:application"
-
-# 🏥 HEALTH CHECK CONFIGURACIÓN
-healthcheckPath = "/health"
-healthcheckTimeout = 10
-restartPolicyType = "on_failure"
+# Optimized start command compatible with ERP13E
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers 3 --threads 2 --worker-class gthread --worker-connections 1000 --max-requests 1000 --max-requests-jitter 100 --preload --access-logfile - --error-logfile - --log-level info --timeout 180 wsgi:application"
+restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+healthcheckPath = "/health"
+healthcheckTimeout = 30
 
-# ⏱️ TIMEOUTS OPTIMIZADOS
-deployTimeout = 300
-startTimeout = 60
-stopTimeout = 30
+# ERP13E Production Environment Variables
+# Compatible with existing configuration
+[environments.production]
+variables = { 
+  FLASK_ENV = "production",
+  RAILWAY_ENVIRONMENT = "production", 
+  PYTHONPATH = "/app",
+  WEB_CONCURRENCY = "3",
+  WORKER_TIMEOUT = "180",
+  WORKER_CLASS = "gthread",
+  MAX_REQUESTS = "1000",
+  PRELOAD_APP = "true"
+}
 
-# 🔧 VARIABLES DE ENTORNO CRÍTICAS
-[env]
-FLASK_APP = "main.py"
-FLASK_ENV = "production"
-FLASK_DEBUG = "False"
-PORT = "8080"
-WORKERS = "2"
-TIMEOUT = "120"
-PYTHONPATH = "."
-PYTHONUNBUFFERED = "1"
-PYTHONDONTWRITEBYTECODE = "1"
+# ERP13E Staging Environment (new)
+[environments.staging] 
+variables = { 
+  FLASK_ENV = "staging",
+  RAILWAY_ENVIRONMENT = "staging",
+  PYTHONPATH = "/app",
+  WEB_CONCURRENCY = "2",
+  WORKER_TIMEOUT = "120",
+  WORKER_CLASS = "gthread",
+  MAX_REQUESTS = "500"
+}
+
+# ERP13E Development Environment (new)
+[environments.development]
+variables = { 
+  FLASK_ENV = "development",
+  RAILWAY_ENVIRONMENT = "development",
+  PYTHONPATH = "/app",
+  WEB_CONCURRENCY = "1",
+  WORKER_TIMEOUT = "60",
+  WORKER_CLASS = "sync",
+  DEBUG = "false"
+}
+
+# ERP13E Railway Configuration
+# Optimized for enterprise workloads with existing DB
+# Maintains compatibility with Mashi007/ERP13E repository
+# Respects existing JWT_SECRET_KEY and SECRET_KEY configuration

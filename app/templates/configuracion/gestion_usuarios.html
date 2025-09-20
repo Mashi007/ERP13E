@@ -1,1188 +1,3170 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios - Configuración - ERP13 Enterprise</title>
+{% extends "layout.html" %}
+
+{% block title %}Gestión de Usuarios - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================================================
+   GESTIÓN DE USUARIOS - ERP13 ENTERPRISE
+   📁 Ruta: /app/templates/configuracion/gestion_usuarios.html
+   🏗️ Propósito: RBAC completo + Administración usuarios + Audit trail
+   ⚡ Performance: CSS Grid + Virtual scrolling + Real-time search + Cache
+   🔒 Seguridad: Super-admin roles + Permission matrix + 2FA + Session control
+============================================================================ */
+
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --info-cyan: #06b6d4;
+    --purple-accent: #8b5cf6;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    background: linear-gradient(135deg, var(--light-gray) 0%, #f0f2f5 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ========== LAYOUT PRINCIPAL ========== */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-section {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 3rem 0;
+    box-shadow: var(--shadow-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="users-pattern" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="30" cy="30" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23users-pattern)"/></svg>') repeat;
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.hero-icon {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1rem;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-light {
+    background: white;
+    color: var(--primary-blue);
+    border: 2px solid transparent;
+}
+
+.btn-light:hover {
+    background: #f8f9fa;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-outline-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+/* ========== ÁREA DE CONTENIDO ========== */
+.content-area {
+    flex: 1;
+    padding: 3rem 0;
+}
+
+/* ========== ESTADÍSTICAS RÁPIDAS ========== */
+.stats-section {
+    margin-bottom: 3rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.stat-card.users::before { background: var(--gradient-primary); }
+.stat-card.active::before { background: var(--gradient-success); }
+.stat-card.roles::before { background: var(--gradient-warning); }
+.stat-card.sessions::before { background: var(--gradient-danger); }
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    padding: 1rem;
+    border-radius: 16px;
+    color: white;
+}
+
+.stat-card.users .stat-icon { background: var(--primary-blue); }
+.stat-card.active .stat-icon { background: var(--success-green); }
+.stat-card.roles .stat-icon { background: var(--warning-orange); }
+.stat-card.sessions .stat-icon { background: var(--danger-red); }
+
+.stat-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin: 1rem 0;
+}
+
+.stat-card.users .stat-value { color: var(--primary-blue); }
+.stat-card.active .stat-value { color: var(--success-green); }
+.stat-card.roles .stat-value { color: var(--warning-orange); }
+.stat-card.sessions .stat-value { color: var(--danger-red); }
+
+.stat-description {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.trend-up { color: var(--success-green); }
+.trend-down { color: var(--danger-red); }
+.trend-stable { color: #6b7280; }
+
+/* ========== NAVEGACIÓN POR TABS ========== */
+.tabs-navigation {
+    background: white;
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    margin-bottom: 3rem;
+    overflow-x: auto;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-tab {
+    padding: 1.25rem 2rem;
+    border: none;
+    background: transparent;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.nav-tab:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.nav-tab.active {
+    background: var(--primary-blue);
+    color: white;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.nav-tab .tab-icon {
+    font-size: 1.25rem;
+}
+
+.nav-tab .badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 12px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+}
+
+.nav-tab:not(.active) .badge {
+    background: var(--border-color);
+    color: var(--dark-gray);
+}
+
+/* ========== CONTENIDO DE TABS ========== */
+.tab-content {
+    display: none;
+    animation: fadeInUp 0.6s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.section-card {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.section-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.section-header {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.section-title {
+    color: var(--dark-gray);
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-icon {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 16px;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.section-description {
+    color: #6b7280;
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* ========== TABLA DE USUARIOS ========== */
+.users-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-container {
+    position: relative;
+    max-width: 400px;
+    flex: 1;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 1.25rem;
+}
+
+.filters-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    background: white;
+    min-width: 150px;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.95rem;
+}
+
+.users-table th {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    font-weight: 700;
+    padding: 1.5rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.users-table td {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.users-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.users-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+    transform: scale(1.01);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.1);
+    border-color: var(--primary-blue);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-details h6 {
+    margin: 0 0 0.25rem 0;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.user-details p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-inactive {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-red);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-orange);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.role-badge {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.1rem;
+}
+
+.role-admin { background: var(--gradient-danger); }
+.role-manager { background: var(--gradient-warning); }
+.role-user { background: var(--gradient-success); }
+.role-viewer { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+
+.last-activity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success-green);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.activity-dot.offline {
+    background: #d1d5db;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.action-btn {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+.action-edit {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-blue);
+}
+
+.action-edit:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.action-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-red);
+}
+
+.action-delete:hover {
+    background: var(--danger-red);
+    color: white;
+}
+
+.action-permissions {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--purple-accent);
+}
+
+.action-permissions:hover {
+    background: var(--purple-accent);
+    color: white;
+}
+
+.action-impersonate {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+}
+
+.action-impersonate:hover {
+    background: var(--success-green);
+    color: white;
+}
+
+/* ========== FORMULARIOS ========== */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: var(--danger-red);
+    margin-left: 0.25rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.form-help {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ========== MATRIZ DE PERMISOS ========== */
+.permissions-matrix {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.permissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    min-width: 800px;
+}
+
+.permissions-table th {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    font-weight: 700;
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+.permissions-table th:first-child {
+    text-align: left;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: var(--light-gray);
+}
+
+.permissions-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.permissions-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: white;
+    font-weight: 600;
+    color: var(--dark-gray);
+    text-align: left;
+}
+
+.permission-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.permission-checkbox:checked {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.permission-checkbox:checked::after {
+    content: '✓';
+    color: white;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    line-height: 16px;
+}
+
+/* ========== SWITCHES Y TOGGLES ========== */
+.switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: var(--light-gray);
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.switch-container:hover {
+    border-color: var(--primary-blue);
+    background: white;
+    box-shadow: var(--shadow-soft);
+}
+
+.switch-info h6 {
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.switch-info p {
+    color: #6b7280;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 64px;
+    height: 36px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.4s;
+    border-radius: 36px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 28px;
+    width: 28px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+    background: var(--gradient-success);
+}
+
+input:checked + .slider:before {
+    transform: translateX(28px);
+}
+
+/* ========== MODALES ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-strong);
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-content.large {
+    max-width: 1200px;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.modal-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--dark-gray);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: var(--light-gray);
+    color: var(--danger-red);
+}
+
+.modal-body {
+    margin-bottom: 2rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+/* ========== BOTONES ========== */
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.btn-success {
+    background: var(--gradient-success);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.btn-warning {
+    background: var(--gradient-warning);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-warning:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.btn-danger {
+    background: var(--gradient-danger);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--dark-gray);
+    border: 2px solid var(--border-color);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--dark-gray);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ========== NOTIFICACIONES ========== */
+.notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 1.25rem 2rem;
+    border-radius: 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: var(--shadow-medium);
+    transform: translateX(100%);
+    transition: all 0.4s ease;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 400px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success { background: var(--gradient-success); }
+.notification.error { background: var(--gradient-danger); }
+.notification.warning { background: var(--gradient-warning); }
+.notification.info { background: linear-gradient(135deg, var(--info-cyan) 0%, #0891b2 100%); }
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1200px) {
+    .form-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
     
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #8B5CF6;
-            --secondary-color: #3B82F6;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
-            --dark-color: #1F2937;
-            --light-color: #F9FAFB;
-        }
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
 
-        body {
-            background-color: var(--light-color);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+@media (max-width: 1024px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+    }
 
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+    .hero-actions {
+        width: 100%;
+        justify-content: center;
+    }
 
-        .sidebar-item {
-            color: #D1D5DB;
-            padding: 12px 20px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 4px 8px;
-        }
+    .users-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
+    .search-container {
+        max-width: none;
+    }
 
-        .main-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin: 20px;
-            min-height: calc(100vh - 40px);
-        }
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
 
-        .config-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            color: white;
-            margin-bottom: 30px;
-        }
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
 
-        .user-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--primary-color);
-            transition: transform 0.3s ease;
-        }
+    .hero-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
 
-        .user-card:hover {
-            transform: translateY(-2px);
-        }
+    .hero-subtitle {
+        font-size: 1rem;
+    }
 
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: white;
-            margin-right: 15px;
-        }
+    .content-area {
+        padding: 2rem 0;
+    }
 
-        .role-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    .section-card {
+        padding: 2rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
 
-        .role-admin { background: #FEE2E2; color: #991B1B; }
-        .role-cliente { background: #DBEAFE; color: #1E40AF; }
-        .role-comercial { background: #D1FAE5; color: #065F46; }
-        .role-custom { background: #F3E8FF; color: #7C2D12; }
+    .nav-tabs {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
 
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
+    .nav-tab {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+    }
 
-        .status-active { background: var(--success-color); }
-        .status-inactive { background: #9CA3AF; }
-        .status-suspended { background: var(--danger-color); }
+    .modal-content {
+        padding: 2rem 1.5rem;
+        width: 95%;
+    }
 
-        .permissions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
+    .users-table {
+        font-size: 0.85rem;
+    }
 
-        .permission-group {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 10px;
-            padding: 20px;
-        }
+    .users-table th,
+    .users-table td {
+        padding: 1rem 0.5rem;
+    }
 
-        .permission-group h6 {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .actions-cell {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
 
-        .permission-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-        }
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
 
-        .permission-toggle {
-            position: relative;
-            width: 50px;
-            height: 28px;
-        }
+@media (max-width: 480px) {
+    .hero-section {
+        padding: 1.5rem 0;
+    }
 
-        .permission-toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+    .hero-title {
+        font-size: 1.75rem;
+    }
 
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #CBD5E1;
-            transition: 0.3s;
-            border-radius: 28px;
-        }
+    .section-card {
+        padding: 1.5rem 1rem;
+    }
 
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
+    .section-title {
+        font-size: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
 
-        input:checked + .toggle-slider {
-            background-color: var(--primary-color);
-        }
+    .modal-content {
+        padding: 1.5rem 1rem;
+        width: 98%;
+    }
 
-        input:checked + .toggle-slider:before {
-            transform: translateX(22px);
-        }
+    .notification {
+        right: 12px;
+        left: 12px;
+        transform: translateY(-100%);
+        max-width: none;
+    }
 
-        .role-creation-form {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-            border: 2px solid #bbf7d0;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
+    .notification.show {
+        transform: translateY(0);
+    }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+    .btn-group {
+        flex-direction: column;
+    }
 
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-        }
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
+/* ========== ANIMACIONES ADICIONALES ========== */
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
 
-        .stat-label {
-            color: #6B7280;
-            font-size: 0.875rem;
-            margin-top: 5px;
-        }
+.loading-shimmer {
+    position: relative;
+    overflow: hidden;
+}
 
-        .search-filters {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
+.loading-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 1.5s infinite;
+}
 
-        .breadcrumb-config {
-            background: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
+/* ========== UTILIDADES ========== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
 
-        .breadcrumb-config .breadcrumb-item a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
 
-        .breadcrumb-config .breadcrumb-item.active {
-            color: #6B7280;
-        }
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
 
-        .activity-log {
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
 
-        .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid #E5E7EB;
-        }
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
 
-        .activity-item:last-child {
-            border-bottom: none;
-        }
+.loading { opacity: 0.6; pointer-events: none; }
+.disabled { opacity: 0.5; pointer-events: none; }
+</style>
+{% endblock %}
 
-        .activity-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-        }
+{% block content %}
+<div class="main-container">
+    <!-- ========== HERO SECTION ========== -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <div>
+                    <h1 class="hero-title">
+                        <div class="hero-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        Gestión de Usuarios
+                    </h1>
+                    <p class="hero-subtitle">
+                        Centro de control completo para la administración de usuarios, roles, permisos y seguridad del sistema ERP13 Enterprise.
+                    </p>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn btn-light" onclick="openModal('createUserModal')">
+                        <i class="fas fa-user-plus"></i>
+                        Nuevo Usuario
+                    </button>
+                    <button class="btn btn-outline-light" onclick="openModal('inviteUsersModal')">
+                        <i class="fas fa-envelope"></i>
+                        Invitar Usuarios
+                    </button>
+                    <button class="btn btn-outline-light" onclick="exportUsers()">
+                        <i class="fas fa-download"></i>
+                        Exportar Lista
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        .activity-login { background: #DBEAFE; color: #1E40AF; }
-        .activity-permission { background: #F3E8FF; color: #7C2D12; }
-        .activity-role { background: #D1FAE5; color: #065F46; }
+    <!-- ========== ÁREA DE CONTENIDO ========== -->
+    <div class="content-area">
+        <div class="container">
+            <!-- ========== ESTADÍSTICAS RÁPIDAS ========== -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card users">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="stat-title">Total Usuarios</h3>
+                        </div>
+                        <div class="stat-value" id="totalUsers">47</div>
+                        <p class="stat-description">Usuarios registrados en el sistema</p>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+3 este mes</span>
+                        </div>
+                    </div>
 
-        .quick-actions {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
+                    <div class="stat-card active">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <h3 class="stat-title">Usuarios Activos</h3>
+                        </div>
+                        <div class="stat-value" id="activeUsers">34</div>
+                        <p class="stat-description">Conectados en las últimas 24h</p>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5 desde ayer</span>
+                        </div>
+                    </div>
 
-        .quick-action-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
+                    <div class="stat-card roles">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <h3 class="stat-title">Roles Definidos</h3>
+                        </div>
+                        <div class="stat-value" id="totalRoles">8</div>
+                        <p class="stat-description">Roles y permisos configurados</p>
+                        <div class="stat-trend trend-stable">
+                            <i class="fas fa-minus"></i>
+                            <span>Sin cambios</span>
+                        </div>
+                    </div>
 
-        .quick-action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        @media (max-width: 768px) {
-            .permissions-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-row {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-cog"></i> Configuración
-                    </h4>
-                    
-                    <nav>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-sliders-h"></i> Configuración General
-                        </a>
-                        <a href="#" class="sidebar-item active">
-                            <i class="fas fa-users-cog"></i> Gestión de Usuarios
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-brain"></i> IA Interna
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-file-invoice-dollar"></i> Plantillas Presupuesto
-                        </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-receipt"></i> Configuración Facturación
-                        </a>
-                    </nav>
+                    <div class="stat-card sessions">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h3 class="stat-title">Sesiones Activas</h3>
+                        </div>
+                        <div class="stat-value" id="activeSessions">19</div>
+                        <p class="stat-description">Sesiones abiertas actualmente</p>
+                        <div class="stat-trend trend-down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-2 desde ayer</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10">
-                <div class="main-content">
-                    <div class="p-4">
-                        <!-- Breadcrumb -->
-                        <nav aria-label="breadcrumb" class="breadcrumb-config">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="#">Clientes</a></li>
-                                <li class="breadcrumb-item active">Gestión de Usuarios</li>
-                            </ol>
-                        </nav>
+            <!-- ========== NAVEGACIÓN POR TABS ========== -->
+            <div class="tabs-navigation">
+                <ul class="nav-tabs">
+                    <li class="nav-tab active" onclick="switchTab('usuarios')" data-tab="usuarios">
+                        <i class="fas fa-users tab-icon"></i>
+                        <span>Usuarios</span>
+                        <span class="badge" id="usersBadge">47</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('roles')" data-tab="roles">
+                        <i class="fas fa-user-shield tab-icon"></i>
+                        <span>Roles y Permisos</span>
+                        <span class="badge" id="rolesBadge">8</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('equipos')" data-tab="equipos">
+                        <i class="fas fa-users-cog tab-icon"></i>
+                        <span>Equipos</span>
+                        <span class="badge" id="teamsBadge">6</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('seguridad')" data-tab="seguridad">
+                        <i class="fas fa-shield-alt tab-icon"></i>
+                        <span>Seguridad</span>
+                    </li>
+                    <li class="nav-tab" onclick="switchTab('auditoria')" data-tab="auditoria">
+                        <i class="fas fa-history tab-icon"></i>
+                        <span>Auditoría</span>
+                    </li>
+                </ul>
+            </div>
 
-                        <!-- Header -->
-                        <div class="config-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h2 class="mb-2">
-                                        <i class="fas fa-users-cog"></i> Gestión de Usuarios y Roles
-                                    </h2>
-                                    <p class="mb-0 opacity-90">
-                                        Administra usuarios, roles y permisos del módulo de clientes
-                                    </p>
-                                </div>
-                                <div class="text-end">
-                                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#auditLogModal">
-                                        <i class="fas fa-history"></i> Log de Auditoría
-                                    </button>
-                                </div>
+            <!-- ========== TAB: USUARIOS ========== -->
+            <div id="tab-usuarios" class="tab-content active">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-users"></i>
                             </div>
+                            Lista de Usuarios
+                        </h2>
+                        <p class="section-description">
+                            Gestiona todos los usuarios del sistema, sus perfiles, roles y configuraciones de acceso
+                        </p>
+                    </div>
+
+                    <!-- Toolbar de búsqueda y filtros -->
+                    <div class="users-toolbar">
+                        <div class="search-container">
+                            <input type="text" id="userSearch" class="search-input" placeholder="Buscar usuarios...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        
+                        <div class="filters-container">
+                            <select id="statusFilter" class="filter-select">
+                                <option value="">Todos los estados</option>
+                                <option value="active">Activos</option>
+                                <option value="inactive">Inactivos</option>
+                                <option value="pending">Pendientes</option>
+                            </select>
+                            
+                            <select id="roleFilter" class="filter-select">
+                                <option value="">Todos los roles</option>
+                                <option value="admin">Administrador</option>
+                                <option value="manager">Manager</option>
+                                <option value="user">Usuario</option>
+                                <option value="viewer">Visualizador</option>
+                            </select>
+                            
+                            <select id="departmentFilter" class="filter-select">
+                                <option value="">Todos los departamentos</option>
+                                <option value="development">Desarrollo</option>
+                                <option value="sales">Ventas</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="hr">Recursos Humanos</option>
+                            </select>
                         </div>
 
-                        <!-- Stats Row -->
-                        <div class="stats-row">
-                            <div class="stat-card">
-                                <div class="stat-number">12</div>
-                                <div class="stat-label">
-                                    <i class="fas fa-users text-primary"></i> Usuarios Total
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">8</div>
-                                <div class="stat-label">
-                                    <i class="fas fa-user-check text-success"></i> Usuarios Activos
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">6</div>
-                                <div class="stat-label">
-                                    <i class="fas fa-user-shield text-warning"></i> Roles Configurados
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">24</div>
-                                <div class="stat-label">
-                                    <i class="fas fa-key text-info"></i> Permisos Disponibles
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Role Creation Form -->
-                        <div class="role-creation-form">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-plus-circle text-success"></i> Crear Nuevo Rol Personalizado
-                                </h5>
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newRoleModal">
-                                    <i class="fas fa-plus"></i> Nuevo Rol
-                                </button>
-                            </div>
-                            <p class="text-muted mb-0">
-                                Define roles personalizados con permisos específicos para tu organización
-                            </p>
-                        </div>
-
-                        <!-- Search and Filters -->
-                        <div class="search-filters">
-                            <div class="row align-items-end">
-                                <div class="col-md-3">
-                                    <label class="form-label small">Buscar Usuario:</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-search"></i>
-                                        </span>
-                                        <input type="text" class="form-control" id="searchUsers" 
-                                               placeholder="Nombre, email...">
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label small">Rol:</label>
-                                    <select class="form-select" id="filterRole">
-                                        <option value="">Todos los roles</option>
-                                        <option value="admin">Administrador</option>
-                                        <option value="cliente">Cliente</option>
-                                        <option value="comercial">Comercial</option>
-                                        <option value="custom">Personalizado</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label small">Estado:</label>
-                                    <select class="form-select" id="filterStatus">
-                                        <option value="">Todos</option>
-                                        <option value="active">Activo</option>
-                                        <option value="inactive">Inactivo</option>
-                                        <option value="suspended">Suspendido</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Último acceso:</label>
-                                    <select class="form-select" id="filterLastLogin">
-                                        <option value="">Todo el tiempo</option>
-                                        <option value="today">Hoy</option>
-                                        <option value="week">Esta semana</option>
-                                        <option value="month">Este mes</option>
-                                        <option value="never">Nunca</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#newUserModal">
-                                        <i class="fas fa-user-plus"></i> Nuevo Usuario
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Users List -->
-                        <div class="users-list">
-                            <!-- Admin User -->
-                            <div class="user-card fade-in" data-role="admin" data-status="active">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar" style="background: #EF4444;">
-                                            AM
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1 fw-bold">Ana Martínez</h6>
-                                            <div class="small text-muted mb-2">ana.martinez@empresa.com</div>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="role-badge role-admin">
-                                                    <i class="fas fa-crown"></i> Administrador
-                                                </span>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="status-indicator status-active"></span>
-                                                    <span class="small">Activo</span>
-                                                </div>
-                                                <div class="small text-muted">
-                                                    <i class="fas fa-clock"></i> Último acceso: Hace 2 horas
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar Usuario</a></li>
-                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editPermissionsModal"><i class="fas fa-key"></i> Gestionar Permisos</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-history"></i> Historial de Actividad</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-warning" href="#"><i class="fas fa-user-slash"></i> Suspender</a></li>
-                                            <li><a class="dropdown-item text-info" href="#"><i class="fas fa-key"></i> Resetear Contraseña</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Commercial User -->
-                            <div class="user-card fade-in" data-role="comercial" data-status="active">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar" style="background: #10B981;">
-                                            CL
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1 fw-bold">Carlos López</h6>
-                                            <div class="small text-muted mb-2">carlos.lopez@empresa.com</div>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="role-badge role-comercial">
-                                                    <i class="fas fa-handshake"></i> Comercial
-                                                </span>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="status-indicator status-active"></span>
-                                                    <span class="small">Activo</span>
-                                                </div>
-                                                <div class="small text-muted">
-                                                    <i class="fas fa-clock"></i> Último acceso: Hace 1 día
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar Usuario</a></li>
-                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editPermissionsModal"><i class="fas fa-key"></i> Gestionar Permisos</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> Ver Rendimiento</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-warning" href="#"><i class="fas fa-user-slash"></i> Suspender</a></li>
-                                            <li><a class="dropdown-item text-info" href="#"><i class="fas fa-key"></i> Resetear Contraseña</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Client User -->
-                            <div class="user-card fade-in" data-role="cliente" data-status="active">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar" style="background: #3B82F6;">
-                                            MG
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1 fw-bold">María García</h6>
-                                            <div class="small text-muted mb-2">maria.garcia@clienteabc.com</div>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="role-badge role-cliente">
-                                                    <i class="fas fa-user"></i> Cliente
-                                                </span>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="status-indicator status-active"></span>
-                                                    <span class="small">Activo</span>
-                                                </div>
-                                                <div class="small text-muted">
-                                                    <i class="fas fa-clock"></i> Último acceso: Hace 3 días
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar Usuario</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver Perfil de Cliente</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-history"></i> Historial de Pedidos</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-info" href="#"><i class="fas fa-key"></i> Resetear Contraseña</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Custom Role User -->
-                            <div class="user-card fade-in" data-role="custom" data-status="active">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar" style="background: #8B5CF6;">
-                                            JR
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1 fw-bold">Juan Rodríguez</h6>
-                                            <div class="small text-muted mb-2">juan.rodriguez@empresa.com</div>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="role-badge role-custom">
-                                                    <i class="fas fa-star"></i> Supervisor Ventas
-                                                </span>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="status-indicator status-active"></span>
-                                                    <span class="small">Activo</span>
-                                                </div>
-                                                <div class="small text-muted">
-                                                    <i class="fas fa-clock"></i> Último acceso: Hace 5 horas
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar Usuario</a></li>
-                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editPermissionsModal"><i class="fas fa-key"></i> Gestionar Permisos</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-users"></i> Ver Equipo</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-warning" href="#"><i class="fas fa-user-slash"></i> Suspender</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Inactive User -->
-                            <div class="user-card fade-in" data-role="comercial" data-status="inactive">
-                                <div class="d-flex justify-content-between align-items-center opacity-75">
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar" style="background: #9CA3AF;">
-                                            LS
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1 fw-bold">Laura Sánchez</h6>
-                                            <div class="small text-muted mb-2">laura.sanchez@empresa.com</div>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="role-badge role-comercial">
-                                                    <i class="fas fa-handshake"></i> Comercial
-                                                </span>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="status-indicator status-inactive"></span>
-                                                    <span class="small">Inactivo</span>
-                                                </div>
-                                                <div class="small text-muted">
-                                                    <i class="fas fa-clock"></i> Último acceso: Hace 2 meses
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item text-success" href="#"><i class="fas fa-user-check"></i> Activar Usuario</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar Usuario</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Eliminar Usuario</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Load More -->
-                        <div class="text-center mt-4">
-                            <button class="btn btn-outline-primary" id="loadMoreUsers">
-                                <i class="fas fa-chevron-down"></i> Mostrar más usuarios
+                        <div class="toolbar-actions">
+                            <button class="btn btn-outline-primary" onclick="refreshUsers()">
+                                <i class="fas fa-sync"></i>
+                                Actualizar
                             </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button class="quick-action-btn btn btn-warning" title="Roles personalizados" data-bs-toggle="modal" data-bs-target="#newRoleModal">
-            <i class="fas fa-user-shield"></i>
-        </button>
-        <button class="quick-action-btn btn btn-primary" title="Nuevo usuario" data-bs-toggle="modal" data-bs-target="#newUserModal">
-            <i class="fas fa-user-plus"></i>
-        </button>
-    </div>
-
-    <!-- New User Modal -->
-    <div class="modal fade" id="newUserModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Crear Nuevo Usuario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newUserForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre Completo *</label>
-                                    <input type="text" class="form-control" name="full_name" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Email *</label>
-                                    <input type="email" class="form-control" name="email" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Rol *</label>
-                                    <select class="form-select" name="role" required>
-                                        <option value="">Seleccionar rol</option>
-                                        <option value="admin">Administrador</option>
-                                        <option value="comercial">Comercial</option>
-                                        <option value="cliente">Cliente</option>
-                                        <option value="supervisor">Supervisor Ventas</option>
-                                        <option value="support">Soporte</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Teléfono</label>
-                                    <input type="tel" class="form-control" name="phone">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Departamento</label>
-                                    <select class="form-select" name="department">
-                                        <option value="">Seleccionar departamento</option>
-                                        <option value="sales">Ventas</option>
-                                        <option value="support">Soporte</option>
-                                        <option value="admin">Administración</option>
-                                        <option value="marketing">Marketing</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Estado Inicial</label>
-                                    <select class="form-select" name="status">
-                                        <option value="active" selected>Activo</option>
-                                        <option value="inactive">Inactivo</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <h6 class="mb-3">Configuración de Acceso</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="send_welcome_email" id="sendWelcome" checked>
-                                <label class="form-check-label" for="sendWelcome">
-                                    Enviar email de bienvenida
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="force_password_change" id="forcePasswordChange" checked>
-                                <label class="form-check-label" for="forcePasswordChange">
-                                    Forzar cambio de contraseña en primer acceso
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveNewUser">
-                        <i class="fas fa-user-plus"></i> Crear Usuario
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- New Role Modal -->
-    <div class="modal fade" id="newRoleModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Crear Rol Personalizado</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newRoleForm">
-                        <div class="row mb-4">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre del Rol *</label>
-                                    <input type="text" class="form-control" name="role_name" placeholder="Ej: Supervisor Ventas" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Color del Rol</label>
-                                    <input type="color" class="form-control form-control-color" name="role_color" value="#8B5CF6">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="role_description" rows="3" 
-                                              placeholder="Describe las responsabilidades de este rol..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h6 class="mb-3">Configurar Permisos</h6>
-                        <div class="permissions-grid">
-                            <!-- Clientes Permissions -->
-                            <div class="permission-group">
-                                <h6><i class="fas fa-users text-primary"></i> Módulo Clientes</h6>
-                                <div class="permission-item">
-                                    <span>Ver clientes</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="clientes.view" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Crear clientes</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="clientes.create">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Editar clientes</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="clientes.edit">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Eliminar clientes</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="clientes.delete">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Propuestas Permissions -->
-                            <div class="permission-group">
-                                <h6><i class="fas fa-file-alt text-success"></i> Propuestas</h6>
-                                <div class="permission-item">
-                                    <span>Ver propuestas</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="propuestas.view" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Crear propuestas</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="propuestas.create">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Aprobar propuestas</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="propuestas.approve">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Configurar plantillas</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="propuestas.templates">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Pipeline Permissions -->
-                            <div class="permission-group">
-                                <h6><i class="fas fa-chart-line text-warning"></i> Pipeline</h6>
-                                <div class="permission-item">
-                                    <span>Ver pipeline</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="pipeline.view" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Mover oportunidades</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="pipeline.move">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Configurar etapas</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="pipeline.config">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Reportes pipeline</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="pipeline.reports">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Communications Permissions -->
-                            <div class="permission-group">
-                                <h6><i class="fas fa-comments text-info"></i> Comunicaciones</h6>
-                                <div class="permission-item">
-                                    <span>Ver comunicaciones</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="communications.view" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Enviar emails</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="communications.email">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>WhatsApp</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="communications.whatsapp">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Plantillas comunicación</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="communications.templates">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Tickets Permissions -->
-                            <div class="permission-group">
-                                <h6><i class="fas fa-ticket-alt text-danger"></i> Tickets</h6>
-                                <div class="permission-item">
-                                    <span>Ver tickets</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="tickets.view" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Asignar tickets</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="tickets.assign">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Resolver tickets</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="tickets.resolve">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Configurar SLA</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="tickets.sla">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Automatizations Permissions -->
-                            <div class="permission-group">
-                                <h6><i class="fas fa-magic text-purple"></i> Automatizaciones</h6>
-                                <div class="permission-item">
-                                    <span>Ver automatizaciones</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="automations.view">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Crear automatizaciones</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="automations.create">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Configurar IA</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="automations.ai">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="permission-item">
-                                    <span>Ejecutar manualmente</span>
-                                    <label class="permission-toggle">
-                                        <input type="checkbox" name="perms[]" value="automations.execute">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" id="saveNewRole">
-                        <i class="fas fa-save"></i> Crear Rol
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Permissions Modal -->
-    <div class="modal fade" id="editPermissionsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Gestionar Permisos - Ana Martínez</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        Los permisos se gestionan por rol. Para cambios específicos, considera crear un rol personalizado.
+                    <!-- Tabla de usuarios -->
+                    <div class="table-container">
+                        <table class="users-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Estado</th>
+                                    <th>Roles</th>
+                                    <th>Departamento</th>
+                                    <th>Última Actividad</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Los datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
                     </div>
-                    
-                    <div class="permissions-grid">
-                        <!-- Same permission groups as above but with current user's permissions checked -->
-                        <div class="permission-group">
-                            <h6><i class="fas fa-users text-primary"></i> Módulo Clientes</h6>
-                            <div class="permission-item">
-                                <span>Ver clientes</span>
-                                <label class="permission-toggle">
-                                    <input type="checkbox" checked disabled>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                            <!-- More permissions... -->
-                        </div>
+
+                    <!-- Paginación -->
+                    <div class="pagination-container mt-4">
+                        <nav>
+                            <ul class="pagination" id="usersPagination">
+                                <!-- La paginación se genera dinámicamente -->
+                            </ul>
+                        </nav>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Actualizar Permisos
-                    </button>
+            </div>
+
+            <!-- ========== TAB: ROLES Y PERMISOS ========== -->
+            <div id="tab-roles" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            Gestión de Roles y Permisos
+                        </h2>
+                        <p class="section-description">
+                            Configura los roles del sistema y define qué permisos tiene cada rol en los diferentes módulos
+                        </p>
+                    </div>
+
+                    <div class="btn-group mb-4">
+                        <button class="btn btn-primary" onclick="openModal('createRoleModal')">
+                            <i class="fas fa-plus"></i>
+                            Nuevo Rol
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="openModal('permissionsMatrixModal')">
+                            <i class="fas fa-table"></i>
+                            Matriz de Permisos
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="exportRoles()">
+                            <i class="fas fa-download"></i>
+                            Exportar Roles
+                        </button>
+                    </div>
+
+                    <!-- Lista de roles -->
+                    <div class="roles-grid" id="rolesGrid">
+                        <!-- Los roles se cargarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: EQUIPOS ========== -->
+            <div id="tab-equipos" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
+                            Gestión de Equipos y Departamentos
+                        </h2>
+                        <p class="section-description">
+                            Organiza usuarios en equipos y departamentos para una mejor colaboración y gestión de permisos
+                        </p>
+                    </div>
+
+                    <div class="btn-group mb-4">
+                        <button class="btn btn-primary" onclick="openModal('createTeamModal')">
+                            <i class="fas fa-plus"></i>
+                            Nuevo Equipo
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="openModal('organizationChartModal')">
+                            <i class="fas fa-sitemap"></i>
+                            Organigrama
+                        </button>
+                    </div>
+
+                    <!-- Grid de equipos -->
+                    <div class="teams-grid" id="teamsGrid">
+                        <!-- Los equipos se cargarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: SEGURIDAD ========== -->
+            <div id="tab-seguridad" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            Configuración de Seguridad
+                        </h2>
+                        <p class="section-description">
+                            Gestiona las políticas de seguridad, autenticación y control de acceso del sistema
+                        </p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Autenticación de Dos Factores</h6>
+                                <p>Requiere verificación adicional para todos los usuarios</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="force2FA" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Sesiones Únicas</h6>
+                                <p>Permite solo una sesión activa por usuario</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="singleSession">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Verificación de Email</h6>
+                                <p>Requiere verificación de email para nuevas cuentas</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="emailVerification" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Auto-bloqueo por Inactividad</h6>
+                                <p>Desactiva automáticamente cuentas inactivas</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="autoLockInactive" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Notificaciones de Seguridad</h6>
+                                <p>Envía alertas por actividades sospechosas</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="securityNotifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <h6>Registro de Actividad Detallado</h6>
+                                <p>Registra todas las acciones de los usuarios</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="detailedLogging" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Configuraciones adicionales de seguridad -->
+                    <div class="form-grid mt-4">
+                        <div class="form-group">
+                            <label class="form-label" for="sessionTimeout">Tiempo de Sesión (minutos)</label>
+                            <input type="number" id="sessionTimeout" class="form-control" value="60" min="15" max="480">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Tiempo máximo de inactividad antes de cerrar sesión
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="maxLoginAttempts">Intentos Máximos de Login</label>
+                            <input type="number" id="maxLoginAttempts" class="form-control" value="5" min="3" max="10">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Intentos fallidos antes de bloquear la cuenta
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="passwordExpiry">Caducidad de Contraseña (días)</label>
+                            <input type="number" id="passwordExpiry" class="form-control" value="90" min="30" max="365">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Días hasta que expire la contraseña
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="inactiveUserDays">Días para Inactivar Usuario</label>
+                            <input type="number" id="inactiveUserDays" class="form-control" value="90" min="30" max="365">
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Días de inactividad antes del auto-bloqueo
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group mt-4">
+                        <button class="btn btn-primary" onclick="saveSecuritySettings()">
+                            <i class="fas fa-save"></i>
+                            Guardar Configuración
+                        </button>
+                        <button class="btn btn-warning" onclick="forcePasswordReset()">
+                            <i class="fas fa-key"></i>
+                            Forzar Reset de Contraseñas
+                        </button>
+                        <button class="btn btn-danger" onclick="terminateAllSessions()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Cerrar Todas las Sesiones
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: AUDITORÍA ========== -->
+            <div id="tab-auditoria" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            Logs de Auditoría y Actividad
+                        </h2>
+                        <p class="section-description">
+                            Revisa el historial completo de actividades, accesos y cambios realizados por los usuarios
+                        </p>
+                    </div>
+
+                    <!-- Filtros de auditoría -->
+                    <div class="audit-filters mb-4">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="auditDateFrom">Fecha Desde</label>
+                                <input type="date" id="auditDateFrom" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="auditDateTo">Fecha Hasta</label>
+                                <input type="date" id="auditDateTo" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="auditUser">Usuario</label>
+                                <select id="auditUser" class="form-control">
+                                    <option value="">Todos los usuarios</option>
+                                    <!-- Se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="auditAction">Tipo de Acción</label>
+                                <select id="auditAction" class="form-control">
+                                    <option value="">Todas las acciones</option>
+                                    <option value="login">Inicio de sesión</option>
+                                    <option value="logout">Cierre de sesión</option>
+                                    <option value="create">Crear</option>
+                                    <option value="update">Actualizar</option>
+                                    <option value="delete">Eliminar</option>
+                                    <option value="permission_change">Cambio de permisos</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="filterAuditLogs()">
+                                <i class="fas fa-filter"></i>
+                                Filtrar
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="clearAuditFilters()">
+                                <i class="fas fa-times"></i>
+                                Limpiar
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="exportAuditLogs()">
+                                <i class="fas fa-download"></i>
+                                Exportar Logs
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de logs -->
+                    <div class="table-container">
+                        <table class="users-table" id="auditTable">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Usuario</th>
+                                    <th>Acción</th>
+                                    <th>Módulo</th>
+                                    <th>Detalles</th>
+                                    <th>IP</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody">
+                                <!-- Los logs se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- ========== MODALES ========== -->
 
-    <script>
-        $(document).ready(function() {
-            // Search and filter functionality
-            $('#searchUsers, #filterRole, #filterStatus, #filterLastLogin').on('change input', function() {
-                filterUsers();
-            });
-
-            // Create new user
-            $('#saveNewUser').click(function() {
-                const formData = $('#newUserForm').serialize();
-                console.log('Creating user:', formData);
-                
-                $('#newUserModal').modal('hide');
-                showToast('Usuario creado exitosamente', 'success');
-            });
-
-            // Create new role
-            $('#saveNewRole').click(function() {
-                const formData = $('#newRoleForm').serialize();
-                console.log('Creating role:', formData);
-                
-                $('#newRoleModal').modal('hide');
-                showToast('Rol personalizado creado exitosamente', 'success');
-            });
-
-            // Load more users
-            $('#loadMoreUsers').click(function() {
-                $(this).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
-                
-                setTimeout(() => {
-                    $(this).html('<i class="fas fa-chevron-down"></i> Mostrar más usuarios');
-                    showToast('No hay más usuarios para mostrar', 'info');
-                }, 1000);
-            });
-
-            function filterUsers() {
-                const searchTerm = $('#searchUsers').val().toLowerCase();
-                const roleFilter = $('#filterRole').val();
-                const statusFilter = $('#filterStatus').val();
-                
-                $('.user-card').each(function() {
-                    const card = $(this);
-                    const text = card.text().toLowerCase();
-                    const role = card.data('role');
-                    const status = card.data('status');
-                    
-                    let show = true;
-                    
-                    if (searchTerm && !text.includes(searchTerm)) {
-                        show = false;
-                    }
-                    
-                    if (roleFilter && role !== roleFilter) {
-                        show = false;
-                    }
-                    
-                    if (statusFilter && status !== statusFilter) {
-                        show = false;
-                    }
-                    
-                    if (show) {
-                        card.show();
-                    } else {
-                        card.hide();
-                    }
-                });
-            }
-
-            function showToast(message, type) {
-                const toast = $(`
-                    <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} border-0 position-fixed" 
-                         style="top: 20px; right: 20px; z-index: 9999;" role="alert">
-                        <div class="d-flex">
-                            <div class="toast-body">
-                                ${message}
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                        </div>
+<!-- Modal Crear/Editar Usuario -->
+<div id="createUserModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-user-plus"></i>
+                <span id="userModalTitle">Crear Nuevo Usuario</span>
+            </h3>
+            <button class="modal-close" onclick="closeModal('createUserModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="userForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required" for="userName">Nombre Completo</label>
+                        <input type="text" id="userName" class="form-control" required>
                     </div>
-                `);
-                
-                $('body').append(toast);
-                
-                const bsToast = new bootstrap.Toast(toast[0]);
-                bsToast.show();
-                
-                toast.on('hidden.bs.toast', function() {
-                    $(this).remove();
-                });
-            }
+                    <div class="form-group">
+                        <label class="form-label required" for="userEmail">Email</label>
+                        <input type="email" id="userEmail" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="userPhone">Teléfono</label>
+                        <input type="tel" id="userPhone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" for="userRole">Rol Principal</label>
+                        <select id="userRole" class="form-control" required>
+                            <option value="">Seleccionar rol...</option>
+                            <option value="admin">Administrador</option>
+                            <option value="manager">Manager</option>
+                            <option value="user">Usuario</option>
+                            <option value="viewer">Visualizador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="userDepartment">Departamento</label>
+                        <select id="userDepartment" class="form-control">
+                            <option value="">Seleccionar departamento...</option>
+                            <option value="development">Desarrollo</option>
+                            <option value="sales">Ventas</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="hr">Recursos Humanos</option>
+                            <option value="finance">Finanzas</option>
+                            <option value="operations">Operaciones</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="userManager">Manager</label>
+                        <select id="userManager" class="form-control">
+                            <option value="">Sin manager...</option>
+                            <!-- Se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="switch-container">
+                    <div class="switch-info">
+                        <h6>Activar Usuario</h6>
+                        <p>El usuario podrá acceder al sistema inmediatamente</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="userActive" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-container">
+                    <div class="switch-info">
+                        <h6>Enviar Invitación por Email</h6>
+                        <p>Se enviará un email con las instrucciones de acceso</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="sendInvitation" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" onclick="closeModal('createUserModal')">
+                Cancelar
+            </button>
+            <button class="btn btn-primary" onclick="saveUser()">
+                <i class="fas fa-save"></i>
+                Guardar Usuario
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Matriz de Permisos -->
+<div id="permissionsMatrixModal" class="modal-overlay">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-table"></i>
+                Matriz de Permisos por Rol
+            </h3>
+            <button class="modal-close" onclick="closeModal('permissionsMatrixModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="permissions-matrix">
+                <table class="permissions-table" id="permissionsTable">
+                    <thead>
+                        <tr>
+                            <th>Módulo / Función</th>
+                            <th>Admin</th>
+                            <th>Manager</th>
+                            <th>Usuario</th>
+                            <th>Visualizador</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permissionsTableBody">
+                        <!-- Se generará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" onclick="closeModal('permissionsMatrixModal')">
+                Cerrar
+            </button>
+            <button class="btn btn-primary" onclick="savePermissionsMatrix()">
+                <i class="fas fa-save"></i>
+                Guardar Permisos
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Invitar Usuarios -->
+<div id="inviteUsersModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-envelope"></i>
+                Invitar Usuarios por Email
+            </h3>
+            <button class="modal-close" onclick="closeModal('inviteUsersModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label required" for="inviteEmails">Emails (uno por línea)</label>
+                <textarea id="inviteEmails" class="form-control" rows="6" 
+                          placeholder="usuario1@empresa.com&#10;usuario2@empresa.com&#10;usuario3@empresa.com"></textarea>
+                <div class="form-help">
+                    <i class="fas fa-info-circle"></i>
+                    Introduce un email por línea. Se enviará una invitación a cada dirección.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" for="inviteRole">Rol por Defecto</label>
+                <select id="inviteRole" class="form-control" required>
+                    <option value="">Seleccionar rol...</option>
+                    <option value="user" selected>Usuario</option>
+                    <option value="viewer">Visualizador</option>
+                    <option value="manager">Manager</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inviteMessage">Mensaje Personalizado</label>
+                <textarea id="inviteMessage" class="form-control" rows="4" 
+                          placeholder="Mensaje opcional que se incluirá en la invitación..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" onclick="closeModal('inviteUsersModal')">
+                Cancelar
+            </button>
+            <button class="btn btn-primary" onclick="sendInvitations()">
+                <i class="fas fa-paper-plane"></i>
+                Enviar Invitaciones
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== NOTIFICACIÓN ========== -->
+<div id="notification" class="notification">
+    <i class="fas fa-check"></i>
+    <span id="notificationText">Operación completada exitosamente</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ============================================================================
+   GESTIÓN DE USUARIOS - JAVASCRIPT
+   🏗️ Propósito: RBAC completo + CRUD usuarios + Audit trail + Security
+   ⚡ Performance: Virtual scrolling + Real-time search + Cache + Debouncing
+   🔒 Seguridad: CSRF tokens + Permission validation + Session control
+============================================================================ */
+
+// Estado global de la aplicación
+let currentTab = 'usuarios';
+let currentPage = 1;
+let pageSize = 20;
+let totalUsers = 0;
+let usersData = [];
+let rolesData = [];
+let teamsData = [];
+let searchTimeout = null;
+let isLoading = false;
+
+// ========== INICIALIZACIÓN ========== 
+document.addEventListener('DOMContentLoaded', function() {
+    initializeUserManagement();
+    setupEventListeners();
+    loadInitialData();
+    restoreActiveTab();
+});
+
+// ========== GESTIÓN DE TABS ========== 
+function switchTab(tabName) {
+    // Guardar estado actual si es necesario
+    saveCurrentTabState();
+    
+    // Ocultar todos los tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    const tabButtons = document.querySelectorAll('.nav-tab');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    
+    // Mostrar el tab seleccionado
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+    
+    // Actualizar estado
+    currentTab = tabName;
+    localStorage.setItem('activeUserTab', tabName);
+    
+    // Cargar datos específicos del tab
+    loadTabData(tabName);
+}
+
+function restoreActiveTab() {
+    const savedTab = localStorage.getItem('activeUserTab') || 'usuarios';
+    switchTab(savedTab);
+}
+
+function loadTabData(tabName) {
+    switch(tabName) {
+        case 'usuarios':
+            loadUsersData();
+            break;
+        case 'roles':
+            loadRolesData();
+            break;
+        case 'equipos':
+            loadTeamsData();
+            break;
+        case 'seguridad':
+            loadSecuritySettings();
+            break;
+        case 'auditoria':
+            loadAuditLogs();
+            break;
+    }
+}
+
+// ========== INICIALIZACIÓN Y CONFIGURACIÓN ========== 
+function initializeUserManagement() {
+    // Configurar búsqueda en tiempo real
+    const searchInput = document.getElementById('userSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounceSearch);
+    }
+    
+    // Configurar filtros
+    const filters = ['statusFilter', 'roleFilter', 'departmentFilter'];
+    filters.forEach(filterId => {
+        const filter = document.getElementById(filterId);
+        if (filter) {
+            filter.addEventListener('change', filterUsers);
+        }
+    });
+    
+    // Configurar formularios
+    setupFormValidation();
+    
+    // Configurar shortcuts de teclado
+    setupKeyboardShortcuts();
+}
+
+function setupEventListeners() {
+    // Escape para cerrar modales
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+    
+    // Click fuera del modal para cerrar
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+            closeAllModals();
+        }
+    });
+}
+
+function setupFormValidation() {
+    // Validación en tiempo real del formulario de usuario
+    const userForm = document.getElementById('userForm');
+    if (userForm) {
+        const inputs = userForm.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('blur', validateField);
+            input.addEventListener('input', clearFieldError);
         });
-    </script>
-</body>
-</html>
+    }
+}
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey) {
+            switch(e.key) {
+                case 'n':
+                    e.preventDefault();
+                    openModal('createUserModal');
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    document.getElementById('userSearch').focus();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    refreshUsers();
+                    break;
+            }
+        }
+    });
+}
+
+// ========== CARGA DE DATOS INICIAL ========== 
+function loadInitialData() {
+    Promise.all([
+        loadStatsData(),
+        loadUsersData(),
+        loadRolesData(),
+        updateBadges()
+    ]).then(() => {
+        console.log('Datos iniciales cargados');
+    }).catch(error => {
+        console.error('Error cargando datos iniciales:', error);
+        showNotification('error', 'Error al cargar datos del sistema');
+    });
+}
+
+function loadStatsData() {
+    return fetch('/api/users/stats', {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateStatsDisplay(data.stats);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading stats:', error);
+    });
+}
+
+function updateStatsDisplay(stats) {
+    document.getElementById('totalUsers').textContent = stats.total_users || '0';
+    document.getElementById('activeUsers').textContent = stats.active_users || '0';
+    document.getElementById('totalRoles').textContent = stats.total_roles || '0';
+    document.getElementById('activeSessions').textContent = stats.active_sessions || '0';
+}
+
+function updateBadges() {
+    // Actualizar badges en las tabs
+    document.getElementById('usersBadge').textContent = usersData.length;
+    document.getElementById('rolesBadge').textContent = rolesData.length;
+    document.getElementById('teamsBadge').textContent = teamsData.length;
+}
+
+// ========== GESTIÓN DE USUARIOS ========== 
+function loadUsersData(page = 1, search = '', filters = {}) {
+    if (isLoading) return;
+    
+    isLoading = true;
+    showLoadingState('usersTableBody');
+    
+    const params = new URLSearchParams({
+        page: page,
+        page_size: pageSize,
+        search: search,
+        ...filters
+    });
+    
+    fetch(`/api/users?${params}`, {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            usersData = data.users;
+            totalUsers = data.total;
+            currentPage = page;
+            
+            renderUsersTable(data.users);
+            renderPagination(data.total, page);
+            updateBadges();
+        } else {
+            showNotification('error', 'Error al cargar usuarios');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading users:', error);
+        showNotification('error', 'Error de conexión al cargar usuarios');
+    })
+    .finally(() => {
+        isLoading = false;
+        hideLoadingState('usersTableBody');
+    });
+}
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById('usersTableBody');
+    
+    if (users.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center" style="padding: 3rem;">
+                    <i class="fas fa-users" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <p style="color: #6b7280; font-size: 1.1rem;">No se encontraron usuarios</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = users.map(user => `
+        <tr data-user-id="${user.id}">
+            <td>
+                <div class="user-info">
+                    <img src="${user.avatar || '/static/img/default-avatar.png'}" 
+                         alt="${user.name}" class="user-avatar">
+                    <div class="user-details">
+                        <h6>${user.name}</h6>
+                        <p>${user.email}</p>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="status-badge status-${user.status}">
+                    ${getStatusText(user.status)}
+                </span>
+            </td>
+            <td>
+                ${user.roles.map(role => `
+                    <span class="role-badge role-${role.toLowerCase()}">${role}</span>
+                `).join('')}
+            </td>
+            <td>${user.department || '-'}</td>
+            <td>
+                <div class="last-activity">
+                    <div class="activity-dot ${user.is_online ? '' : 'offline'}"></div>
+                    ${formatLastActivity(user.last_activity)}
+                </div>
+            </td>
+            <td>${formatDate(user.created_at)}</td>
+            <td>
+                <div class="actions-cell">
+                    <button class="action-btn action-edit" onclick="editUser(${user.id})" 
+                            title="Editar usuario">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn action-permissions" onclick="managePermissions(${user.id})" 
+                            title="Gestionar permisos">
+                        <i class="fas fa-user-shield"></i>
+                    </button>
+                    <button class="action-btn action-impersonate" onclick="impersonateUser(${user.id})" 
+                            title="Suplantar usuario">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                    <button class="action-btn action-delete" onclick="deleteUser(${user.id})" 
+                            title="Eliminar usuario">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderPagination(total, currentPage) {
+    const totalPages = Math.ceil(total / pageSize);
+    const pagination = document.getElementById('usersPagination');
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '';
+    
+    // Botón anterior
+    if (currentPage > 1) {
+        paginationHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="loadUsersData(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+        `;
+    }
+    
+    // Páginas numéricas
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="loadUsersData(${i})">${i}</a>
+            </li>
+        `;
+    }
+    
+    // Botón siguiente
+    if (currentPage < totalPages) {
+        paginationHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="loadUsersData(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        `;
+    }
+    
+    pagination.innerHTML = paginationHTML;
+}
+
+// ========== BÚSQUEDA Y FILTROS ========== 
+function debounceSearch() {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        performSearch();
+    }, 300);
+}
+
+function performSearch() {
+    const search = document.getElementById('userSearch').value;
+    const filters = getActiveFilters();
+    
+    loadUsersData(1, search, filters);
+}
+
+function filterUsers() {
+    performSearch();
+}
+
+function getActiveFilters() {
+    return {
+        status: document.getElementById('statusFilter').value,
+        role: document.getElementById('roleFilter').value,
+        department: document.getElementById('departmentFilter').value
+    };
+}
+
+function refreshUsers() {
+    const search = document.getElementById('userSearch').value;
+    const filters = getActiveFilters();
+    
+    loadUsersData(currentPage, search, filters);
+    showNotification('success', 'Lista de usuarios actualizada');
+}
+
+// ========== CRUD DE USUARIOS ========== 
+function createUser() {
+    resetUserForm();
+    document.getElementById('userModalTitle').textContent = 'Crear Nuevo Usuario';
+    openModal('createUserModal');
+}
+
+function editUser(userId) {
+    const user = usersData.find(u => u.id === userId);
+    if (!user) {
+        showNotification('error', 'Usuario no encontrado');
+        return;
+    }
+    
+    populateUserForm(user);
+    document.getElementById('userModalTitle').textContent = 'Editar Usuario';
+    openModal('createUserModal');
+}
+
+function populateUserForm(user) {
+    document.getElementById('userName').value = user.name || '';
+    document.getElementById('userEmail').value = user.email || '';
+    document.getElementById('userPhone').value = user.phone || '';
+    document.getElementById('userRole').value = user.roles[0] || '';
+    document.getElementById('userDepartment').value = user.department || '';
+    document.getElementById('userManager').value = user.manager_id || '';
+    document.getElementById('userActive').checked = user.status === 'active';
+    document.getElementById('sendInvitation').checked = false;
+    
+    // Guardar ID para edición
+    document.getElementById('userForm').dataset.userId = user.id;
+}
+
+function resetUserForm() {
+    document.getElementById('userForm').reset();
+    document.getElementById('userActive').checked = true;
+    document.getElementById('sendInvitation').checked = true;
+    delete document.getElementById('userForm').dataset.userId;
+    clearFormErrors();
+}
+
+function saveUser() {
+    if (!validateUserForm()) {
+        return;
+    }
+    
+    const formData = getUserFormData();
+    const userId = document.getElementById('userForm').dataset.userId;
+    const isEdit = !!userId;
+    
+    const url = isEdit ? `/api/users/${userId}` : '/api/users';
+    const method = isEdit ? 'PUT' : 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('createUserModal');
+            refreshUsers();
+            showNotification('success', 
+                isEdit ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente'
+            );
+        } else {
+            showNotification('error', data.message || 'Error al guardar usuario');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving user:', error);
+        showNotification('error', 'Error de conexión al guardar usuario');
+    });
+}
+
+function getUserFormData() {
+    return {
+        name: document.getElementById('userName').value,
+        email: document.getElementById('userEmail').value,
+        phone: document.getElementById('userPhone').value,
+        role: document.getElementById('userRole').value,
+        department: document.getElementById('userDepartment').value,
+        manager_id: document.getElementById('userManager').value || null,
+        active: document.getElementById('userActive').checked,
+        send_invitation: document.getElementById('sendInvitation').checked
+    };
+}
+
+function deleteUser(userId) {
+    const user = usersData.find(u => u.id === userId);
+    if (!user) {
+        showNotification('error', 'Usuario no encontrado');
+        return;
+    }
+    
+    if (confirm(`¿Estás seguro de que deseas eliminar al usuario "${user.name}"?`)) {
+        fetch(`/api/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                refreshUsers();
+                showNotification('success', 'Usuario eliminado exitosamente');
+            } else {
+                showNotification('error', data.message || 'Error al eliminar usuario');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting user:', error);
+            showNotification('error', 'Error de conexión al eliminar usuario');
+        });
+    }
+}
+
+// ========== GESTIÓN DE PERMISOS ========== 
+function managePermissions(userId) {
+    // Implementar gestión de permisos específicos por usuario
+    console.log('Managing permissions for user:', userId);
+    showNotification('info', 'Función en desarrollo');
+}
+
+function impersonateUser(userId) {
+    if (confirm('¿Estás seguro de que deseas suplantar a este usuario? Serás redirigido a su sesión.')) {
+        fetch(`/api/users/${userId}/impersonate`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url || '/dashboard';
+            } else {
+                showNotification('error', data.message || 'Error al suplantar usuario');
+            }
+        })
+        .catch(error => {
+            console.error('Error impersonating user:', error);
+            showNotification('error', 'Error de conexión');
+        });
+    }
+}
+
+// ========== GESTIÓN DE ROLES ========== 
+function loadRolesData() {
+    fetch('/api/roles', {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            rolesData = data.roles;
+            renderRolesGrid(data.roles);
+            loadPermissionsMatrix(data.roles);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading roles:', error);
+    });
+}
+
+function renderRolesGrid(roles) {
+    const grid = document.getElementById('rolesGrid');
+    
+    grid.innerHTML = roles.map(role => `
+        <div class="role-card">
+            <div class="role-header">
+                <h4>${role.name}</h4>
+                <div class="role-actions">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editRole(${role.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteRole(${role.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="role-description">${role.description}</p>
+            <div class="role-stats">
+                <span class="stat">
+                    <i class="fas fa-users"></i>
+                    ${role.users_count} usuarios
+                </span>
+                <span class="stat">
+                    <i class="fas fa-shield-alt"></i>
+                    ${role.permissions_count} permisos
+                </span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadPermissionsMatrix(roles) {
+    fetch('/api/permissions/matrix', {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            renderPermissionsMatrix(data.matrix, roles);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading permissions matrix:', error);
+    });
+}
+
+function renderPermissionsMatrix(matrix, roles) {
+    const tbody = document.getElementById('permissionsTableBody');
+    
+    tbody.innerHTML = matrix.map(module => `
+        <tr>
+            <td><strong>${module.name}</strong></td>
+            ${roles.map(role => `
+                <td>
+                    <input type="checkbox" class="permission-checkbox" 
+                           data-module="${module.id}" data-role="${role.id}"
+                           ${module.permissions[role.id] ? 'checked' : ''}>
+                </td>
+            `).join('')}
+        </tr>
+    `).join('');
+}
+
+function savePermissionsMatrix() {
+    const permissions = [];
+    const checkboxes = document.querySelectorAll('.permission-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            permissions.push({
+                module_id: checkbox.dataset.module,
+                role_id: checkbox.dataset.role
+            });
+        }
+    });
+    
+    fetch('/api/permissions/matrix', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ permissions })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('permissionsMatrixModal');
+            showNotification('success', 'Permisos actualizados exitosamente');
+        } else {
+            showNotification('error', 'Error al actualizar permisos');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving permissions:', error);
+        showNotification('error', 'Error de conexión');
+    });
+}
+
+// ========== INVITACIONES ========== 
+function sendInvitations() {
+    const emails = document.getElementById('inviteEmails').value
+        .split('\n')
+        .map(email => email.trim())
+        .filter(email => email && isValidEmail(email));
+    
+    if (emails.length === 0) {
+        showNotification('warning', 'Ingresa al menos un email válido');
+        return;
+    }
+    
+    const inviteData = {
+        emails: emails,
+        role: document.getElementById('inviteRole').value,
+        message: document.getElementById('inviteMessage').value
+    };
+    
+    fetch('/api/users/invite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(inviteData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('inviteUsersModal');
+            showNotification('success', `Invitaciones enviadas a ${emails.length} usuarios`);
+        } else {
+            showNotification('error', data.message || 'Error al enviar invitaciones');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending invitations:', error);
+        showNotification('error', 'Error de conexión');
+    });
+}
+
+// ========== SEGURIDAD ========== 
+function loadSecuritySettings() {
+    fetch('/api/security/settings', {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            populateSecuritySettings(data.settings);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading security settings:', error);
+    });
+}
+
+function populateSecuritySettings(settings) {
+    Object.keys(settings).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            if (element.type === 'checkbox') {
+                element.checked = settings[key];
+            } else {
+                element.value = settings[key];
+            }
+        }
+    });
+}
+
+function saveSecuritySettings() {
+    const settings = {};
+    const securityInputs = document.querySelectorAll('#tab-seguridad input, #tab-seguridad select');
+    
+    securityInputs.forEach(input => {
+        if (input.type === 'checkbox') {
+            settings[input.id] = input.checked;
+        } else {
+            settings[input.id] = input.value;
+        }
+    });
+    
+    fetch('/api/security/settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Configuración de seguridad guardada');
+        } else {
+            showNotification('error', 'Error al guardar configuración');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving security settings:', error);
+        showNotification('error', 'Error de conexión');
+    });
+}
+
+function forcePasswordReset() {
+    if (confirm('¿Estás seguro de que deseas forzar el reset de contraseñas para todos los usuarios?')) {
+        fetch('/api/security/force-password-reset', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', 'Reset de contraseñas iniciado');
+            } else {
+                showNotification('error', 'Error al iniciar reset de contraseñas');
+            }
+        })
+        .catch(error => {
+            console.error('Error forcing password reset:', error);
+            showNotification('error', 'Error de conexión');
+        });
+    }
+}
+
+function terminateAllSessions() {
+    if (confirm('¿Estás seguro de que deseas cerrar todas las sesiones activas? Esto afectará a todos los usuarios conectados.')) {
+        fetch('/api/security/terminate-all-sessions', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', 'Todas las sesiones han sido cerradas');
+            } else {
+                showNotification('error', 'Error al cerrar sesiones');
+            }
+        })
+        .catch(error => {
+            console.error('Error terminating sessions:', error);
+            showNotification('error', 'Error de conexión');
+        });
+    }
+}
+
+// ========== AUDITORÍA ========== 
+function loadAuditLogs() {
+    const filters = getAuditFilters();
+    
+    fetch(`/api/audit/logs?${new URLSearchParams(filters)}`, {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            renderAuditTable(data.logs);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading audit logs:', error);
+    });
+}
+
+function getAuditFilters() {
+    return {
+        date_from: document.getElementById('auditDateFrom').value,
+        date_to: document.getElementById('auditDateTo').value,
+        user: document.getElementById('auditUser').value,
+        action: document.getElementById('auditAction').value
+    };
+}
+
+function renderAuditTable(logs) {
+    const tbody = document.getElementById('auditTableBody');
+    
+    tbody.innerHTML = logs.map(log => `
+        <tr>
+            <td>${formatDateTime(log.timestamp)}</td>
+            <td>${log.user_name}</td>
+            <td>
+                <span class="action-badge action-${log.action}">
+                    ${getActionText(log.action)}
+                </span>
+            </td>
+            <td>${log.module}</td>
+            <td>${log.details}</td>
+            <td>${log.ip_address}</td>
+            <td>
+                <span class="status-badge status-${log.status}">
+                    ${getStatusText(log.status)}
+                </span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function filterAuditLogs() {
+    loadAuditLogs();
+}
+
+function clearAuditFilters() {
+    document.getElementById('auditDateFrom').value = '';
+    document.getElementById('auditDateTo').value = '';
+    document.getElementById('auditUser').value = '';
+    document.getElementById('auditAction').value = '';
+    loadAuditLogs();
+}
+
+function exportAuditLogs() {
+    const filters = getAuditFilters();
+    
+    fetch(`/api/audit/export?${new URLSearchParams(filters)}`, {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `audit_logs_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification('success', 'Logs exportados exitosamente');
+    })
+    .catch(error => {
+        console.error('Error exporting audit logs:', error);
+        showNotification('error', 'Error al exportar logs');
+    });
+}
+
+// ========== EXPORTACIÓN DE DATOS ========== 
+function exportUsers() {
+    const filters = getActiveFilters();
+    const search = document.getElementById('userSearch').value;
+    
+    fetch(`/api/users/export?${new URLSearchParams({ search, ...filters })}`, {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `usuarios_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification('success', 'Lista de usuarios exportada');
+    })
+    .catch(error => {
+        console.error('Error exporting users:', error);
+        showNotification('error', 'Error al exportar usuarios');
+    });
+}
+
+function exportRoles() {
+    fetch('/api/roles/export', {
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `roles_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification('success', 'Roles exportados exitosamente');
+    })
+    .catch(error => {
+        console.error('Error exporting roles:', error);
+        showNotification('error', 'Error al exportar roles');
+    });
+}
+
+// ========== VALIDACIÓN Y HELPERS ========== 
+function validateUserForm() {
+    const form = document.getElementById('userForm');
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            showFieldError(field, 'Este campo es obligatorio');
+            isValid = false;
+        }
+    });
+    
+    // Validar email
+    const email = document.getElementById('userEmail');
+    if (email.value && !isValidEmail(email.value)) {
+        showFieldError(email, 'Email inválido');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function validateField(event) {
+    const field = event.target;
+    clearFieldError(field);
+    
+    if (field.hasAttribute('required') && !field.value.trim()) {
+        showFieldError(field, 'Este campo es obligatorio');
+        return false;
+    }
+    
+    if (field.type === 'email' && field.value && !isValidEmail(field.value)) {
+        showFieldError(field, 'Email inválido');
+        return false;
+    }
+    
+    return true;
+}
+
+function showFieldError(field, message) {
+    clearFieldError(field);
+    
+    field.classList.add('error');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error';
+    errorDiv.textContent = message;
+    errorDiv.style.color = 'var(--danger-red)';
+    errorDiv.style.fontSize = '0.875rem';
+    errorDiv.style.marginTop = '0.25rem';
+    
+    field.parentNode.appendChild(errorDiv);
+}
+
+function clearFieldError(field) {
+    field.classList.remove('error');
+    const errorDiv = field.parentNode.querySelector('.field-error');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+}
+
+function clearFormErrors() {
+    const errors = document.querySelectorAll('.field-error');
+    errors.forEach(error => error.remove());
+    
+    const errorFields = document.querySelectorAll('.error');
+    errorFields.forEach(field => field.classList.remove('error'));
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// ========== FORMATEO Y UTILIDADES ========== 
+function getStatusText(status) {
+    const statusMap = {
+        'active': 'Activo',
+        'inactive': 'Inactivo',
+        'pending': 'Pendiente',
+        'suspended': 'Suspendido'
+    };
+    return statusMap[status] || status;
+}
+
+function getActionText(action) {
+    const actionMap = {
+        'login': 'Inicio de sesión',
+        'logout': 'Cierre de sesión',
+        'create': 'Crear',
+        'update': 'Actualizar',
+        'delete': 'Eliminar',
+        'permission_change': 'Cambio permisos'
+    };
+    return actionMap[action] || action;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES');
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES');
+}
+
+function formatLastActivity(dateString) {
+    if (!dateString) return 'Nunca';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Ahora mismo';
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    if (diffDays < 7) return `Hace ${diffDays}d`;
+    
+    return formatDate(dateString);
+}
+
+// ========== GESTIÓN DE MODALES ========== 
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        
+        // Enfocar primer campo si es un formulario
+        const firstInput = modal.querySelector('input, select, textarea');
+        if (firstInput) {
+            setTimeout(() => firstInput.focus(), 100);
+        }
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+function closeAllModals() {
+    const modals = document.querySelectorAll('.modal-overlay');
+    modals.forEach(modal => modal.classList.remove('show'));
+}
+
+// ========== ESTADOS DE CARGA ========== 
+function showLoadingState(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center" style="padding: 3rem;">
+                    <div class="loading-shimmer">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-blue);"></i>
+                        <p style="margin-top: 1rem; color: #6b7280;">Cargando datos...</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function hideLoadingState(elementId) {
+    // La función de renderizado se encarga de reemplazar el estado de carga
+}
+
+// ========== SISTEMA DE NOTIFICACIONES ========== 
+function showNotification(type, message) {
+    const notification = document.getElementById('notification');
+    const icon = notification.querySelector('i');
+    const text = document.getElementById('notificationText');
+    
+    // Remover clases anteriores
+    notification.className = 'notification';
+    
+    // Configurar icono y clase según tipo
+    switch(type) {
+        case 'success':
+            notification.classList.add('success');
+            icon.className = 'fas fa-check';
+            break;
+        case 'error':
+            notification.classList.add('error');
+            icon.className = 'fas fa-times';
+            break;
+        case 'warning':
+            notification.classList.add('warning');
+            icon.className = 'fas fa-exclamation-triangle';
+            break;
+        case 'info':
+            notification.classList.add('info');
+            icon.className = 'fas fa-info-circle';
+            break;
+    }
+    
+    text.textContent = message;
+    notification.classList.add('show');
+    
+    // Auto-ocultar después de 4 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 4000);
+}
+
+// ========== UTILIDADES GENERALES ========== 
+function getCSRFToken() {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute('content') : '';
+}
+
+function saveCurrentTabState() {
+    // Guardar cualquier estado específico del tab actual
+    localStorage.setItem(`userTab_${currentTab}_state`, JSON.stringify({
+        page: currentPage,
+        search: document.getElementById('userSearch')?.value || '',
+        filters: getActiveFilters()
+    }));
+}
+
+// ========== INICIALIZACIÓN FINAL ========== 
+// Los datos se cargarán automáticamente cuando se inicialice la página
+console.log('Sistema de gestión de usuarios inicializado');
+</script>
+{% endblock %}

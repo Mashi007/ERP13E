@@ -3,7 +3,7 @@
 📄 Nombre: ai_service.py
 🏗️ Propósito: Servicio AI unificado multi-proveedor
 ⚡ Performance: Adaptadores optimizados por proveedor
-🔒 Seguridad: Manejo seguro de tokens.
+🔒 Seguridad: Manejo seguro de tokens
 
 ERP13 Enterprise - Core AI Service
 Soporte para múltiples proveedores AI configurables

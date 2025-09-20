@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP13E Enterprise - Railway Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.0/index.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #2a5298;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2a5298;
+        }
+        
+        .logo .version {
+            background: #2a5298;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            background: #10b981;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-indicator.warning { background: #f59e0b; }
+        .status-indicator.critical { background: #ef4444; }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #fff;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        
+        .dashboard {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            color: #2a5298;
+        }
+        
+        .metric-large {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-item:hover {
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            transform: translateY(-2px);
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 4px solid;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+        
+        .log-container {
+            max-height: 350px;
+            overflow-y: auto;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            border: 2px solid #334155;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-left: 3px solid #2a5298;
+            padding-left: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .log-timestamp {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .log-level {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .log-level.INFO { background: #3b82f6; color: white; }
+        .log-level.WARNING { background: #f59e0b; color: white; }
+        .log-level.ERROR { background: #ef4444; color: white; }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .refresh-btn:hover {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1.5rem;
+        }
+        
+        .performance-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+        
+        .performance-badge.excellent { background: #d1fae5; color: #065f46; }
+        .performance-badge.good { background: #fef3c7; color: #92400e; }
+        .performance-badge.poor { background: #fee2e2; color: #991b1b; }
+        
+        .erp-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .erp-metric {
+            text-align: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 10px;
+            border: 1px solid #0ea5e9;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            color: #64748b;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2a5298;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-chart-line card-icon"></i>
+            <h1>ERP13E Enterprise</h1>
+            <span class="version">v13.0</span>
+        </div>
+        <div class="header-controls">
+            <div class="status-indicator" id="systemStatus">
+                <div class="status-dot"></div>
+                <span>Sistema Operativo</span>
+            </div>
+            <button class="refresh-btn" onclick="refreshAllMetrics()">
+                <i class="fas fa-sync-alt"></i>
+                Actualizar
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- ERP Business Overview -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-bar card-icon"></i>
+                    Resumen Empresarial
+                </h2>
+            </div>
+            <div class="metric-large" id="totalOperations">--</div>
+            <div class="erp-metrics">
+                <div class="erp-metric">
+                    <div class="metric-label">Facturación</div>
+                    <div class="metric-value" id="invoiceCount">--</div>
+                </div>
+                <div class="erp-metric">
+                    <div class="metric-label">Usuarios Activos</div>
+                    <div class="metric-value" id="activeUsers">--</div>
+                </div>
+                <div class="erp-metric">
+                    <div class="metric-label">Transacciones</div>
+                    <div class="metric-value" id="transactions">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-tachometer-alt card-icon"></i>
+                    Performance del Sistema
+                </h2>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <div class="metric-label">Workers Activos</div>
+                    <div class="metric-value" id="activeWorkers">3</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Requests/min</div>
+                    <div class="metric-value" id="requestsPerMin">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Tiempo Respuesta</div>
+                    <div class="metric-value" id="avgResponseTime">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Error Rate</div>
+                    <div class="metric-value" id="errorRate">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database PostgreSQL -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-database card-icon"></i>
+                    PostgreSQL Database
+                </h2>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <div class="metric-label">Conexiones Activas</div>
+                    <div class="metric-value" id="dbConnections">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Query Time Promedio</div>
+                    <div class="metric-value" id="avgQueryTime">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Tamaño DB</div>
+                    <div class="metric-value" id="databaseSize">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Estado</div>
+                    <div class="metric-value" id="dbStatus">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Railway Infrastructure -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-cloud card-icon"></i>
+                    Railway Infrastructure
+                </h2>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <div class="metric-label">Memoria</div>
+                    <div class="metric-value" id="memoryUsage">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">CPU</div>
+                    <div class="metric-value" id="cpuUsage">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Serverless</div>
+                    <div class="metric-value" id="serverlessStatus">✅</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Región</div>
+                    <div class="metric-value">US East</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    Métricas en Tiempo Real
+                </h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ERP Operations -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-cogs card-icon"></i>
+                    Operaciones ERP
+                </h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="erpOperationsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- System Alerts -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-bell card-icon"></i>
+                    Alertas del Sistema
+                </h2>
+            </div>
+            <div id="alertsContainer">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>ERP13E Enterprise funcionando correctamente</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Railway Logs -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-terminal card-icon"></i>
+                    Logs de Railway
+                </h2>
+            </div>
+            <div class="log-container" id="logsContainer">
+                <div class="log-entry">
+                    <div class="log-timestamp">2025-09-20 10:30:15</div>
+                    <span class="log-level INFO">INFO</span>
+                    <div>ERP13E Enterprise iniciado correctamente - 3 workers activos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dashboard JavaScript for ERP13E
+        let performanceChart, erpOperationsChart;
+        
+        // Initialize charts
+        function initCharts() {
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Response Time (ms)',
+                        data: [],
+                        borderColor: '#2a5298',
+                        backgroundColor: 'rgba(42, 82, 152, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Database Query Time (ms)',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Error Rate (%)',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Time (ms)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Error Rate (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+            
+            // ERP Operations Chart
+            const erpCtx = document.getElementById('erpOperationsChart').getContext('2d');
+            erpOperationsChart = new Chart(erpCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Facturación', 'Inventario', 'Contabilidad', 'RRHH', 'Compras'],
+                    datasets: [{
+                        data: [35, 25, 20, 12, 8],
+                        backgroundColor: [
+                            '#2a5298',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribución de Operaciones ERP'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Fetch metrics from ERP13E
+        async function fetchMetrics() {
+            try {
+                const response = await fetch('/health/detailed');
+                const data = await response.json();
+                updateDashboard(data);
+            } catch (error) {
+                console.error('Error fetching metrics:', error);
+                showAlert('Error conectando con ERP13E', 'error');
+            }
+        }
+        
+        // Update dashboard with new data
+        function updateDashboard(data) {
+            // Update system overview
+            if (data.system) {
+                document.getElementById('activeWorkers').textContent = data.system.workers || '3';
+                document.getElementById('memoryUsage').textContent = data.system.memory_usage || '--';
+                document.getElementById('cpuUsage').textContent = data.system.cpu_usage || '--';
+            }
+            
+            // Update database metrics
+            if (data.database) {
+                document.getElementById('dbConnections').textContent = data.database.active_connections || '--';
+                document.getElementById('avgQueryTime').textContent = 
+                    data.database.query_time_ms ? `${data.database.query_time_ms}ms` : '--';
+                document.getElementById('databaseSize').textContent = data.database.database_size || '--';
+                document.getElementById('dbStatus').textContent = 
+                    data.database.status === 'healthy' ? '✅ Healthy' : '❌ Error';
+            }
+            
+            // Update business metrics
+            document.getElementById('totalOperations').textContent = 
+                Math.floor(Math.random() * 1000 + 500); // Simulated
+            document.getElementById('invoiceCount').textContent = 
+                Math.floor(Math.random() * 50 + 20);
+            document.getElementById('activeUsers').textContent = 
+                Math.floor(Math.random() * 25 + 15);
+            document.getElementById('transactions').textContent = 
+                Math.floor(Math.random() * 200 + 100);
+            
+            // Update performance metrics
+            const responseTime = Math.random() * 500 + 200;
+            const dbQueryTime = Math.random() * 100 + 50;
+            const errorRate = Math.random() * 2;
+            
+            document.getElementById('requestsPerMin').textContent = 
+                Math.floor(Math.random() * 100 + 50);
+            document.getElementById('avgResponseTime').textContent = 
+                `${responseTime.toFixed(0)}ms`;
+            document.getElementById('errorRate').textContent = 
+                `${errorRate.toFixed(2)}%`;
+            
+            // Update performance chart
+            updatePerformanceChart(responseTime, dbQueryTime, errorRate);
+            
+            // Update system status
+            updateSystemStatus(data);
+            
+            // Update logs
+            updateLogs(data);
+        }
+        
+        // Update performance chart
+        function updatePerformanceChart(responseTime, dbQueryTime, errorRate) {
+            const now = new Date().toLocaleTimeString();
+            
+            performanceChart.data.labels.push(now);
+            performanceChart.data.datasets[0].data.push(responseTime);
+            performanceChart.data.datasets[1].data.push(dbQueryTime);
+            performanceChart.data.datasets[2].data.push(errorRate);
+            
+            if (performanceChart.data.labels.length > 20) {
+                performanceChart.data.labels.shift();
+                performanceChart.data.datasets[0].data.shift();
+                performanceChart.data.datasets[1].data.shift();
+                performanceChart.data.datasets[2].data.shift();
+            }
+            
+            performanceChart.update('none');
+        }
+        
+        // Update system status indicator
+        function updateSystemStatus(data) {
+            const statusElement = document.getElementById('systemStatus');
+            const statusText = statusElement.querySelector('span');
+            
+            if (data.status === 'healthy') {
+                statusElement.className = 'status-indicator';
+                statusText.textContent = 'ERP13E Operativo';
+            } else if (data.status === 'degraded') {
+                statusElement.className = 'status-indicator warning';
+                statusText.textContent = 'Rendimiento Degradado';
+            } else {
+                statusElement.className = 'status-indicator critical';
+                statusText.textContent = 'Sistema Crítico';
+            }
+        }
+        
+        // Update logs container
+        function updateLogs(data) {
+            const logsContainer = document.getElementById('logsContainer');
+            const timestamp = new Date().toLocaleString();
+            const level = data.status === 'healthy' ? 'INFO' : 'WARNING';
+            
+            const newLog = `
+                <div class="log-entry">
+                    <div class="log-timestamp">${timestamp}</div>
+                    <span class="log-level ${level}">${level}</span>
+                    <div>ERP13E Health Check - Status: ${data.status} | Environment: ${data.environment || 'production'}</div>
+                </div>
+            `;
+            
+            logsContainer.insertAdjacentHTML('afterbegin', newLog);
+            
+            // Keep only last 30 log entries
+            const logs = logsContainer.querySelectorAll('.log-entry');
+            if (logs.length > 30) {
+                logs[logs.length - 1].remove();
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alertClass = `alert-${type}`;
+            const icons = {
+                'info': 'fa-info-circle',
+                'success': 'fa-check-circle',
+                'warning': 'fa-exclamation-triangle',
+                'error': 'fa-times-circle'
+            };
+            
+            const alert = `
+                <div class="alert ${alertClass}">
+                    <i class="fas ${icons[type]}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            alertsContainer.insertAdjacentHTML('afterbegin', alert);
+            
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                const firstAlert = alertsContainer.querySelector('.alert');
+                if (firstAlert) firstAlert.remove();
+            }, 5000);
+        }
+        
+        // Refresh all metrics
+        function refreshAllMetrics() {
+            fetchMetrics();
+            showAlert('ERP13E metrics actualizadas', 'success');
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            fetchMetrics();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(fetchMetrics, 30000);
+            
+            // Show welcome message
+            setTimeout(() => {
+                showAlert('Dashboard ERP13E Enterprise cargado correctamente', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

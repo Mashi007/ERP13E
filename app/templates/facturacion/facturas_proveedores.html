@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Pro - Gestión Facturas Proveedores | OCR & Workflow</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --dark-gray: #374151;
+            --light-gray: #f8fafc;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #1d4ed8 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .main-header h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .main-header .subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        /* KPIs Dashboard */
+        .kpis-section {
+            margin: 2rem 0;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-card .kpi-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        .kpi-total { color: var(--primary-blue); }
+        .kpi-pending { color: var(--warning-orange); }
+        .kpi-confirmed { color: var(--success-green); }
+        .kpi-confidence { color: var(--dark-gray); }
+
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--light-gray);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-blue);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--success-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+        }
+
+        /* OCR Results */
+        .ocr-results {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .ocr-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .ocr-field label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .confidence-high { background: rgba(16, 185, 129, 0.2); color: var(--success-green); }
+        .confidence-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning-orange); }
+        .confidence-low { background: rgba(239, 68, 68, 0.2); color: var(--danger-red); }
+
+        /* Facturas Table */
+        .facturas-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--light-gray);
+            border: none;
+            font-weight: 600;
+            color: var(--dark-gray);
+            padding: 1rem 0.75rem;
+        }
+
+        .table tbody td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-orange);
+        }
+
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-green);
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-red);
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-view { background: var(--primary-blue); }
+        .btn-edit { background: var(--warning-orange); }
+        .btn-delete { background: var(--danger-red); }
+
+        /* Workflow Progress */
+        .workflow-progress {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .workflow-step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 25px;
+            right: -50%;
+            width: 100%;
+            height: 4px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .workflow-step.active:not(:last-child)::after {
+            background: var(--primary-blue);
+        }
+
+        .workflow-step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--border-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .workflow-step.active .workflow-step-icon {
+            background: var(--primary-blue);
+        }
+
+        .workflow-step.completed .workflow-step-icon {
+            background: var(--success-green);
+        }
+
+        /* Duplicate Alert */
+        .duplicate-alert {
+            display: none;
+            margin: 1rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .kpi-card {
+                height: auto;
+                margin-bottom: 1rem;
+            }
+            
+            .workflow-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .workflow-step:not(:last-child)::after {
+                display: none;
+            }
+            
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary-blue);
+        }
+
+        /* Success Animation */
+        .success-animation {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--success-green);
+            animation: bounce 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-receipt me-3"></i>Gestión de Facturas Proveedores</h1>
+                    <p class="subtitle">Sistema OCR Automatizado | Workflow de Aprobación | Análisis Inteligente</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{{ url_for('facturacion_proveedores') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-building me-2"></i>Gestión Proveedores
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <!-- KPIs Dashboard -->
+        <section class="kpis-section">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp">
+                        <div class="kpi-icon kpi-total">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                        <div class="kpi-value kpi-total">€759.63</div>
+                        <div class="kpi-label">Total Gastos</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                        <div class="kpi-icon kpi-pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="kpi-value kpi-pending">1</div>
+                        <div class="kpi-label">Pendientes Revisión</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                        <div class="kpi-icon kpi-confirmed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="kpi-value kpi-confirmed">1</div>
+                        <div class="kpi-label">Confirmadas</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="kpi-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                        <div class="kpi-icon kpi-confidence">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="kpi-value kpi-confidence">90%</div>
+                        <div class="kpi-label">Confianza Promedio</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflow Progress -->
+        <section class="workflow-progress animate__animated animate__fadeInUp">
+            <h3><i class="fas fa-route me-2"></i>Proceso de Gestión</h3>
+            <div class="workflow-steps">
+                <div class="workflow-step active">
+                    <div class="workflow-step-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h6>Carga</h6>
+                    <small>Subir Factura</small>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h6>OCR</h6>
+                    <small>Análisis Automático</small>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h6>Aprobación</h6>
+                    <small>Validación Usuario</small>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h6>Pago</h6>
+                    <small>Procesamiento</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section animate__animated animate__fadeInUp">
+            <h3><i class="fas fa-cloud-upload-alt me-2"></i>Subir Nueva Factura</h3>
+            <div class="upload-area" id="uploadArea" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragenter="dragEnterHandler(event);" ondragleave="dragLeaveHandler(event);">
+                <div class="upload-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h5>Arrastra tu factura aquí o haz clic para seleccionar</h5>
+                <p class="text-muted">Formatos soportados: PDF, JPG, PNG (máx. 10MB)</p>
+                <input type="file" id="facturaFile" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
+                <button class="btn btn-primary btn-lg mt-3" onclick="document.getElementById('facturaFile').click()">
+                    <i class="fas fa-folder-open me-2"></i>Seleccionar Archivo
+                </button>
+            </div>
+
+            <!-- Duplicate Alert -->
+            <div class="alert alert-warning duplicate-alert" id="duplicateAlert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Posible duplicado detectado:</strong> Esta factura podría ya estar registrada. 
+                <a href="#" onclick="showDuplicateDetails()">Ver detalles</a>
+            </div>
+
+            <!-- Loading Animation -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Procesando OCR...</span>
+                </div>
+                <p class="mt-3">Analizando factura con OCR Tesseract...</p>
+            </div>
+
+            <!-- Success Animation -->
+            <div class="success-animation" id="successAnimation">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h5 class="text-success">¡Factura procesada correctamente!</h5>
+            </div>
+        </section>
+
+        <!-- OCR Results -->
+        <section class="ocr-results" id="ocrResults">
+            <h3><i class="fas fa-robot me-2"></i>Resultados del Análisis OCR</h3>
+            <form id="facturaForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="ocr-field">
+                            <label for="proveedor">Proveedor</label>
+                            <input type="text" class="form-control" id="proveedor" name="proveedor">
+                            <span class="confidence-badge confidence-high">95% confianza</span>
+                        </div>
+                        <div class="ocr-field">
+                            <label for="numeroFiscal">Número Fiscal</label>
+                            <input type="text" class="form-control" id="numeroFiscal" name="numeroFiscal">
+                            <span class="confidence-badge confidence-high">92% confianza</span>
+                        </div>
+                        <div class="ocr-field">
+                            <label for="fecha">Fecha</label>
+                            <input type="date" class="form-control" id="fecha" name="fecha">
+                            <span class="confidence-badge confidence-medium">85% confianza</span>
+                        </div>
+                        <div class="ocr-field">
+                            <label for="numero">Número de Factura</label>
+                            <input type="text" class="form-control" id="numero" name="numero">
+                            <span class="confidence-badge confidence-high">98% confianza</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="ocr-field">
+                            <label for="detalle">Detalle</label>
+                            <textarea class="form-control" id="detalle" name="detalle" rows="3"></textarea>
+                            <span class="confidence-badge confidence-medium">78% confianza</span>
+                        </div>
+                        <div class="ocr-field">
+                            <label for="subtotal">Subtotal</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotal" name="subtotal">
+                            <span class="confidence-badge confidence-high">94% confianza</span>
+                        </div>
+                        <div class="ocr-field">
+                            <label for="iva">IVA</label>
+                            <input type="number" step="0.01" class="form-control" id="iva" name="iva">
+                            <span class="confidence-badge confidence-high">91% confianza</span>
+                        </div>
+                        <div class="ocr-field">
+                            <label for="total">Total</label>
+                            <input type="number" step="0.01" class="form-control" id="total" name="total">
+                            <span class="confidence-badge confidence-high">96% confianza</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12 text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="cancelFactura()">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button type="button" class="btn btn-warning me-2" onclick="saveAsDraft()">
+                            <i class="fas fa-save me-2"></i>Guardar Borrador
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Confirmar y Enviar a Aprobación
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Facturas Table -->
+        <section class="facturas-section animate__animated animate__fadeInUp">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3><i class="fas fa-table me-2"></i>Facturas Registradas</h3>
+                <div>
+                    <button class="btn btn-outline-primary me-2" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="toggleFilters()">
+                        <i class="fas fa-filter me-2"></i>Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="row mb-3" id="filtersSection" style="display: none;">
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="pending">Pendiente Revisión</option>
+                        <option value="confirmed">Confirmada</option>
+                        <option value="rejected">Rechazada</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="dateFromFilter" placeholder="Fecha desde">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="dateToFilter" placeholder="Fecha hasta">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" id="proveedorFilter" placeholder="Buscar proveedor...">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Estado</th>
+                            <th>Número</th>
+                            <th>Proveedor</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Confianza</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="facturasTableBody">
+                        <tr>
+                            <td><span class="status-badge status-pending">Requiere Revisión</span></td>
+                            <td>F-2024-001</td>
+                            <td>Suministros Técnicos SA</td>
+                            <td>15/09/2024</td>
+                            <td>€524.30</td>
+                            <td>
+                                <div class="progress" style="height: 20px; width: 60px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 85%">85%</div>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewFactura(1)" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editFactura(1)" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteFactura(1)" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge status-confirmed">Confirmada</span></td>
+                            <td>F-2024-002</td>
+                            <td>Electricidad Industrial</td>
+                            <td>12/09/2024</td>
+                            <td>€235.33</td>
+                            <td>
+                                <div class="progress" style="height: 20px; width: 60px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 95%">95%</div>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewFactura(2)" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editFactura(2)" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteFactura(2)" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Navegación de facturas">
+                <ul class="pagination justify-content-center mt-4">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+
+    <!-- Modal for Factura Details -->
+    <div class="modal fade" id="facturaModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de Factura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="facturaModalBody">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-warning" onclick="approveFactura()">
+                        <i class="fas fa-check me-2"></i>Aprobar
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="rejectFactura()">
+                        <i class="fas fa-times me-2"></i>Rechazar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="successToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Éxito</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Operación completada correctamente
+            </div>
+        </div>
+        <div id="errorToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Ha ocurrido un error. Por favor, inténtalo de nuevo.
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentFacturas = [];
+        let filteredFacturas = [];
+
+        // File upload handlers
+        function dragOverHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function dragEnterHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function dragLeaveHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function dropHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = ev.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            // Validate file type and size
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            if (!allowedTypes.includes(file.type)) {
+                showToast('errorToast', 'Formato de archivo no válido. Use PDF, JPG o PNG.');
+                return;
+            }
+
+            if (file.size > maxSize) {
+                showToast('errorToast', 'El archivo es demasiado grande. Máximo 10MB.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSpinner').style.display = 'block';
+            
+            // Update workflow
+            updateWorkflowStep(1);
+
+            // Simulate OCR processing
+            setTimeout(() => {
+                simulateOCR(file);
+            }, 3000);
+        }
+
+        function simulateOCR(file) {
+            // Hide loading
+            document.getElementById('loadingSpinner').style.display = 'none';
+            
+            // Show success animation
+            document.getElementById('successAnimation').style.display = 'block';
+            
+            // Update workflow
+            updateWorkflowStep(2);
+
+            setTimeout(() => {
+                // Hide success animation
+                document.getElementById('successAnimation').style.display = 'none';
+                
+                // Show OCR results
+                showOCRResults();
+                
+                // Check for duplicates (simulated)
+                checkDuplicates();
+            }, 2000);
+        }
+
+        function showOCRResults() {
+            // Populate form with mock OCR data
+            document.getElementById('proveedor').value = 'Suministros Técnicos SA';
+            document.getElementById('numeroFiscal').value = 'A12345678';
+            document.getElementById('fecha').value = '2024-09-19';
+            document.getElementById('numero').value = 'F-2024-003';
+            document.getElementById('detalle').value = 'Material eléctrico y componentes';
+            document.getElementById('subtotal').value = '320.50';
+            document.getElementById('iva').value = '67.31';
+            document.getElementById('total').value = '387.81';
+
+            // Show OCR results section
+            document.getElementById('ocrResults').style.display = 'block';
+            document.getElementById('ocrResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function checkDuplicates() {
+            // Simulate duplicate detection (30% chance)
+            if (Math.random() < 0.3) {
+                document.getElementById('duplicateAlert').style.display = 'block';
+            }
+        }
+
+        function updateWorkflowStep(step) {
+            const steps = document.querySelectorAll('.workflow-step');
+            steps.forEach((stepEl, index) => {
+                stepEl.classList.remove('active', 'completed');
+                if (index < step) {
+                    stepEl.classList.add('completed');
+                } else if (index === step) {
+                    stepEl.classList.add('active');
+                }
+            });
+        }
+
+        // Form handlers
+        document.getElementById('facturaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveFactura();
+        });
+
+        function saveFactura() {
+            updateWorkflowStep(3);
+            showToast('successToast', 'Factura enviada para aprobación');
+            
+            // Add to table
+            addFacturaToTable();
+            
+            // Reset form
+            resetForm();
+        }
+
+        function saveAsDraft() {
+            showToast('successToast', 'Factura guardada como borrador');
+            resetForm();
+        }
+
+        function cancelFactura() {
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('facturaForm').reset();
+            document.getElementById('ocrResults').style.display = 'none';
+            document.getElementById('duplicateAlert').style.display = 'none';
+            updateWorkflowStep(0);
+        }
+
+        function addFacturaToTable() {
+            const tbody = document.getElementById('facturasTableBody');
+            const formData = new FormData(document.getElementById('facturaForm'));
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span class="status-badge status-pending">Requiere Revisión</span></td>
+                <td>${formData.get('numero')}</td>
+                <td>${formData.get('proveedor')}</td>
+                <td>${new Date(formData.get('fecha')).toLocaleDateString('es-ES')}</td>
+                <td>€${parseFloat(formData.get('total')).toFixed(2)}</td>
+                <td>
+                    <div class="progress" style="height: 20px; width: 60px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 90%">90%</div>
+                    </div>
+                </td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewFactura(${Date.now()})" title="Ver">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn btn-edit" onclick="editFactura(${Date.now()})" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn btn-delete" onclick="deleteFactura(${Date.now()})" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            tbody.insertBefore(row, tbody.firstChild);
+            updateKPIs();
+        }
+
+        function updateKPIs() {
+            // Update KPI values (simulated)
+            const totalElement = document.querySelector('.kpi-total .kpi-value');
+            const pendingElement = document.querySelector('.kpi-pending .kpi-value');
+            
+            let currentTotal = parseFloat(totalElement.textContent.replace('€', ''));
+            let currentPending = parseInt(pendingElement.textContent);
+            
+            // Add new factura total
+            const newTotal = parseFloat(document.getElementById('total').value);
+            totalElement.textContent = `€${(currentTotal + newTotal).toFixed(2)}`;
+            pendingElement.textContent = currentPending + 1;
+        }
+
+        // Table actions
+        function viewFactura(id) {
+            // Load factura details in modal
+            const modalBody = document.getElementById('facturaModalBody');
+            modalBody.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Información del Proveedor</h6>
+                        <p><strong>Proveedor:</strong> Suministros Técnicos SA</p>
+                        <p><strong>CIF:</strong> A12345678</p>
+                        <p><strong>Dirección:</strong> Calle Ejemplo 123, Madrid</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Detalles de la Factura</h6>
+                        <p><strong>Número:</strong> F-2024-001</p>
+                        <p><strong>Fecha:</strong> 15/09/2024</p>
+                        <p><strong>Total:</strong> €524.30</p>
+                        <p><strong>Estado:</strong> <span class="status-badge status-pending">Pendiente</span></p>
+                    </div>
+                </div>
+                <hr>
+                <h6>Confianza OCR por Campo</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Proveedor: <span class="confidence-badge confidence-high">95%</span></p>
+                        <p>Fecha: <span class="confidence-badge confidence-medium">85%</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Total: <span class="confidence-badge confidence-high">96%</span></p>
+                        <p>Detalle: <span class="confidence-badge confidence-medium">78%</span></p>
+                    </div>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('facturaModal'));
+            modal.show();
+        }
+
+        function editFactura(id) {
+            showToast('successToast', 'Abriendo editor de factura...');
+        }
+
+        function deleteFactura(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta factura?')) {
+                showToast('successToast', 'Factura eliminada correctamente');
+            }
+        }
+
+        function approveFactura() {
+            showToast('successToast', 'Factura aprobada correctamente');
+            bootstrap.Modal.getInstance(document.getElementById('facturaModal')).hide();
+        }
+
+        function rejectFactura() {
+            showToast('errorToast', 'Factura rechazada');
+            bootstrap.Modal.getInstance(document.getElementById('facturaModal')).hide();
+        }
+
+        // Utility functions
+        function showToast(toastId, message) {
+            const toastElement = document.getElementById(toastId);
+            toastElement.querySelector('.toast-body').textContent = message;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+
+        function toggleFilters() {
+            const filtersSection = document.getElementById('filtersSection');
+            filtersSection.style.display = filtersSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function exportToExcel() {
+            showToast('successToast', 'Exportando a Excel...');
+        }
+
+        function showDuplicateDetails() {
+            alert('Factura similar encontrada:\nProveedor: Suministros Técnicos SA\nFecha: 10/09/2024\nTotal: €525.00');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 ERP Facturas Proveedores - Sistema OCR Cargado');
+            console.log('🔧 OCR Engine: Tesseract.js (Gratuito)');
+            console.log('📊 KPIs Actualizados');
+            console.log('🚀 Railway Ready');
+        });
+    </script>
+</body>
+</html>

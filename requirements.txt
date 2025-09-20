@@ -1,0 +1,53 @@
+# ================================
+# ERP13 ENTERPRISE v3.0 - MINIMAL REQUIREMENTS
+# ================================
+# Railway-optimized dependencies - only essentials
+# All versions tested and verified as existing
+
+# ================================
+# CORE FRAMEWORK - MINIMAL
+# ================================
+Flask==3.1.2
+gunicorn==21.2.0
+Werkzeug==3.1.2
+
+# ================================
+# DATABASE ESSENTIALS
+# ================================
+SQLAlchemy==2.0.35
+Flask-SQLAlchemy==3.1.1
+psycopg2-binary==2.9.9
+
+# ================================
+# CACHE & SESSIONS
+# ================================
+redis==5.2.0
+Flask-Session==0.8.0
+
+# ================================
+# SECURITY CORE
+# ================================
+PyJWT==2.8.0
+Flask-CORS==5.0.0
+Werkzeug==3.1.2
+
+# ================================
+# HTTP & API
+# ================================
+requests==2.32.3
+
+# ================================
+# SYSTEM MONITORING
+# ================================
+psutil==6.1.0
+
+# ================================
+# ENVIRONMENT CONFIG
+# ================================
+python-dotenv==1.0.1
+
+# ================================
+# PRODUCTION WSGI
+# ================================
+gunicorn==21.2.0
+eventlet==0.37.0

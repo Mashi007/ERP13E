@@ -1,0 +1,2985 @@
+{% extends "layout.html" %}
+
+{% block title %}Plantillas de Presupuesto - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================================================
+   PLANTILLAS DE PRESUPUESTO - ERP13 ENTERPRISE
+   📁 Ruta: /app/templates/configuracion/plantillas_presupuesto.html
+   🏗️ Propósito: Sistema completo de gestión de plantillas dinámicas
+   ⚡ Performance: Editor Monaco + Variables en tiempo real + Cache
+   🔒 Seguridad: Validación plantillas + Control acceso + Auditoría
+============================================================================ */
+
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --accent-purple: #8b5cf6;
+    --template-bg: #fafbfc;
+    --editor-bg: #1e1e1e;
+}
+
+body {
+    background: linear-gradient(135deg, var(--template-bg) 0%, #f0f2f5 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ========== HEADER PRINCIPAL ========== */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-section {
+    background: linear-gradient(135deg, var(--accent-purple) 0%, #6d28d9 100%);
+    color: white;
+    padding: 2.5rem 0;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.header-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    opacity: 0.2;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.header-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-title i {
+    font-size: 2.2rem;
+}
+
+.header-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0 0 1rem 0;
+}
+
+.header-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.header-breadcrumb a {
+    color: white;
+    text-decoration: none;
+}
+
+.header-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.header-btn-primary {
+    background: white;
+    color: var(--accent-purple);
+}
+
+.header-btn-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== ESTADÍSTICAS ========== */
+.stats-section {
+    margin: 2rem 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-purple) 100%);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: white;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--dark-gray);
+    margin: 0.5rem 0;
+}
+
+.stat-description {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.stat-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    margin-top: 0.5rem;
+}
+
+.stat-trend.up {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.stat-trend.down {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ========== CONTROLES Y FILTROS ========== */
+.controls-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+}
+
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-container {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 3rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 1.1rem;
+}
+
+.filters-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.filter-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-select {
+    padding: 0.6rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    min-width: 150px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+}
+
+.btn-warning {
+    background: var(--warning-orange);
+    color: white;
+}
+
+.btn-danger {
+    background: var(--danger-red);
+    color: white;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--dark-gray);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== LAYOUT PRINCIPAL ========== */
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* ========== SECCIÓN DE PLANTILLAS ========== */
+.templates-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.templates-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.templates-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.templates-grid {
+    padding: 1.5rem;
+    display: grid;
+    gap: 1rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.template-card {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    background: white;
+}
+
+.template-card:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.template-card.active {
+    border-color: var(--primary-blue);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+}
+
+.template-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.8rem;
+}
+
+.template-info h4 {
+    margin: 0 0 0.3rem 0;
+    color: var(--dark-gray);
+    font-weight: 600;
+}
+
+.template-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.template-meta {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.template-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.8rem 0;
+    padding: 0.8rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.template-stat {
+    text-align: center;
+}
+
+.template-stat strong {
+    display: block;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.template-stat span {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.template-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.template-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-draft {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-archived {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* ========== EDITOR DE PLANTILLAS ========== */
+.editor-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.editor-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.editor-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.editor-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.editor-tab.active {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.editor-tab:hover:not(.active) {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-blue);
+}
+
+.editor-content {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editor-container {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 300px;
+    background: var(--editor-bg);
+}
+
+.monaco-editor {
+    height: 100% !important;
+}
+
+.variables-helper {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.variables-helper h4 {
+    margin: 0 0 0.8rem 0;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.variables-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.variable-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    font-family: 'Courier New', monospace;
+}
+
+.variable-item:hover {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+.variable-item .var-name {
+    font-weight: 600;
+}
+
+.variable-item .var-desc {
+    opacity: 0.7;
+    font-size: 0.75rem;
+}
+
+/* ========== VARIABLES DINÁMICAS ========== */
+.variables-section {
+    margin-top: 2rem;
+}
+
+.variables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.variable-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.variable-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.variable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.variable-name {
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.variable-type {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.type-text {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.type-number {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.type-date {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.type-calculated {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.variable-content p {
+    margin: 0 0 0.5rem 0;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.variable-value {
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+    border: 1px solid var(--border-color);
+}
+
+.variable-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+/* ========== VISTA PREVIA ========== */
+.preview-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.preview-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: white;
+}
+
+.preview-template {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    background: white;
+    min-height: 400px;
+    font-family: 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.preview-template h1,
+.preview-template h2,
+.preview-template h3 {
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+}
+
+.preview-template .company-header {
+    text-align: center;
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.preview-template .client-info {
+    margin-bottom: 2rem;
+}
+
+.preview-template .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+}
+
+.preview-template .items-table th,
+.preview-template .items-table td {
+    border: 1px solid #ddd;
+    padding: 0.8rem;
+    text-align: left;
+}
+
+.preview-template .items-table th {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+.preview-template .totals {
+    text-align: right;
+    margin-top: 2rem;
+}
+
+.preview-template .total-line {
+    padding: 0.3rem 0;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+}
+
+.preview-template .final-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-top: 2px solid var(--primary-blue);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* ========== MODALES ========== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f3f4f6;
+    color: var(--dark-gray);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ========== NOTIFICACIONES ========== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid var(--success-green);
+    z-index: 1100;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    border-left-color: var(--danger-red);
+}
+
+.notification.warning {
+    border-left-color: var(--warning-orange);
+}
+
+.notification.info {
+    border-left-color: var(--primary-blue);
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+}
+
+.notification.success .notification-icon {
+    color: var(--success-green);
+}
+
+.notification.error .notification-icon {
+    color: var(--danger-red);
+}
+
+.notification.warning .notification-icon {
+    color: var(--warning-orange);
+}
+
+.notification.info .notification-icon {
+    color: var(--primary-blue);
+}
+
+.notification-content h4 {
+    margin: 0 0 0.2rem 0;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.notification-content p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1200px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .preview-section {
+        position: relative;
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-container {
+        min-width: unset;
+        max-width: unset;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-select {
+        min-width: unset;
+    }
+    
+    .modal-content {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+        padding: 1.5rem;
+    }
+    
+    .variables-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .variables-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========== LOADING STATES ========== */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-blue);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========== DRAG & DROP ========== */
+.dropzone {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.dropzone.dragover {
+    border-color: var(--primary-blue);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.dropzone-content {
+    color: #6b7280;
+}
+
+.dropzone-content i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #9ca3af;
+}
+
+.dropzone-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--dark-gray);
+}
+
+.dropzone-content p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* ========== CÓDIGO HIGHLIGHT ========== */
+.code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+}
+
+.code-variable {
+    color: #4fc3f7;
+    font-weight: 600;
+}
+
+.code-string {
+    color: #c8e6c9;
+}
+
+.code-number {
+    color: #ffccbc;
+}
+
+.code-comment {
+    color: #9e9e9e;
+    font-style: italic;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Header Section -->
+    <section class="header-section">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1 class="header-title">
+                        <i class="fas fa-file-alt"></i>
+                        Plantillas de Presupuesto
+                    </h1>
+                    <p class="header-subtitle">
+                        Sistema avanzado de gestión de plantillas dinámicas con variables calculadas y editor integrado
+                    </p>
+                    <nav class="header-breadcrumb">
+                        <a href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="{{ url_for('configuracion') }}">Configuración</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Plantillas de Presupuesto</span>
+                    </nav>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="header-btn header-btn-primary" onclick="openCreateTemplateModal()">
+                        <i class="fas fa-plus"></i>
+                        Nueva Plantilla
+                    </button>
+                    <button class="header-btn header-btn-secondary" onclick="importTemplates()">
+                        <i class="fas fa-upload"></i>
+                        Importar
+                    </button>
+                    <button class="header-btn header-btn-secondary" onclick="exportTemplates()">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Estadísticas -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Plantillas</span>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalTemplates">12</div>
+                    <div class="stat-description">Plantillas configuradas</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        +3 este mes
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Variables Activas</span>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #047857);">
+                            <i class="fas fa-code"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalVariables">48</div>
+                    <div class="stat-description">Variables dinámicas</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        +12 nuevas
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Usos Totales</span>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalUsage">2,847</div>
+                    <div class="stat-description">Presupuestos generados</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        +234 este mes
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Valor Promedio</span>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="averageValue">€24.5K</div>
+                    <div class="stat-description">Importe medio</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        +8.2% crecimiento
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controles y Filtros -->
+        <section class="controls-section">
+            <div class="controls-row">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Buscar plantillas por nombre, categoría o variables..." id="templateSearch">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openCreateTemplateModal()">
+                        <i class="fas fa-plus"></i>
+                        Nueva Plantilla
+                    </button>
+                    <button class="btn btn-success" onclick="duplicateSelected()">
+                        <i class="fas fa-copy"></i>
+                        Duplicar
+                    </button>
+                    <button class="btn btn-outline" onclick="refreshTemplates()">
+                        <i class="fas fa-sync"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="filters-row">
+                <div class="filter-group">
+                    <div class="filter-label">Categoría</div>
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">Todas las categorías</option>
+                        <option value="servicios">Servicios</option>
+                        <option value="productos">Productos</option>
+                        <option value="consultoria">Consultoría</option>
+                        <option value="desarrollo">Desarrollo</option>
+                        <option value="mantenimiento">Mantenimiento</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Estado</div>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activas</option>
+                        <option value="draft">Borrador</option>
+                        <option value="archived">Archivadas</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Tipo Variables</div>
+                    <select class="filter-select" id="variableTypeFilter">
+                        <option value="">Todos los tipos</option>
+                        <option value="text">Texto</option>
+                        <option value="number">Numérico</option>
+                        <option value="date">Fecha</option>
+                        <option value="calculated">Calculadas</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Ordenar por</div>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="name">Nombre</option>
+                        <option value="created">Fecha creación</option>
+                        <option value="usage">Más usadas</option>
+                        <option value="modified">Última modificación</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-outline" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Limpiar
+                </button>
+            </div>
+        </section>
+
+        <!-- Layout Principal -->
+        <div class="main-layout">
+            <!-- Sección de Plantillas -->
+            <div class="templates-section">
+                <div class="templates-header">
+                    <h3>
+                        <i class="fas fa-list"></i>
+                        Plantillas Disponibles
+                    </h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-outline" onclick="toggleViewMode()">
+                            <i class="fas fa-th-large" id="viewModeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Plantilla de Servicios Profesionales -->
+                    <div class="template-card active" data-template-id="services-professional" onclick="selectTemplate(this)">
+                        <div class="template-status status-active">Activa</div>
+                        <div class="template-header">
+                            <div class="template-info">
+                                <h4>Servicios Profesionales</h4>
+                                <p>Plantilla para servicios de consultoría y desarrollo</p>
+                            </div>
+                            <div class="template-meta">
+                                <div>Modificado: 19/09/2024</div>
+                                <div>Por: Ana García</div>
+                            </div>
+                        </div>
+                        
+                        <div class="template-stats">
+                            <div class="template-stat">
+                                <strong>24</strong>
+                                <span>Variables</span>
+                            </div>
+                            <div class="template-stat">
+                                <strong>157</strong>
+                                <span>Usos</span>
+                            </div>
+                            <div class="template-stat">
+                                <strong>€18.2K</strong>
+                                <span>Promedio</span>
+                            </div>
+                        </div>
+                        
+                        <div class="template-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editTemplate('services-professional')">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="duplicateTemplate('services-professional')">
+                                <i class="fas fa-copy"></i>
+                                Duplicar
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="previewTemplate('services-professional')">
+                                <i class="fas fa-eye"></i>
+                                Vista Previa
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plantilla de Productos Hardware -->
+                    <div class="template-card" data-template-id="products-hardware" onclick="selectTemplate(this)">
+                        <div class="template-status status-active">Activa</div>
+                        <div class="template-header">
+                            <div class="template-info">
+                                <h4>Productos Hardware</h4>
+                                <p>Plantilla para venta de equipos y hardware</p>
+                            </div>
+                            <div class="template-meta">
+                                <div>Modificado: 18/09/2024</div>
+                                <div>Por: Carlos Rodríguez</div>
+                            </div>
+                        </div>
+                        
+                        <div class="template-stats">
+                            <div class="template-stat">
+                                <strong>18</strong>
+                                <span>Variables</span>
+                            </div>
+                            <div class="template-stat">
+                                <strong>89</strong>
+                                <span>Usos</span>
+                            </div>
+                            <div class="template-stat">
+                                <strong>€32.1K</strong>
+                                <span>Promedio</span>
+                            </div>
+                        </div>
+                        
+                        <div class="template-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editTemplate('products-hardware')">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="duplicateTemplate('products-hardware')">
+                                <i class="fas fa-copy"></i>
+                                Duplicar
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="previewTemplate('products-hardware')">
+                                <i class="fas fa-eye"></i>
+                                Vista Previa
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plantilla de Mantenimiento -->
+                    <div class="template-card" data-template-id="maintenance-annual" onclick="selectTemplate(this)">
+                        <div class="template-status status-draft">Borrador</div>
+                        <div class="template-header">
+                            <div class="template-info">
+                                <h4>Mantenimiento Anual</h4>
+                                <p>Contratos de mantenimiento y soporte técnico</p>
+                            </div>
+                            <div class="template-meta">
+                                <div>Modificado: 17/09/2024</div>
+                                <div>Por: María López</div>
+                            </div>
+                        </div>
+                        
+                        <div class="template-stats">
+                            <div class="template-stat">
+                                <strong>12</strong>
+                                <span>Variables</span>
+                            </div>
+                            <div class="template-stat">
+                                <strong>23</strong>
+                                <span>Usos</span>
+                            </div>
+                            <div class="template-stat">
+                                <strong>€8.7K</strong>
+                                <span>Promedio</span>
+                            </div>
+                        </div>
+                        
+                        <div class="template-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editTemplate('maintenance-annual')">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="duplicateTemplate('maintenance-annual')">
+                                <i class="fas fa-copy"></i>
+                                Duplicar
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="previewTemplate('maintenance-annual')">
+                                <i class="fas fa-eye"></i>
+                                Vista Previa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Vista Previa -->
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h3>
+                        <i class="fas fa-eye"></i>
+                        Vista Previa
+                    </h3>
+                    <div class="preview-controls">
+                        <button class="btn btn-sm btn-outline" onclick="refreshPreview()" title="Actualizar vista previa">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="editCurrentTemplate()" title="Editar plantilla">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="preview-content">
+                    <div class="preview-template" id="previewTemplate">
+                        <div class="company-header">
+                            <h1>{{empresa_nombre}}</h1>
+                            <p>{{empresa_direccion}}</p>
+                            <p>{{empresa_telefono}} | {{empresa_email}}</p>
+                            <p>CIF: {{empresa_cif}}</p>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                            <div class="client-info">
+                                <h3>PRESUPUESTO PARA:</h3>
+                                <p><strong>{{cliente_nombre}}</strong></p>
+                                <p>{{cliente_direccion}}</p>
+                                <p>{{cliente_telefono}}</p>
+                                <p>CIF/NIF: {{cliente_cif}}</p>
+                            </div>
+                            <div>
+                                <p><strong>Presupuesto #:</strong> {{presupuesto_numero}}</p>
+                                <p><strong>Fecha:</strong> {{fecha_actual}}</p>
+                                <p><strong>Válido hasta:</strong> {{fecha_validez}}</p>
+                                <p><strong>Comercial:</strong> {{comercial_nombre}}</p>
+                            </div>
+                        </div>
+                        
+                        <h3>SERVICIOS PROFESIONALES</h3>
+                        
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{servicio_1_descripcion}}</td>
+                                    <td>{{servicio_1_cantidad}}</td>
+                                    <td>{{servicio_1_precio}}</td>
+                                    <td>{{servicio_1_total}}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{servicio_2_descripcion}}</td>
+                                    <td>{{servicio_2_cantidad}}</td>
+                                    <td>{{servicio_2_precio}}</td>
+                                    <td>{{servicio_2_total}}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{servicio_3_descripcion}}</td>
+                                    <td>{{servicio_3_cantidad}}</td>
+                                    <td>{{servicio_3_precio}}</td>
+                                    <td>{{servicio_3_total}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="totals">
+                            <div class="total-line">
+                                <span>Subtotal:</span>
+                                <span>{{subtotal}}</span>
+                            </div>
+                            <div class="total-line">
+                                <span>Descuento ({{descuento_porcentaje}}%):</span>
+                                <span>-{{descuento_importe}}</span>
+                            </div>
+                            <div class="total-line">
+                                <span>Base Imponible:</span>
+                                <span>{{base_imponible}}</span>
+                            </div>
+                            <div class="total-line">
+                                <span>IVA ({{iva_porcentaje}}%):</span>
+                                <span>{{iva_importe}}</span>
+                            </div>
+                            <div class="total-line final-total">
+                                <span>TOTAL:</span>
+                                <span>{{total_presupuesto}}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 3rem;">
+                            <h4>Condiciones:</h4>
+                            <p>{{condiciones_pago}}</p>
+                            <p>{{condiciones_entrega}}</p>
+                            <p>{{condiciones_validez}}</p>
+                        </div>
+                        
+                        <div style="margin-top: 2rem; text-align: center; border-top: 1px solid #ddd; padding-top: 1rem;">
+                            <p><strong>{{empresa_nombre}}</strong></p>
+                            <p>{{firma_comercial}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Variables Dinámicas -->
+        <section class="variables-section">
+            <div class="controls-section">
+                <div class="controls-row">
+                    <h3>
+                        <i class="fas fa-code"></i>
+                        Variables Dinámicas
+                    </h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="openCreateVariableModal()">
+                            <i class="fas fa-plus"></i>
+                            Nueva Variable
+                        </button>
+                        <button class="btn btn-outline" onclick="importVariables()">
+                            <i class="fas fa-upload"></i>
+                            Importar Variables
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="variables-grid" id="variablesGrid">
+                <!-- Variable de Empresa -->
+                <div class="variable-card">
+                    <div class="variable-header">
+                        <span class="variable-name">{{empresa_nombre}}</span>
+                        <span class="variable-type type-text">Texto</span>
+                    </div>
+                    <div class="variable-content">
+                        <p>Nombre de la empresa que emite el presupuesto</p>
+                        <div class="variable-value">TechSolutions Enterprise S.L.</div>
+                    </div>
+                    <div class="variable-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVariable('empresa_nombre')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="insertVariable('empresa_nombre')">
+                            <i class="fas fa-plus"></i>
+                            Insertar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Variable de Cliente -->
+                <div class="variable-card">
+                    <div class="variable-header">
+                        <span class="variable-name">{{cliente_nombre}}</span>
+                        <span class="variable-type type-text">Texto</span>
+                    </div>
+                    <div class="variable-content">
+                        <p>Nombre del cliente destinatario del presupuesto</p>
+                        <div class="variable-value">Cliente Ejemplo S.A.</div>
+                    </div>
+                    <div class="variable-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVariable('cliente_nombre')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="insertVariable('cliente_nombre')">
+                            <i class="fas fa-plus"></i>
+                            Insertar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Variable de Fecha Actual -->
+                <div class="variable-card">
+                    <div class="variable-header">
+                        <span class="variable-name">{{fecha_actual}}</span>
+                        <span class="variable-type type-date">Fecha</span>
+                    </div>
+                    <div class="variable-content">
+                        <p>Fecha de emisión del presupuesto (automática)</p>
+                        <div class="variable-value">19/09/2024</div>
+                    </div>
+                    <div class="variable-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVariable('fecha_actual')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="insertVariable('fecha_actual')">
+                            <i class="fas fa-plus"></i>
+                            Insertar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Variable Calculada -->
+                <div class="variable-card">
+                    <div class="variable-header">
+                        <span class="variable-name">{{total_presupuesto}}</span>
+                        <span class="variable-type type-calculated">Calculada</span>
+                    </div>
+                    <div class="variable-content">
+                        <p>Total del presupuesto incluyendo IVA (calculado automáticamente)</p>
+                        <div class="variable-value">€24,573.82</div>
+                    </div>
+                    <div class="variable-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVariable('total_presupuesto')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="insertVariable('total_presupuesto')">
+                            <i class="fas fa-plus"></i>
+                            Insertar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Variable de Servicios -->
+                <div class="variable-card">
+                    <div class="variable-header">
+                        <span class="variable-name">{{servicio_1_descripcion}}</span>
+                        <span class="variable-type type-text">Texto</span>
+                    </div>
+                    <div class="variable-content">
+                        <p>Descripción del primer servicio ofrecido</p>
+                        <div class="variable-value">Desarrollo de aplicación web personalizada</div>
+                    </div>
+                    <div class="variable-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVariable('servicio_1_descripcion')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="insertVariable('servicio_1_descripcion')">
+                            <i class="fas fa-plus"></i>
+                            Insertar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Variable de Precio -->
+                <div class="variable-card">
+                    <div class="variable-header">
+                        <span class="variable-name">{{servicio_1_precio}}</span>
+                        <span class="variable-type type-number">Numérico</span>
+                    </div>
+                    <div class="variable-content">
+                        <p>Precio unitario del primer servicio</p>
+                        <div class="variable-value">€15,000.00</div>
+                    </div>
+                    <div class="variable-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVariable('servicio_1_precio')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="insertVariable('servicio_1_precio')">
+                            <i class="fas fa-plus"></i>
+                            Insertar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- MODALES -->
+
+<!-- Modal Crear/Editar Plantilla -->
+<div class="modal" id="templateModal">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h3 id="templateModalTitle">Nueva Plantilla</h3>
+            <button class="modal-close" onclick="closeModal('templateModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="editor-section">
+            <div class="editor-tabs">
+                <button class="editor-tab active" data-tab="basic" onclick="switchEditorTab('basic')">
+                    <i class="fas fa-info-circle"></i>
+                    Información Básica
+                </button>
+                <button class="editor-tab" data-tab="content" onclick="switchEditorTab('content')">
+                    <i class="fas fa-code"></i>
+                    Contenido HTML
+                </button>
+                <button class="editor-tab" data-tab="variables" onclick="switchEditorTab('variables')">
+                    <i class="fas fa-tags"></i>
+                    Variables
+                </button>
+                <button class="editor-tab" data-tab="settings" onclick="switchEditorTab('settings')">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </button>
+            </div>
+            
+            <div class="editor-content">
+                <!-- Tab Información Básica -->
+                <div class="editor-tab-content active" id="basic-tab">
+                    <div class="form-group">
+                        <label>Nombre de la Plantilla *</label>
+                        <input type="text" class="form-control" id="templateName" placeholder="Ej: Servicios Profesionales" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea class="form-control" id="templateDescription" rows="3" placeholder="Descripción detallada de la plantilla y su uso"></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select class="form-control" id="templateCategory">
+                                <option value="">Seleccionar categoría</option>
+                                <option value="servicios">Servicios</option>
+                                <option value="productos">Productos</option>
+                                <option value="consultoria">Consultoría</option>
+                                <option value="desarrollo">Desarrollo</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select class="form-control" id="templateStatus">
+                                <option value="draft">Borrador</option>
+                                <option value="active">Activa</option>
+                                <option value="archived">Archivada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Contenido HTML -->
+                <div class="editor-tab-content" id="content-tab">
+                    <div class="form-group">
+                        <label>Contenido HTML de la Plantilla</label>
+                        <div class="editor-container" id="monacoEditor"></div>
+                    </div>
+                    
+                    <div class="variables-helper">
+                        <h4>Variables Disponibles</h4>
+                        <div class="variables-list" id="availableVariables">
+                            <div class="variable-item" onclick="insertVariableInEditor('{{empresa_nombre}}')">
+                                <div class="var-name">{{empresa_nombre}}</div>
+                                <div class="var-desc">Nombre de la empresa</div>
+                            </div>
+                            <div class="variable-item" onclick="insertVariableInEditor('{{cliente_nombre}}')">
+                                <div class="var-name">{{cliente_nombre}}</div>
+                                <div class="var-desc">Nombre del cliente</div>
+                            </div>
+                            <div class="variable-item" onclick="insertVariableInEditor('{{fecha_actual}}')">
+                                <div class="var-name">{{fecha_actual}}</div>
+                                <div class="var-desc">Fecha actual</div>
+                            </div>
+                            <div class="variable-item" onclick="insertVariableInEditor('{{total_presupuesto}}')">
+                                <div class="var-name">{{total_presupuesto}}</div>
+                                <div class="var-desc">Total calculado</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Variables -->
+                <div class="editor-tab-content" id="variables-tab">
+                    <div class="form-group">
+                        <label>Variables Utilizadas en esta Plantilla</label>
+                        <div id="templateVariablesList" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem;">
+                            <!-- Variables se cargarán dinámicamente -->
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-outline" onclick="scanVariables()">
+                            <i class="fas fa-search"></i>
+                            Escanear Variables
+                        </button>
+                        <button class="btn btn-primary" onclick="addCustomVariable()">
+                            <i class="fas fa-plus"></i>
+                            Añadir Variable
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Configuración -->
+                <div class="editor-tab-content" id="settings-tab">
+                    <div class="form-group">
+                        <label>Configuraciones Adicionales</label>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="autoCalculate">
+                                    Cálculo automático de totales
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="includeSignature">
+                                    Incluir firma digital
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="requireApproval">
+                                    Requiere aprobación
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="trackUsage">
+                                    Rastrear uso de plantilla
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Permisos de Acceso</label>
+                        <select class="form-control" id="templatePermissions" multiple>
+                            <option value="admin">Administradores</option>
+                            <option value="manager">Managers</option>
+                            <option value="sales">Equipo de Ventas</option>
+                            <option value="all">Todos los usuarios</option>
+                        </select>
+                        <small style="color: #6b7280; font-size: 0.8rem;">Mantén Ctrl/Cmd para seleccionar múltiples opciones</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal('templateModal')">Cancelar</button>
+            <button class="btn btn-warning" onclick="saveAsDraft()">
+                <i class="fas fa-save"></i>
+                Guardar como Borrador
+            </button>
+            <button class="btn btn-primary" onclick="saveTemplate()">
+                <i class="fas fa-check"></i>
+                Guardar y Activar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear/Editar Variable -->
+<div class="modal" id="variableModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="variableModalTitle">Nueva Variable</h3>
+            <button class="modal-close" onclick="closeModal('variableModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="variableForm">
+            <div class="form-group">
+                <label>Nombre de la Variable *</label>
+                <input type="text" class="form-control" id="variableName" placeholder="Ej: empresa_nombre" required>
+                <small style="color: #6b7280; font-size: 0.8rem;">Solo letras, números y guiones bajos. Sin espacios.</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea class="form-control" id="variableDescription" rows="3" placeholder="Descripción de lo que representa esta variable"></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Tipo de Variable</label>
+                    <select class="form-control" id="variableType" onchange="updateVariableTypeOptions()">
+                        <option value="text">Texto</option>
+                        <option value="number">Numérico</option>
+                        <option value="date">Fecha</option>
+                        <option value="calculated">Calculada</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select class="form-control" id="variableCategory">
+                        <option value="empresa">Empresa</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="servicios">Servicios</option>
+                        <option value="financiero">Financiero</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Valor por Defecto</label>
+                <input type="text" class="form-control" id="variableDefaultValue" placeholder="Valor que aparecerá por defecto">
+            </div>
+            
+            <div class="form-group" id="calculationGroup" style="display: none;">
+                <label>Fórmula de Cálculo</label>
+                <textarea class="form-control" id="variableFormula" rows="3" placeholder="Ej: {{precio_base}} * {{cantidad}} * (1 + {{iva_porcentaje}}/100)"></textarea>
+                <small style="color: #6b7280; font-size: 0.8rem;">Utiliza variables existentes entre llaves dobles {{variable}}</small>
+            </div>
+        </form>
+        
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal('variableModal')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveVariable()">
+                <i class="fas fa-save"></i>
+                Guardar Variable
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notificaciones -->
+<div class="notification" id="notification">
+    <div class="notification-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="notification-content">
+        <h4 id="notificationTitle">Operación Exitosa</h4>
+        <p id="notificationMessage">La operación se ha completado correctamente.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Monaco Editor -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+
+<script>
+/* ============================================================================
+   JAVASCRIPT - PLANTILLAS DE PRESUPUESTO ERP13 ENTERPRISE
+   🏗️ Funcionalidades: Editor Monaco, Variables dinámicas, Vista previa
+   ⚡ Performance: Cache templates, búsqueda en tiempo real, lazy loading
+   🔒 Seguridad: Validación HTML, escape variables, sanitización
+============================================================================ */
+
+// ========== VARIABLES GLOBALES ==========
+let currentTemplate = null;
+let templatesData = [];
+let variablesData = [];
+let monacoEditor = null;
+let searchTimeout = null;
+
+// ========== INICIALIZACIÓN ==========
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTemplates();
+    initializeSearch();
+    initializeFilters();
+    initializeMonacoEditor();
+    loadTemplatesData();
+    loadVariablesData();
+    setupKeyboardShortcuts();
+});
+
+// ========== GESTIÓN DE PLANTILLAS ==========
+function loadTemplatesData() {
+    // Simular carga de datos del servidor
+    templatesData = [
+        {
+            id: 'services-professional',
+            name: 'Servicios Profesionales',
+            description: 'Plantilla para servicios de consultoría y desarrollo',
+            category: 'servicios',
+            status: 'active',
+            variables: 24,
+            usage: 157,
+            averageValue: 18200,
+            lastModified: '2024-09-19',
+            modifiedBy: 'Ana García',
+            content: getDefaultTemplateContent('services-professional')
+        },
+        {
+            id: 'products-hardware',
+            name: 'Productos Hardware',
+            description: 'Plantilla para venta de equipos y hardware',
+            category: 'productos',
+            status: 'active',
+            variables: 18,
+            usage: 89,
+            averageValue: 32100,
+            lastModified: '2024-09-18',
+            modifiedBy: 'Carlos Rodríguez',
+            content: getDefaultTemplateContent('products-hardware')
+        },
+        {
+            id: 'maintenance-annual',
+            name: 'Mantenimiento Anual',
+            description: 'Contratos de mantenimiento y soporte técnico',
+            category: 'mantenimiento',
+            status: 'draft',
+            variables: 12,
+            usage: 23,
+            averageValue: 8700,
+            lastModified: '2024-09-17',
+            modifiedBy: 'María López',
+            content: getDefaultTemplateContent('maintenance-annual')
+        }
+    ];
+    
+    updateTemplatesGrid();
+    updateStats();
+}
+
+function loadVariablesData() {
+    variablesData = [
+        {
+            name: 'empresa_nombre',
+            description: 'Nombre de la empresa que emite el presupuesto',
+            type: 'text',
+            category: 'empresa',
+            defaultValue: 'TechSolutions Enterprise S.L.'
+        },
+        {
+            name: 'cliente_nombre',
+            description: 'Nombre del cliente destinatario del presupuesto',
+            type: 'text',
+            category: 'cliente',
+            defaultValue: 'Cliente Ejemplo S.A.'
+        },
+        {
+            name: 'fecha_actual',
+            description: 'Fecha de emisión del presupuesto (automática)',
+            type: 'date',
+            category: 'general',
+            defaultValue: new Date().toLocaleDateString('es-ES')
+        },
+        {
+            name: 'total_presupuesto',
+            description: 'Total del presupuesto incluyendo IVA (calculado automáticamente)',
+            type: 'calculated',
+            category: 'financiero',
+            formula: '{{base_imponible}} + {{iva_importe}}',
+            defaultValue: '€24,573.82'
+        }
+    ];
+    
+    updateVariablesGrid();
+}
+
+function updateTemplatesGrid() {
+    const grid = document.getElementById('templatesGrid');
+    
+    grid.innerHTML = templatesData.map(template => `
+        <div class="template-card ${template.id === currentTemplate?.id ? 'active' : ''}" 
+             data-template-id="${template.id}" 
+             onclick="selectTemplate(this)">
+            <div class="template-status status-${template.status}">
+                ${template.status === 'active' ? 'Activa' : template.status === 'draft' ? 'Borrador' : 'Archivada'}
+            </div>
+            <div class="template-header">
+                <div class="template-info">
+                    <h4>${template.name}</h4>
+                    <p>${template.description}</p>
+                </div>
+                <div class="template-meta">
+                    <div>Modificado: ${template.lastModified}</div>
+                    <div>Por: ${template.modifiedBy}</div>
+                </div>
+            </div>
+            
+            <div class="template-stats">
+                <div class="template-stat">
+                    <strong>${template.variables}</strong>
+                    <span>Variables</span>
+                </div>
+                <div class="template-stat">
+                    <strong>${template.usage}</strong>
+                    <span>Usos</span>
+                </div>
+                <div class="template-stat">
+                    <strong>€${(template.averageValue/1000).toFixed(1)}K</strong>
+                    <span>Promedio</span>
+                </div>
+            </div>
+            
+            <div class="template-actions">
+                <button class="btn btn-sm btn-primary" onclick="editTemplate('${template.id}')">
+                    <i class="fas fa-edit"></i>
+                    Editar
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="duplicateTemplate('${template.id}')">
+                    <i class="fas fa-copy"></i>
+                    Duplicar
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="previewTemplate('${template.id}')">
+                    <i class="fas fa-eye"></i>
+                    Vista Previa
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateVariablesGrid() {
+    const grid = document.getElementById('variablesGrid');
+    
+    grid.innerHTML = variablesData.map(variable => `
+        <div class="variable-card">
+            <div class="variable-header">
+                <span class="variable-name">{{${variable.name}}}</span>
+                <span class="variable-type type-${variable.type}">
+                    ${variable.type === 'text' ? 'Texto' : 
+                      variable.type === 'number' ? 'Numérico' : 
+                      variable.type === 'date' ? 'Fecha' : 'Calculada'}
+                </span>
+            </div>
+            <div class="variable-content">
+                <p>${variable.description}</p>
+                <div class="variable-value">${variable.defaultValue}</div>
+            </div>
+            <div class="variable-actions">
+                <button class="btn btn-sm btn-outline" onclick="editVariable('${variable.name}')">
+                    <i class="fas fa-edit"></i>
+                    Editar
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="insertVariable('${variable.name}')">
+                    <i class="fas fa-plus"></i>
+                    Insertar
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateStats() {
+    const totalTemplates = templatesData.length;
+    const totalVariables = variablesData.length;
+    const totalUsage = templatesData.reduce((sum, t) => sum + t.usage, 0);
+    const averageValue = templatesData.reduce((sum, t) => sum + t.averageValue, 0) / totalTemplates;
+    
+    document.getElementById('totalTemplates').textContent = totalTemplates;
+    document.getElementById('totalVariables').textContent = totalVariables;
+    document.getElementById('totalUsage').textContent = totalUsage.toLocaleString();
+    document.getElementById('averageValue').textContent = `€${(averageValue/1000).toFixed(1)}K`;
+}
+
+// ========== SELECCIÓN Y VISTA PREVIA ==========
+function selectTemplate(element) {
+    // Remover selección anterior
+    document.querySelectorAll('.template-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Marcar como seleccionado
+    element.classList.add('active');
+    
+    // Cargar template
+    const templateId = element.dataset.templateId;
+    currentTemplate = templatesData.find(t => t.id === templateId);
+    
+    if (currentTemplate) {
+        updatePreview();
+    }
+}
+
+function updatePreview() {
+    if (!currentTemplate) return;
+    
+    const previewElement = document.getElementById('previewTemplate');
+    let content = currentTemplate.content;
+    
+    // Reemplazar variables con valores de ejemplo
+    variablesData.forEach(variable => {
+        const regex = new RegExp(`{{${variable.name}}}`, 'g');
+        content = content.replace(regex, variable.defaultValue);
+    });
+    
+    previewElement.innerHTML = content;
+}
+
+function refreshPreview() {
+    updatePreview();
+    showNotification('Vista previa actualizada', 'La vista previa se ha regenerado correctamente.', 'info');
+}
+
+// ========== EDITOR MONACO ==========
+function initializeMonacoEditor() {
+    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' } });
+    
+    require(['vs/editor/editor.main'], function () {
+        monacoEditor = monaco.editor.create(document.getElementById('monacoEditor'), {
+            value: getDefaultTemplateContent('default'),
+            language: 'html',
+            theme: 'vs-dark',
+            automaticLayout: true,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            wordWrap: 'on',
+            fontSize: 14,
+            lineNumbers: 'on',
+            folding: true,
+            bracketMatching: 'always'
+        });
+        
+        // Configurar auto-completado para variables
+        monaco.languages.registerCompletionItemProvider('html', {
+            provideCompletionItems: function(model, position) {
+                const suggestions = variablesData.map(variable => ({
+                    label: `{{${variable.name}}}`,
+                    kind: monaco.languages.CompletionItemKind.Variable,
+                    insertText: `{{${variable.name}}}`,
+                    documentation: variable.description
+                }));
+                
+                return { suggestions: suggestions };
+            }
+        });
+        
+        // Actualizar vista previa en tiempo real
+        monacoEditor.onDidChangeModelContent(function() {
+            if (currentTemplate) {
+                currentTemplate.content = monacoEditor.getValue();
+                updatePreview();
+            }
+        });
+    });
+}
+
+function insertVariableInEditor(variable) {
+    if (monacoEditor) {
+        const position = monacoEditor.getPosition();
+        monacoEditor.executeEdits('', [{
+            range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+            text: variable
+        }]);
+        monacoEditor.focus();
+    }
+}
+
+function getDefaultTemplateContent(templateType) {
+    const baseTemplate = `
+        <div class="company-header">
+            <h1>{{empresa_nombre}}</h1>
+            <p>{{empresa_direccion}}</p>
+            <p>{{empresa_telefono}} | {{empresa_email}}</p>
+            <p>CIF: {{empresa_cif}}</p>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+            <div class="client-info">
+                <h3>PRESUPUESTO PARA:</h3>
+                <p><strong>{{cliente_nombre}}</strong></p>
+                <p>{{cliente_direccion}}</p>
+                <p>{{cliente_telefono}}</p>
+                <p>CIF/NIF: {{cliente_cif}}</p>
+            </div>
+            <div>
+                <p><strong>Presupuesto #:</strong> {{presupuesto_numero}}</p>
+                <p><strong>Fecha:</strong> {{fecha_actual}}</p>
+                <p><strong>Válido hasta:</strong> {{fecha_validez}}</p>
+                <p><strong>Comercial:</strong> {{comercial_nombre}}</p>
+            </div>
+        </div>
+    `;
+    
+    switch(templateType) {
+        case 'services-professional':
+            return baseTemplate + `
+                <h3>SERVICIOS PROFESIONALES</h3>
+                <table class="items-table">
+                    <thead>
+                        <tr><th>Descripción</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>{{servicio_1_descripcion}}</td><td>{{servicio_1_cantidad}}</td><td>{{servicio_1_precio}}</td><td>{{servicio_1_total}}</td></tr>
+                        <tr><td>{{servicio_2_descripcion}}</td><td>{{servicio_2_cantidad}}</td><td>{{servicio_2_precio}}</td><td>{{servicio_2_total}}</td></tr>
+                    </tbody>
+                </table>
+                
+                <div class="totals">
+                    <div class="total-line"><span>Subtotal:</span><span>{{subtotal}}</span></div>
+                    <div class="total-line"><span>IVA ({{iva_porcentaje}}%):</span><span>{{iva_importe}}</span></div>
+                    <div class="total-line final-total"><span>TOTAL:</span><span>{{total_presupuesto}}</span></div>
+                </div>
+            `;
+        case 'products-hardware':
+            return baseTemplate + `
+                <h3>PRODUCTOS HARDWARE</h3>
+                <table class="items-table">
+                    <thead>
+                        <tr><th>Código</th><th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>{{producto_1_codigo}}</td><td>{{producto_1_descripcion}}</td><td>{{producto_1_cantidad}}</td><td>{{producto_1_precio}}</td><td>{{producto_1_total}}</td></tr>
+                    </tbody>
+                </table>
+            `;
+        default:
+            return baseTemplate;
+    }
+}
+
+// ========== GESTIÓN DE TABS DEL EDITOR ==========
+function switchEditorTab(tabName) {
+    // Actualizar botones
+    document.querySelectorAll('.editor-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Actualizar contenido
+    document.querySelectorAll('.editor-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    // Acciones específicas por tab
+    if (tabName === 'content' && monacoEditor) {
+        setTimeout(() => monacoEditor.layout(), 100);
+    }
+}
+
+// ========== BÚSQUEDA Y FILTROS ==========
+function initializeSearch() {
+    const searchInput = document.getElementById('templateSearch');
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterTemplates();
+        }, 300);
+    });
+}
+
+function initializeFilters() {
+    const filters = ['categoryFilter', 'statusFilter', 'variableTypeFilter', 'sortFilter'];
+    
+    filters.forEach(filterId => {
+        const filter = document.getElementById(filterId);
+        if (filter) {
+            filter.addEventListener('change', filterTemplates);
+        }
+    });
+}
+
+function filterTemplates() {
+    const searchTerm = document.getElementById('templateSearch').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const sortFilter = document.getElementById('sortFilter').value;
+    
+    let filteredTemplates = templatesData.filter(template => {
+        const matchesSearch = template.name.toLowerCase().includes(searchTerm) ||
+                            template.description.toLowerCase().includes(searchTerm);
+        
+        const matchesCategory = !categoryFilter || template.category === categoryFilter;
+        const matchesStatus = !statusFilter || template.status === statusFilter;
+        
+        return matchesSearch && matchesCategory && matchesStatus;
+    });
+    
+    // Aplicar ordenación
+    switch(sortFilter) {
+        case 'name':
+            filteredTemplates.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'created':
+            filteredTemplates.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+            break;
+        case 'usage':
+            filteredTemplates.sort((a, b) => b.usage - a.usage);
+            break;
+        case 'modified':
+            filteredTemplates.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+            break;
+    }
+    
+    // Actualizar grid con resultados filtrados
+    updateFilteredTemplatesGrid(filteredTemplates);
+}
+
+function updateFilteredTemplatesGrid(filteredTemplates) {
+    const grid = document.getElementById('templatesGrid');
+    
+    if (filteredTemplates.length === 0) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h4>No se encontraron plantillas</h4>
+                <p>Intenta ajustar los filtros de búsqueda</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = filteredTemplates.map(template => `
+        <div class="template-card ${template.id === currentTemplate?.id ? 'active' : ''}" 
+             data-template-id="${template.id}" 
+             onclick="selectTemplate(this)">
+            <!-- Contenido del template card -->
+        </div>
+    `).join('');
+}
+
+function clearFilters() {
+    document.getElementById('templateSearch').value = '';
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('variableTypeFilter').value = '';
+    document.getElementById('sortFilter').value = 'name';
+    
+    updateTemplatesGrid();
+}
+
+// ========== MODALES ==========
+function openCreateTemplateModal() {
+    document.getElementById('templateModalTitle').textContent = 'Nueva Plantilla';
+    clearTemplateForm();
+    showModal('templateModal');
+    
+    if (monacoEditor) {
+        setTimeout(() => monacoEditor.layout(), 200);
+    }
+}
+
+function editTemplate(templateId) {
+    const template = templatesData.find(t => t.id === templateId);
+    if (template) {
+        document.getElementById('templateModalTitle').textContent = 'Editar Plantilla';
+        fillTemplateForm(template);
+        showModal('templateModal');
+        
+        if (monacoEditor) {
+            monacoEditor.setValue(template.content);
+            setTimeout(() => monacoEditor.layout(), 200);
+        }
+    }
+}
+
+function editCurrentTemplate() {
+    if (currentTemplate) {
+        editTemplate(currentTemplate.id);
+    } else {
+        showNotification('Error', 'No hay plantilla seleccionada para editar.', 'error');
+    }
+}
+
+function duplicateTemplate(templateId) {
+    const template = templatesData.find(t => t.id === templateId);
+    if (template) {
+        const newTemplate = {
+            ...template,
+            id: `${template.id}-copy-${Date.now()}`,
+            name: `${template.name} (Copia)`,
+            status: 'draft',
+            usage: 0,
+            lastModified: new Date().toISOString().split('T')[0],
+            modifiedBy: 'Usuario Actual'
+        };
+        
+        templatesData.push(newTemplate);
+        updateTemplatesGrid();
+        updateStats();
+        
+        showNotification('Plantilla duplicada', 'La plantilla ha sido duplicada correctamente.', 'success');
+    }
+}
+
+function previewTemplate(templateId) {
+    const template = templatesData.find(t => t.id === templateId);
+    if (template) {
+        currentTemplate = template;
+        updatePreview();
+        
+        // Marcar como seleccionada
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        document.querySelector(`[data-template-id="${templateId}"]`).classList.add('active');
+        
+        showNotification('Vista previa actualizada', 'Se ha cargado la vista previa de la plantilla.', 'info');
+    }
+}
+
+function openCreateVariableModal() {
+    document.getElementById('variableModalTitle').textContent = 'Nueva Variable';
+    clearVariableForm();
+    showModal('variableModal');
+}
+
+function editVariable(variableName) {
+    const variable = variablesData.find(v => v.name === variableName);
+    if (variable) {
+        document.getElementById('variableModalTitle').textContent = 'Editar Variable';
+        fillVariableForm(variable);
+        showModal('variableModal');
+    }
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+}
+
+// ========== FORMULARIOS ==========
+function clearTemplateForm() {
+    document.getElementById('templateName').value = '';
+    document.getElementById('templateDescription').value = '';
+    document.getElementById('templateCategory').value = '';
+    document.getElementById('templateStatus').value = 'draft';
+    
+    if (monacoEditor) {
+        monacoEditor.setValue(getDefaultTemplateContent('default'));
+    }
+}
+
+function fillTemplateForm(template) {
+    document.getElementById('templateName').value = template.name;
+    document.getElementById('templateDescription').value = template.description;
+    document.getElementById('templateCategory').value = template.category;
+    document.getElementById('templateStatus').value = template.status;
+}
+
+function clearVariableForm() {
+    document.getElementById('variableName').value = '';
+    document.getElementById('variableDescription').value = '';
+    document.getElementById('variableType').value = 'text';
+    document.getElementById('variableCategory').value = 'general';
+    document.getElementById('variableDefaultValue').value = '';
+    document.getElementById('variableFormula').value = '';
+    updateVariableTypeOptions();
+}
+
+function fillVariableForm(variable) {
+    document.getElementById('variableName').value = variable.name;
+    document.getElementById('variableDescription').value = variable.description;
+    document.getElementById('variableType').value = variable.type;
+    document.getElementById('variableCategory').value = variable.category;
+    document.getElementById('variableDefaultValue').value = variable.defaultValue;
+    
+    if (variable.formula) {
+        document.getElementById('variableFormula').value = variable.formula;
+    }
+    
+    updateVariableTypeOptions();
+}
+
+function updateVariableTypeOptions() {
+    const type = document.getElementById('variableType').value;
+    const calculationGroup = document.getElementById('calculationGroup');
+    
+    if (type === 'calculated') {
+        calculationGroup.style.display = 'block';
+    } else {
+        calculationGroup.style.display = 'none';
+    }
+}
+
+// ========== GUARDAR DATOS ==========
+function saveTemplate() {
+    const templateData = {
+        name: document.getElementById('templateName').value,
+        description: document.getElementById('templateDescription').value,
+        category: document.getElementById('templateCategory').value,
+        status: 'active',
+        content: monacoEditor ? monacoEditor.getValue() : ''
+    };
+    
+    if (validateTemplateData(templateData)) {
+        // Simular guardado
+        showNotification('Plantilla guardada', 'La plantilla ha sido guardada y activada correctamente.', 'success');
+        closeModal('templateModal');
+        loadTemplatesData(); // Recargar datos
+    }
+}
+
+function saveAsDraft() {
+    const templateData = {
+        name: document.getElementById('templateName').value,
+        description: document.getElementById('templateDescription').value,
+        category: document.getElementById('templateCategory').value,
+        status: 'draft',
+        content: monacoEditor ? monacoEditor.getValue() : ''
+    };
+    
+    if (validateTemplateData(templateData)) {
+        // Simular guardado
+        showNotification('Borrador guardado', 'La plantilla ha sido guardada como borrador.', 'success');
+        closeModal('templateModal');
+        loadTemplatesData(); // Recargar datos
+    }
+}
+
+function saveVariable() {
+    const variableData = {
+        name: document.getElementById('variableName').value,
+        description: document.getElementById('variableDescription').value,
+        type: document.getElementById('variableType').value,
+        category: document.getElementById('variableCategory').value,
+        defaultValue: document.getElementById('variableDefaultValue').value,
+        formula: document.getElementById('variableFormula').value
+    };
+    
+    if (validateVariableData(variableData)) {
+        // Simular guardado
+        showNotification('Variable guardada', 'La variable ha sido guardada correctamente.', 'success');
+        closeModal('variableModal');
+        loadVariablesData(); // Recargar datos
+    }
+}
+
+// ========== VALIDACIÓN ==========
+function validateTemplateData(data) {
+    if (!data.name.trim()) {
+        showNotification('Error', 'El nombre de la plantilla es requerido.', 'error');
+        return false;
+    }
+    
+    if (!data.content.trim()) {
+        showNotification('Error', 'El contenido de la plantilla no puede estar vacío.', 'error');
+        return false;
+    }
+    
+    return true;
+}
+
+function validateVariableData(data) {
+    if (!data.name.trim()) {
+        showNotification('Error', 'El nombre de la variable es requerido.', 'error');
+        return false;
+    }
+    
+    if (!/^[a-zA-Z0-9_]+$/.test(data.name)) {
+        showNotification('Error', 'El nombre de la variable solo puede contener letras, números y guiones bajos.', 'error');
+        return false;
+    }
+    
+    if (data.type === 'calculated' && !data.formula.trim()) {
+        showNotification('Error', 'Las variables calculadas requieren una fórmula.', 'error');
+        return false;
+    }
+    
+    return true;
+}
+
+// ========== FUNCIONES DE UTILIDAD ==========
+function refreshTemplates() {
+    loadTemplatesData();
+    showNotification('Datos actualizados', 'Las plantillas se han actualizado correctamente.', 'info');
+}
+
+function exportTemplates() {
+    // Simular exportación
+    const csvData = templatesData.map(template => ({
+        Nombre: template.name,
+        Descripción: template.description,
+        Categoría: template.category,
+        Estado: template.status,
+        Variables: template.variables,
+        Usos: template.usage,
+        'Última Modificación': template.lastModified
+    }));
+    
+    downloadCSV(csvData, 'plantillas_presupuesto.csv');
+    showNotification('Exportación completada', 'Las plantillas han sido exportadas correctamente.', 'success');
+}
+
+function importTemplates() {
+    // Simular importación
+    showNotification('Función en desarrollo', 'La importación de plantillas estará disponible próximamente.', 'info');
+}
+
+function importVariables() {
+    // Simular importación
+    showNotification('Función en desarrollo', 'La importación de variables estará disponible próximamente.', 'info');
+}
+
+function downloadCSV(data, filename) {
+    const csvContent = convertToCSV(data);
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function convertToCSV(data) {
+    if (!data.length) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvHeaders = headers.join(',');
+    const csvRows = data.map(row => headers.map(header => `"${row[header]}"`).join(','));
+    
+    return [csvHeaders, ...csvRows].join('\n');
+}
+
+function scanVariables() {
+    if (monacoEditor && currentTemplate) {
+        const content = monacoEditor.getValue();
+        const variableRegex = /{{([^}]+)}}/g;
+        const foundVariables = [];
+        let match;
+        
+        while ((match = variableRegex.exec(content)) !== null) {
+            const variableName = match[1].trim();
+            if (!foundVariables.includes(variableName)) {
+                foundVariables.push(variableName);
+            }
+        }
+        
+        const variablesList = document.getElementById('templateVariablesList');
+        variablesList.innerHTML = foundVariables.map(varName => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6;">
+                <span style="font-family: 'Courier New', monospace; color: var(--primary-blue);">{{${varName}}}</span>
+                <button class="btn btn-sm btn-outline" onclick="createVariableFromScan('${varName}')">
+                    <i class="fas fa-plus"></i>
+                    Crear
+                </button>
+            </div>
+        `).join('');
+        
+        showNotification('Variables escaneadas', `Se encontraron ${foundVariables.length} variables en la plantilla.`, 'info');
+    }
+}
+
+function createVariableFromScan(variableName) {
+    document.getElementById('variableName').value = variableName;
+    openCreateVariableModal();
+}
+
+function addCustomVariable() {
+    openCreateVariableModal();
+}
+
+function insertVariable(variableName) {
+    if (monacoEditor) {
+        insertVariableInEditor(`{{${variableName}}}`);
+        showNotification('Variable insertada', `La variable {{${variableName}}} ha sido insertada en el editor.`, 'success');
+    }
+}
+
+function toggleViewMode() {
+    const grid = document.getElementById('templatesGrid');
+    const icon = document.getElementById('viewModeIcon');
+    
+    if (grid.style.gridTemplateColumns === '1fr') {
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+        icon.className = 'fas fa-list';
+    } else {
+        grid.style.gridTemplateColumns = '1fr';
+        icon.className = 'fas fa-th-large';
+    }
+}
+
+function duplicateSelected() {
+    if (currentTemplate) {
+        duplicateTemplate(currentTemplate.id);
+    } else {
+        showNotification('Error', 'Selecciona una plantilla para duplicar.', 'error');
+    }
+}
+
+// ========== NOTIFICACIONES ==========
+function showNotification(title, message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const titleElement = document.getElementById('notificationTitle');
+    const messageElement = document.getElementById('notificationMessage');
+    const iconElement = notification.querySelector('.notification-icon i');
+    
+    titleElement.textContent = title;
+    messageElement.textContent = message;
+    
+    // Limpiar clases anteriores
+    notification.className = 'notification';
+    
+    // Agregar clase de tipo
+    notification.classList.add(type);
+    
+    // Cambiar icono según tipo
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    iconElement.className = `fas ${icons[type]}`;
+    
+    // Mostrar notificación
+    notification.classList.add('show');
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 5000);
+}
+
+// ========== ATAJOS DE TECLADO ==========
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'n':
+                    e.preventDefault();
+                    openCreateTemplateModal();
+                    break;
+                case 's':
+                    e.preventDefault();
+                    if (document.getElementById('templateModal').classList.contains('show')) {
+                        saveTemplate();
+                    }
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    document.getElementById('templateSearch').focus();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    refreshTemplates();
+                    break;
+            }
+        }
+        
+        if (e.key === 'Escape') {
+            // Cerrar modales abiertos
+            const modals = document.querySelectorAll('.modal.show');
+            modals.forEach(modal => {
+                modal.classList.remove('show');
+            });
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// ========== INICIALIZACIÓN DE COMPONENTES ==========
+function initializeTemplates() {
+    // Seleccionar primera plantilla por defecto
+    setTimeout(() => {
+        const firstTemplate = document.querySelector('.template-card');
+        if (firstTemplate) {
+            selectTemplate(firstTemplate);
+        }
+    }, 500);
+}
+
+// Cerrar modales al hacer click fuera
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+});
+
+// Auto-resize del editor Monaco
+window.addEventListener('resize', function() {
+    if (monacoEditor) {
+        monacoEditor.layout();
+    }
+});
+</script>
+{% endblock %}

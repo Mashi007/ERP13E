@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campañas Publicitarias - ERP13 Enterprise</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #8B5CF6;
+            --secondary-color: #3B82F6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1F2937;
+            --light-color: #F9FAFB;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-item {
+            color: #D1D5DB;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 20px;
+            min-height: calc(100vh - 40px);
+        }
+
+        .campaigns-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .campaign-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .campaign-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .campaign-status {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active { background: #D1FAE5; color: #065F46; }
+        .status-paused { background: #FEF3C7; color: #92400E; }
+        .status-completed { background: #E5E7EB; color: #374151; }
+        .status-draft { background: #F3F4F6; color: #374151; }
+
+        .channel-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .channel-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .channel-google { background: #FEE2E2; color: #991B1B; }
+        .channel-facebook { background: #DBEAFE; color: #1E40AF; }
+        .channel-instagram { background: #F3E8FF; color: #7C2D12; }
+        .channel-linkedin { background: #D1FAE5; color: #065F46; }
+        .channel-twitter { background: #E0F2FE; color: #0C4A6E; }
+        .channel-email { background: #FEF3C7; color: #92400E; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: #F9FAFB;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .metric-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .metric-label {
+            color: #6B7280;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .metric-change {
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+
+        .metric-up { color: var(--success-color); }
+        .metric-down { color: var(--danger-color); }
+        .metric-stable { color: #6B7280; }
+
+        .campaign-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 0.875rem;
+            color: #6B7280;
+            flex-wrap: wrap;
+        }
+
+        .campaign-meta .item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #6B7280;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .roi-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .roi-bar {
+            flex: 1;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .roi-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .roi-excellent { background: var(--success-color); }
+        .roi-good { background: var(--warning-color); }
+        .roi-poor { background: var(--danger-color); }
+
+        .template-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .filter-controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .performance-chart {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .quick-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .quick-action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .budget-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .target-audience {
+            background: #F0F9FF;
+            border: 1px solid #BAE6FD;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .audience-tag {
+            background: #E0F2FE;
+            color: #0C4A6E;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin: 2px;
+            display: inline-block;
+        }
+
+        .campaign-timeline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .timeline-bar {
+            flex: 1;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timeline-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9CA3AF;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .campaign-meta {
+                gap: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-users"></i> Clientes
+                    </h4>
+                    
+                    <nav>
+                        <a href="{{ url_for('clientes.gestion_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-users-cog"></i> Gestión Clientes
+                        </a>
+                        <a href="{{ url_for('clientes.timeline_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-clock"></i> Timeline
+                        </a>
+                        <a href="{{ url_for('clientes.comunicaciones_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-comments"></i> Comunicaciones
+                        </a>
+                        <a href="{{ url_for('clientes.propuestas_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-file-alt"></i> Propuestas
+                        </a>
+                        <a href="{{ url_for('clientes.pipeline_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-chart-line"></i> Pipeline
+                        </a>
+                        <a href="{{ url_for('clientes.tickets_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-ticket-alt"></i> Tickets
+                        </a>
+                        <a href="{{ url_for('clientes.calendario_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-calendar-alt"></i> Calendario
+                        </a>
+                        <a href="{{ url_for('clientes.campanas_clientes') }}" class="sidebar-item active">
+                            <i class="fas fa-bullhorn"></i> Campañas Publicitarias
+                        </a>
+                        <a href="{{ url_for('clientes.automatizaciones_clientes') }}" class="sidebar-item">
+                            <i class="fas fa-magic"></i> Automatizaciones
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="campaigns-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="mb-2">
+                                        <i class="fas fa-bullhorn"></i> Campañas Publicitarias
+                                        {% if selected_client %}
+                                            - {{ selected_client.nombre_empresa }}
+                                        {% endif %}
+                                    </h2>
+                                    <p class="mb-3 opacity-90">
+                                        {% if selected_client %}
+                                            Campañas dirigidas para {{ selected_client.nombre_empresa }}
+                                        {% else %}
+                                            Gestión multicanal: Google Ads, Facebook, Instagram, LinkedIn, Email Marketing
+                                        {% endif %}
+                                    </p>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <select id="client-selector" class="form-select" style="max-width: 300px;">
+                                            <option value="">Todas las campañas</option>
+                                            {% for client in clients %}
+                                            <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
+                                                {{ client.nombre_empresa }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fs-3 fw-bold">{{ campaigns|length }}</div>
+                                    <div class="opacity-75">campañas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ campaigns|selectattr("status", "equalto", "active")|list|length }}
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-play text-success"></i> Activas
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    ${{ (campaign_metrics.values()|sum(attribute='total_cost') if campaign_metrics else 0)|round(0) }}
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-dollar-sign text-warning"></i> Inversión Total
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ (campaign_metrics.values()|sum(attribute='total_impressions') if campaign_metrics else 0)|round(0) }}
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-eye text-info"></i> Impresiones
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">
+                                    {{ (campaign_metrics.values()|sum(attribute='total_conversions') if campaign_metrics else 0)|round(0) }}
+                                </div>
+                                <div class="stat-label">
+                                    <i class="fas fa-chart-line text-primary"></i> Conversiones
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Chart -->
+                        <div class="performance-chart">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-area text-primary"></i> Rendimiento de Campañas
+                                </h5>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary active" id="chart-7days">7 días</button>
+                                    <button type="button" class="btn btn-outline-primary" id="chart-30days">30 días</button>
+                                    <button type="button" class="btn btn-outline-primary" id="chart-90days">90 días</button>
+                                </div>
+                            </div>
+                            <canvas id="performanceChart" width="400" height="150"></canvas>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="filter-controls">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-filter"></i> Filtros y Gestión
+                                </h5>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#templatesModal">
+                                        <i class="fas fa-layer-group"></i> Plantillas
+                                    </button>
+                                    <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#reportModal">
+                                        <i class="fas fa-chart-bar"></i> Generar Reporte
+                                    </button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCampaignModal">
+                                        <i class="fas fa-plus"></i> Nueva Campaña
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="row align-items-end">
+                                <div class="col-md-2">
+                                    <label class="form-label small">Estado:</label>
+                                    <select class="form-select form-select-sm" id="filter-status">
+                                        <option value="">Todos</option>
+                                        <option value="active">Activa</option>
+                                        <option value="paused">Pausada</option>
+                                        <option value="completed">Completada</option>
+                                        <option value="draft">Borrador</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Canal:</label>
+                                    <select class="form-select form-select-sm" id="filter-channel">
+                                        <option value="">Todos</option>
+                                        {% for channel in channels %}
+                                        <option value="{{ channel.id }}">{{ channel.channel_name|title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Presupuesto:</label>
+                                    <select class="form-select form-select-sm" id="filter-budget">
+                                        <option value="">Todos</option>
+                                        <option value="0-500">$0 - $500</option>
+                                        <option value="500-2000">$500 - $2,000</option>
+                                        <option value="2000-10000">$2,000 - $10,000</option>
+                                        <option value="10000+">$10,000+</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">ROI:</label>
+                                    <select class="form-select form-select-sm" id="filter-roi">
+                                        <option value="">Todos</option>
+                                        <option value="excellent">Excelente (>300%)</option>
+                                        <option value="good">Bueno (150-300%)</option>
+                                        <option value="poor">Pobre (<150%)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Buscar:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="search-campaigns" 
+                                               placeholder="Buscar campañas...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campaigns List -->
+                        <div class="campaigns-list">
+                            {% if campaigns %}
+                                {% for campaign in campaigns %}
+                                <div class="campaign-card fade-in" 
+                                     data-status="{{ campaign.status or '' }}"
+                                     data-budget="{{ campaign.total_budget or 0 }}"
+                                     data-roi="{{ campaign.roi_percentage or 0 }}"
+                                     data-date="{{ campaign.created_at or '' }}">
+                                    
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center gap-3 mb-2">
+                                                <h5 class="mb-0 fw-bold">{{ campaign.campaign_name or 'Campaña sin nombre' }}</h5>
+                                                
+                                                <span class="campaign-status status-{{ campaign.status or 'draft' }}">
+                                                    {% if campaign.status == 'active' %}
+                                                        <i class="fas fa-play"></i> Activa
+                                                    {% elif campaign.status == 'paused' %}
+                                                        <i class="fas fa-pause"></i> Pausada
+                                                    {% elif campaign.status == 'completed' %}
+                                                        <i class="fas fa-check-circle"></i> Completada
+                                                    {% else %}
+                                                        <i class="fas fa-edit"></i> Borrador
+                                                    {% endif %}
+                                                </span>
+
+                                                {% if campaign.template_name %}
+                                                <span class="template-badge">
+                                                    <i class="fas fa-layer-group"></i> {{ campaign.template_name }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="campaign-meta">
+                                                {% if campaign.nombre_empresa and not selected_client %}
+                                                <div class="item">
+                                                    <i class="fas fa-building"></i>
+                                                    <span>{{ campaign.nombre_empresa }}</span>
+                                                </div>
+                                                {% endif %}
+                                                <div class="item">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                    <span>{{ moment(campaign.created_at).format('DD/MM/YYYY') if moment and campaign.created_at else campaign.created_at }}</span>
+                                                </div>
+                                                <div class="item">
+                                                    <i class="fas fa-dollar-sign"></i>
+                                                    <span class="budget-display">${{ (campaign.total_budget or 0)|round(2) }}</span>
+                                                </div>
+                                                {% if campaign.campaign_duration %}
+                                                <div class="item">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>{{ campaign.campaign_duration }} días</span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver detalles</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar campaña</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-copy"></i> Duplicar</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i> Ver métricas</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                {% if campaign.status == 'active' %}
+                                                <li><a class="dropdown-item text-warning" href="#"><i class="fas fa-pause"></i> Pausar</a></li>
+                                                {% elif campaign.status == 'paused' %}
+                                                <li><a class="dropdown-item text-success" href="#"><i class="fas fa-play"></i> Reanudar</a></li>
+                                                {% endif %}
+                                                <li><a class="dropdown-item text-info" href="#"><i class="fas fa-rocket"></i> Optimizar</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Eliminar</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    {% if campaign.description %}
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-0">{{ campaign.description }}</p>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Channel Badges -->
+                                    <div class="channel-badges">
+                                        {% for channel in campaign.channels.split(',') if campaign.channels %}
+                                        <span class="channel-badge channel-{{ channel.strip().lower().replace(' ', '') }}">
+                                            <i class="fab fa-{{ channel.strip().lower() if channel.strip().lower() in ['google', 'facebook', 'instagram', 'linkedin', 'twitter'] else 'fas fa-envelope' if 'email' in channel.strip().lower() else 'fas fa-globe' }}"></i>
+                                            {{ channel.strip()|title }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Target Audience -->
+                                    {% if campaign.target_audience %}
+                                    <div class="target-audience">
+                                        <div class="small fw-semibold mb-1">
+                                            <i class="fas fa-bullseye"></i> Audiencia objetivo:
+                                        </div>
+                                        {% for audience in campaign.target_audience.split(',') if audience %}
+                                        <span class="audience-tag">{{ audience.strip() }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Campaign Timeline -->
+                                    {% if campaign.start_date and campaign.end_date %}
+                                    <div class="campaign-timeline">
+                                        <span class="small fw-semibold">Progreso:</span>
+                                        <div class="timeline-bar">
+                                            {% set progress = ((moment().diff(moment(campaign.start_date), 'days') / moment(campaign.end_date).diff(moment(campaign.start_date), 'days')) * 100) if moment else 50 %}
+                                            <div class="timeline-fill" style="width: {{ [progress, 100]|min }}%"></div>
+                                        </div>
+                                        <span class="small">{{ [progress, 100]|min|round }}%</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Metrics -->
+                                    {% if campaign_metrics[campaign.id] %}
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-number">{{ campaign_metrics[campaign.id].total_impressions|round(0) }}</div>
+                                            <div class="metric-label">Impresiones</div>
+                                            <div class="metric-change metric-up">
+                                                <i class="fas fa-arrow-up"></i> +12%
+                                            </div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-number">{{ campaign_metrics[campaign.id].total_clicks|round(0) }}</div>
+                                            <div class="metric-label">Clics</div>
+                                            <div class="metric-change metric-up">
+                                                <i class="fas fa-arrow-up"></i> +8%
+                                            </div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-number">{{ campaign_metrics[campaign.id].total_conversions|round(0) }}</div>
+                                            <div class="metric-label">Conversiones</div>
+                                            <div class="metric-change metric-stable">
+                                                <i class="fas fa-minus"></i> 0%
+                                            </div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-number">${{ campaign_metrics[campaign.id].total_cost|round(2) }}</div>
+                                            <div class="metric-label">Coste</div>
+                                            <div class="metric-change metric-down">
+                                                <i class="fas fa-arrow-down"></i> -5%
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- ROI Indicator -->
+                                    {% if campaign.roi_percentage %}
+                                    <div class="roi-indicator">
+                                        <span class="small fw-semibold">ROI:</span>
+                                        <div class="roi-bar">
+                                            <div class="roi-fill {{ 'roi-excellent' if campaign.roi_percentage >= 300 else 'roi-good' if campaign.roi_percentage >= 150 else 'roi-poor' }}" 
+                                                 style="width: {{ (campaign.roi_percentage / 5)|round }}%"></div>
+                                        </div>
+                                        <span class="small fw-bold {{ 'text-success' if campaign.roi_percentage >= 300 else 'text-warning' if campaign.roi_percentage >= 150 else 'text-danger' }}">
+                                            {{ campaign.roi_percentage }}%
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-bullhorn"></i>
+                                    <h4>No hay campañas</h4>
+                                    <p class="text-muted">
+                                        {% if selected_client %}
+                                            No se encontraron campañas para {{ selected_client.nombre_empresa }}
+                                        {% else %}
+                                            No hay campañas creadas en el sistema
+                                        {% endif %}
+                                    </p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCampaignModal">
+                                        <i class="fas fa-plus"></i> Crear Primera Campaña
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Load More -->
+                        {% if campaigns|length >= 25 %}
+                        <div class="text-center mt-4">
+                            <button class="btn btn-outline-primary" id="load-more">
+                                <i class="fas fa-chevron-down"></i> Cargar más campañas
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-action-btn btn btn-warning" title="Optimizar campañas" id="optimize-campaigns">
+            <i class="fas fa-rocket"></i>
+        </button>
+        <button class="quick-action-btn btn btn-primary" title="Nueva campaña" data-bs-toggle="modal" data-bs-target="#newCampaignModal">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- New Campaign Modal -->
+    <div class="modal fade" id="newCampaignModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Campaña Publicitaria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newCampaignForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre de la Campaña *</label>
+                                    <input type="text" class="form-control" name="campaign_name" required 
+                                           placeholder="Ej: Campaña de lanzamiento Q4 2024">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Plantilla</label>
+                                    <select class="form-select" name="template_id" id="template-selector">
+                                        <option value="">Campaña personalizada</option>
+                                        {% for template in templates %}
+                                        <option value="{{ template.id }}">{{ template.template_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Cliente Objetivo</label>
+                                    <select class="form-select" name="target_client_id">
+                                        <option value="">Todos los clientes</option>
+                                        {% for client in clients %}
+                                        <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
+                                            {{ client.nombre_empresa }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Campaña *</label>
+                                    <select class="form-select" name="campaign_type" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="awareness">Conocimiento de marca</option>
+                                        <option value="consideration">Consideración</option>
+                                        <option value="conversion">Conversión</option>
+                                        <option value="retention">Retención</option>
+                                        <option value="remarketing">Remarketing</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Canales Publicitarios *</label>
+                                    <div class="row">
+                                        {% for channel in channels %}
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="channels" value="{{ channel.channel_name }}" id="channel-{{ loop.index }}">
+                                                <label class="form-check-label" for="channel-{{ loop.index }}">
+                                                    <i class="fab fa-{{ channel.channel_name.lower() if channel.channel_name.lower() in ['google', 'facebook', 'instagram', 'linkedin', 'twitter'] else 'fas fa-envelope' if 'email' in channel.channel_name.lower() else 'fas fa-globe' }}"></i>
+                                                    {{ channel.channel_name|title }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Presupuesto Total *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" name="total_budget" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Duración (días)</label>
+                                    <input type="number" class="form-control" name="campaign_duration" min="1" placeholder="30">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha de Inicio *</label>
+                                    <input type="date" class="form-control" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha de Fin</label>
+                                    <input type="date" class="form-control" name="end_date">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Audiencia Objetivo *</label>
+                                    <input type="text" class="form-control" name="target_audience" required
+                                           placeholder="Ej: Profesionales IT, 25-45 años, Madrid, Barcelona">
+                                    <div class="form-text">Separa diferentes segmentos con comas</div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Descripción de la Campaña *</label>
+                                    <textarea class="form-control" name="description" rows="4" required 
+                                              placeholder="Describe los objetivos, mensaje y estrategia de la campaña..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Options -->
+                        <div class="mt-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-cog"></i> Configuración Avanzada
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">CPC Máximo</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" name="max_cpc" step="0.01" placeholder="2.50">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">CTR Objetivo</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="target_ctr" step="0.01" placeholder="2.5">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">ROI Esperado</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="expected_roi" placeholder="250">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-primary" id="saveDraftCampaign">
+                        <i class="fas fa-save"></i> Guardar Borrador
+                    </button>
+                    <button type="button" class="btn btn-primary" id="launchCampaign">
+                        <i class="fas fa-rocket"></i> Lanzar Campaña
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Modal -->
+    <div class="modal fade" id="templatesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Plantillas de Campañas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {% for template in templates %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ template.template_name }}</h6>
+                                    <p class="card-text small">{{ template.description or 'Plantilla de campaña predefinida' }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">Usada {{ template.usage_count or 0 }} veces</small>
+                                        <button class="btn btn-sm btn-primary use-template" data-template-id="{{ template.id }}">
+                                            <i class="fas fa-rocket"></i> Usar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            let performanceChart;
+
+            // Initialize Select2
+            $('#client-selector, select[name="target_client_id"]').select2({
+                placeholder: 'Buscar cliente...',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Client selector change
+            $('#client-selector').change(function() {
+                const clientId = $(this).val();
+                if (clientId) {
+                    window.location.href = `/clientes/campanas/${clientId}`;
+                } else {
+                    window.location.href = '/clientes/campanas';
+                }
+            });
+
+            // Initialize Performance Chart
+            initializePerformanceChart();
+
+            function initializePerformanceChart() {
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                
+                // Sample data - in production this would come from the server
+                const chartData = {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [
+                        {
+                            label: 'Impresiones',
+                            data: [12000, 15000, 18000, 22000, 25000, 28000, 30000],
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Clics',
+                            data: [300, 380, 450, 520, 600, 680, 750],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Conversiones',
+                            data: [15, 19, 22, 26, 30, 34, 38],
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                };
+
+                performanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart period buttons
+            $('#chart-7days, #chart-30days, #chart-90days').click(function() {
+                $('.btn-group .btn').removeClass('active');
+                $(this).addClass('active');
+                
+                // Here you would update the chart data based on the selected period
+                // For now, we'll just show a loading animation
+                const period = $(this).attr('id').replace('chart-', '');
+                console.log(`Loading ${period} data...`);
+            });
+
+            // Filtering
+            $('#filter-status, #filter-channel, #filter-budget, #filter-roi, #search-campaigns')
+                .on('change input', function() {
+                    filterCampaigns();
+                });
+
+            function filterCampaigns() {
+                const status = $('#filter-status').val();
+                const channel = $('#filter-channel').val();
+                const budget = $('#filter-budget').val();
+                const roi = $('#filter-roi').val();
+                const searchTerm = $('#search-campaigns').val().toLowerCase();
+
+                $('.campaign-card').each(function() {
+                    const card = $(this);
+                    const cardStatus = card.data('status');
+                    const cardBudget = parseFloat(card.data('budget')) || 0;
+                    const cardRoi = parseFloat(card.data('roi')) || 0;
+                    const cardText = card.text().toLowerCase();
+
+                    let show = true;
+
+                    // Status filter
+                    if (status && cardStatus !== status) {
+                        show = false;
+                    }
+
+                    // Budget filter
+                    if (budget && !matchesBudgetRange(cardBudget, budget)) {
+                        show = false;
+                    }
+
+                    // ROI filter
+                    if (roi && !matchesRoiRange(cardRoi, roi)) {
+                        show = false;
+                    }
+
+                    // Search filter
+                    if (searchTerm && !cardText.includes(searchTerm)) {
+                        show = false;
+                    }
+
+                    if (show) {
+                        card.show();
+                    } else {
+                        card.hide();
+                    }
+                });
+            }
+
+            function matchesBudgetRange(budget, range) {
+                switch (range) {
+                    case '0-500':
+                        return budget >= 0 && budget <= 500;
+                    case '500-2000':
+                        return budget > 500 && budget <= 2000;
+                    case '2000-10000':
+                        return budget > 2000 && budget <= 10000;
+                    case '10000+':
+                        return budget > 10000;
+                    default:
+                        return true;
+                }
+            }
+
+            function matchesRoiRange(roi, range) {
+                switch (range) {
+                    case 'excellent':
+                        return roi >= 300;
+                    case 'good':
+                        return roi >= 150 && roi < 300;
+                    case 'poor':
+                        return roi < 150;
+                    default:
+                        return true;
+                }
+            }
+
+            // Use template
+            $('.use-template').click(function() {
+                const templateId = $(this).data('template-id');
+                $('#templatesModal').modal('hide');
+                $('#newCampaignModal').modal('show');
+                
+                setTimeout(function() {
+                    $(`#template-selector option[value="${templateId}"]`).prop('selected', true);
+                }, 100);
+            });
+
+            // Campaign actions
+            $('#saveDraftCampaign').click(function() {
+                const formData = $('#newCampaignForm').serialize();
+                console.log('Saving draft campaign:', formData);
+                
+                $('#newCampaignModal').modal('hide');
+                $('<div class="alert alert-info alert-dismissible fade show" role="alert">' +
+                  'Campaña guardada como borrador!' +
+                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                  '</div>').prependTo('.main-content .p-4');
+            });
+
+            $('#launchCampaign').click(function() {
+                const formData = $('#newCampaignForm').serialize();
+                console.log('Launching campaign:', formData);
+                
+                $('#newCampaignModal').modal('hide');
+                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                  'Campaña lanzada exitosamente en todos los canales seleccionados!' +
+                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                  '</div>').prependTo('.main-content .p-4');
+
+                // Reset form
+                $('#newCampaignForm')[0].reset();
+            });
+
+            // Optimize campaigns
+            $('#optimize-campaigns').click(function() {
+                const btn = $(this);
+                const originalHtml = btn.html();
+                
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i>');
+                
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html(originalHtml);
+                    
+                    $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                      'Optimización automática aplicada a todas las campañas activas!' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                      '</div>').prependTo('.main-content .p-4');
+                }, 2000);
+            });
+
+            // Load more campaigns
+            $('#load-more').click(function() {
+                const btn = $(this);
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
+
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-chevron-down"></i> Cargar más campañas');
+                    
+                    $('<div class="alert alert-info">No hay más campañas para mostrar</div>')
+                        .insertBefore(btn.parent())
+                        .delay(3000)
+                        .fadeOut();
+                }, 1500);
+            });
+
+            // Auto-calculate end date when duration changes
+            $('input[name="campaign_duration"]').change(function() {
+                const duration = parseInt($(this).val());
+                const startDate = $('input[name="start_date"]').val();
+                
+                if (duration && startDate) {
+                    const endDate = new Date(startDate);
+                    endDate.setDate(endDate.getDate() + duration);
+                    $('input[name="end_date"]').val(endDate.toISOString().split('T')[0]);
+                }
+            });
+
+            // Set default start date to today
+            const today = new Date().toISOString().split('T')[0];
+            $('input[name="start_date"]').val(today);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1455 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =============================================================================
+       DASHBOARD ERP13 ENTERPRISE - SISTEMA DE 3 PESTAÑAS
+       Arquitectura: erp13-enterprise/templates/dashboard/dashboard.html
+       Performance: CSS Grid + Flexbox + Animaciones optimizadas
+       Compatibilidad: Bootstrap 5 + Font Awesome 6 + Responsive
+       Módulo: app/modules/dashboard/routes.py blueprint independiente
+    ============================================================================= */
+    
+    /* Dashboard Header */
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        opacity: 0.1;
+    }
+    
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        position: relative;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+        position: relative;
+    }
+    
+    .dashboard-stats {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-stat {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .dashboard-stat h3 {
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    .dashboard-stat p {
+        font-size: 0.85rem;
+        margin: 0;
+        opacity: 0.8;
+    }
+
+    /* Sistema de Pestañas */
+    .dashboard-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .dashboard-tab {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        position: relative;
+    }
+    
+    .dashboard-tab.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+    }
+    
+    .dashboard-tab:hover:not(.active) {
+        color: #374151;
+        background: rgba(59, 130, 246, 0.05);
+        transform: translateY(-1px);
+    }
+    
+    .dashboard-tab i {
+        font-size: 1.2rem;
+    }
+
+    /* Contenido de Pestañas */
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =============================================================================
+       PESTAÑA 1: ASISTENTE IA + KPIs COMPACTOS
+    ============================================================================= */
+    
+    .ai-dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Asistente IA */
+    .ai-assistant-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-assistant-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06d6a0);
+    }
+    
+    .ai-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+    
+    .ai-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .ai-title i {
+        color: #3b82f6;
+        font-size: 1.8rem;
+    }
+    
+    .ai-metrics {
+        display: flex;
+        gap: 1.5rem;
+    }
+    
+    .ai-metric {
+        text-align: center;
+        background: rgba(59, 130, 246, 0.05);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+    
+    .ai-metric-value {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-bottom: 0.25rem;
+    }
+    
+    .ai-metric-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    
+    .chat-welcome {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .chat-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 1rem;
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+    }
+    
+    .chat-welcome h4 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .chat-welcome p {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+    
+    .chat-input-container {
+        position: relative;
+    }
+    
+    .chat-input {
+        width: 100%;
+        min-height: 120px;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        resize: vertical;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .chat-send-btn {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+    
+    .chat-send-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    /* KPIs Compactos */
+    .kpis-compact {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .kpi-compact-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .kpi-compact-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kpi-compact-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .kpi-compact-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .kpi-compact-trend {
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+    
+    .kpi-compact-trend.up {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .kpi-compact-trend.down {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .kpi-compact-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        line-height: 1;
+    }
+    
+    .kpi-compact-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* =============================================================================
+       PESTAÑA 2: MÓDULOS & REPORTES
+    ============================================================================= */
+    
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+    
+    .module-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .module-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--module-color);
+    }
+    
+    .module-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .module-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        background: var(--module-color);
+    }
+    
+    .module-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .module-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .module-metric {
+        text-align: center;
+        background: rgba(0, 0, 0, 0.02);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .module-metric-value {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .module-metric-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    
+    .module-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .module-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--module-color);
+        background: transparent;
+        color: var(--module-color);
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+    }
+    
+    .module-btn:hover {
+        background: var(--module-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* =============================================================================
+       PESTAÑA 3: KPIs EJECUTIVOS
+    ============================================================================= */
+    
+    .kpis-executive-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .kpi-executive-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .kpi-executive-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, transparent 0%, var(--kpi-color) 0%, transparent 100%);
+        opacity: 0.03;
+    }
+    
+    .kpi-executive-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+    
+    .kpi-executive-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        background: var(--kpi-color);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kpi-executive-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+    }
+    
+    .kpi-executive-trend.up {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .kpi-executive-trend.down {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .kpi-executive-value {
+        font-size: 3rem;
+        font-weight: 900;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+    
+    .kpi-executive-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 1rem;
+    }
+    
+    .kpi-executive-description {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+    
+    .kpi-executive-progress {
+        width: 100%;
+        height: 8px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .kpi-executive-progress-bar {
+        height: 100%;
+        background: var(--kpi-color);
+        border-radius: 4px;
+        transition: width 1s ease-in-out;
+    }
+
+    /* =============================================================================
+       RESPONSIVE DESIGN
+    ============================================================================= */
+    
+    @media (max-width: 768px) {
+        .ai-dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-stats {
+            position: static;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .dashboard-tabs {
+            flex-direction: column;
+        }
+        
+        .dashboard-tab {
+            justify-content: flex-start;
+        }
+        
+        .modules-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .kpis-executive-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* =============================================================================
+       COLORES MODULARES (CSS Custom Properties)
+    ============================================================================= */
+    
+    .module-clientes { --module-color: #3b82f6; }
+    .module-facturacion { --module-color: #10b981; }
+    .module-auditorias { --module-color: #f59e0b; }
+    .module-productividad { --module-color: #8b5cf6; }
+    
+    .kpi-revenue { --kpi-color: #10b981; }
+    .kpi-customers { --kpi-color: #3b82f6; }
+    .kpi-efficiency { --kpi-color: #f59e0b; }
+    .kpi-satisfaction { --kpi-color: #06d6a0; }
+    .kpi-growth { --kpi-color: #8b5cf6; }
+    .kpi-conversion { --kpi-color: #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">ERP13 Enterprise</h1>
+        <p class="dashboard-subtitle">Centro de Control Empresarial con IA Integrada</p>
+        <div class="dashboard-stats">
+            <div class="dashboard-stat">
+                <h3 id="active-users">23</h3>
+                <p>Usuarios Activos</p>
+            </div>
+            <div class="dashboard-stat">
+                <h3 id="daily-transactions">1.2K</h3>
+                <p>Transacciones Hoy</p>
+            </div>
+            <div class="dashboard-stat">
+                <h3 id="system-health">99.8%</h3>
+                <p>Salud del Sistema</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema de Pestañas -->
+    <div class="dashboard-tabs">
+        <button class="dashboard-tab active" onclick="switchTab('ai-assistant')">
+            <i class="fas fa-robot"></i>
+            Asistente IA
+        </button>
+        <button class="dashboard-tab" onclick="switchTab('modules')">
+            <i class="fas fa-th-large"></i>
+            Módulos & Reportes
+        </button>
+        <button class="dashboard-tab" onclick="switchTab('kpis')">
+            <i class="fas fa-chart-line"></i>
+            KPIs Ejecutivos
+        </button>
+    </div>
+
+    <!-- PESTAÑA 1: ASISTENTE IA + KPIs COMPACTOS -->
+    <div id="ai-assistant-tab" class="tab-content active">
+        <div class="ai-dashboard-grid">
+            <!-- Asistente IA -->
+            <div class="ai-assistant-card">
+                <div class="ai-header">
+                    <h2 class="ai-title">
+                        <i class="fas fa-brain"></i>
+                        Asistente IA Empresarial
+                    </h2>
+                    <div class="ai-metrics">
+                        <div class="ai-metric">
+                            <span class="ai-metric-value" id="ai-conversations">147</span>
+                            <span class="ai-metric-label">Conversaciones</span>
+                        </div>
+                        <div class="ai-metric">
+                            <span class="ai-metric-value" id="ai-accuracy">96%</span>
+                            <span class="ai-metric-label">Precisión</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-welcome" id="chat-welcome">
+                    <div class="chat-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h4>Inicia una conversación con la IA</h4>
+                    <p>Pregunta sobre KPIs, análisis de datos, optimización de procesos y más</p>
+                </div>
+                
+                <div class="chat-input-container">
+                    <textarea 
+                        class="chat-input" 
+                        id="chat-input"
+                        placeholder="Ejemplo: '¿Cuáles son los KPIs más críticos del mes?' o '¿Cómo está el rendimiento de ventas?'"
+                        rows="4"></textarea>
+                    <button class="chat-send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- KPIs Compactos -->
+            <div class="kpis-compact">
+                <div class="kpi-compact-card kpi-revenue">
+                    <div class="kpi-compact-header">
+                        <div class="kpi-compact-icon" style="background: #10b981;">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                        <div class="kpi-compact-trend up">
+                            <i class="fas fa-arrow-up"></i> +12.5%
+                        </div>
+                    </div>
+                    <div class="kpi-compact-value">€245K</div>
+                    <div class="kpi-compact-label">Ingresos Mensuales</div>
+                </div>
+                
+                <div class="kpi-compact-card kpi-customers">
+                    <div class="kpi-compact-header">
+                        <div class="kpi-compact-icon" style="background: #3b82f6;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="kpi-compact-trend up">
+                            <i class="fas fa-arrow-up"></i> +8.2%
+                        </div>
+                    </div>
+                    <div class="kpi-compact-value">1,247</div>
+                    <div class="kpi-compact-label">Clientes Activos</div>
+                </div>
+                
+                <div class="kpi-compact-card kpi-efficiency">
+                    <div class="kpi-compact-header">
+                        <div class="kpi-compact-icon" style="background: #f59e0b;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="kpi-compact-trend down">
+                            <i class="fas fa-arrow-down"></i> -5.1%
+                        </div>
+                    </div>
+                    <div class="kpi-compact-value">2.4h</div>
+                    <div class="kpi-compact-label">Tiempo Promedio</div>
+                </div>
+                
+                <div class="kpi-compact-card kpi-satisfaction">
+                    <div class="kpi-compact-header">
+                        <div class="kpi-compact-icon" style="background: #06d6a0;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="kpi-compact-trend up">
+                            <i class="fas fa-arrow-up"></i> +3.7%
+                        </div>
+                    </div>
+                    <div class="kpi-compact-value">4.8/5</div>
+                    <div class="kpi-compact-label">Satisfacción</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 2: MÓDULOS & REPORTES -->
+    <div id="modules-tab" class="tab-content">
+        <div class="modules-grid">
+            <!-- Módulo Clientes -->
+            <div class="module-card module-clientes">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="module-title">Gestión de Clientes</h3>
+                </div>
+                <div class="module-metrics">
+                    <div class="module-metric">
+                        <span class="module-metric-value">1,247</span>
+                        <span class="module-metric-label">Total Clientes</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">89</span>
+                        <span class="module-metric-label">Nuevos (Mes)</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">94.2%</span>
+                        <span class="module-metric-label">Retención</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">4.7/5</span>
+                        <span class="module-metric-label">Satisfacción</span>
+                    </div>
+                </div>
+                <div class="module-actions">
+                    <button class="module-btn" onclick="navigateToClients()">
+                        <i class="fas fa-eye me-1"></i> Ver Clientes
+                    </button>
+                    <button class="module-btn" onclick="generateClientReport()">
+                        <i class="fas fa-download me-1"></i> Reporte
+                    </button>
+                </div>
+            </div>
+
+            <!-- Módulo Facturación -->
+            <div class="module-card module-facturacion">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3 class="module-title">Facturación</h3>
+                </div>
+                <div class="module-metrics">
+                    <div class="module-metric">
+                        <span class="module-metric-value">€245K</span>
+                        <span class="module-metric-label">Facturado (Mes)</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">€38K</span>
+                        <span class="module-metric-label">Pendiente</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">94.8%</span>
+                        <span class="module-metric-label">Cobrado</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">12 días</span>
+                        <span class="module-metric-label">Promedio Cobro</span>
+                    </div>
+                </div>
+                <div class="module-actions">
+                    <button class="module-btn" onclick="navigateToInvoices()">
+                        <i class="fas fa-eye me-1"></i> Ver Facturas
+                    </button>
+                    <button class="module-btn" onclick="generateInvoiceReport()">
+                        <i class="fas fa-download me-1"></i> Reporte
+                    </button>
+                </div>
+            </div>
+
+            <!-- Módulo Auditorías -->
+            <div class="module-card module-auditorias">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="module-title">Auditorías</h3>
+                </div>
+                <div class="module-metrics">
+                    <div class="module-metric">
+                        <span class="module-metric-value">47</span>
+                        <span class="module-metric-label">Auditorías (Mes)</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">12</span>
+                        <span class="module-metric-label">En Proceso</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">98.3%</span>
+                        <span class="module-metric-label">Conformidad</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">2.1 días</span>
+                        <span class="module-metric-label">Tiempo Medio</span>
+                    </div>
+                </div>
+                <div class="module-actions">
+                    <button class="module-btn" onclick="navigateToAudits()">
+                        <i class="fas fa-eye me-1"></i> Ver Auditorías
+                    </button>
+                    <button class="module-btn" onclick="generateAuditReport()">
+                        <i class="fas fa-download me-1"></i> Reporte
+                    </button>
+                </div>
+            </div>
+
+            <!-- Módulo Productividad -->
+            <div class="module-card module-productividad">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="module-title">Productividad</h3>
+                </div>
+                <div class="module-metrics">
+                    <div class="module-metric">
+                        <span class="module-metric-value">847</span>
+                        <span class="module-metric-label">Tareas (Mes)</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">96.2%</span>
+                        <span class="module-metric-label">Completadas</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">2.4h</span>
+                        <span class="module-metric-label">Promedio/Tarea</span>
+                    </div>
+                    <div class="module-metric">
+                        <span class="module-metric-value">23</span>
+                        <span class="module-metric-label">Usuarios Activos</span>
+                    </div>
+                </div>
+                <div class="module-actions">
+                    <button class="module-btn" onclick="navigateToTasks()">
+                        <i class="fas fa-eye me-1"></i> Ver Tareas
+                    </button>
+                    <button class="module-btn" onclick="generateProductivityReport()">
+                        <i class="fas fa-download me-1"></i> Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 3: KPIs EJECUTIVOS -->
+    <div id="kpis-tab" class="tab-content">
+        <div class="kpis-executive-grid">
+            <!-- KPI 1: Ingresos -->
+            <div class="kpi-executive-card kpi-revenue">
+                <div class="kpi-executive-header">
+                    <div class="kpi-executive-icon">
+                        <i class="fas fa-euro-sign"></i>
+                    </div>
+                    <div class="kpi-executive-trend up">
+                        <i class="fas fa-trending-up"></i>
+                        +12.5% vs mes anterior
+                    </div>
+                </div>
+                <div class="kpi-executive-value">€245K</div>
+                <div class="kpi-executive-title">Ingresos Mensuales</div>
+                <div class="kpi-executive-description">
+                    Los ingresos han mostrado un crecimiento sostenido del 12.5% respecto al mes anterior, 
+                    superando las proyecciones en un 8%.
+                </div>
+                <div class="kpi-executive-progress">
+                    <div class="kpi-executive-progress-bar" style="width: 82%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 2: Clientes -->
+            <div class="kpi-executive-card kpi-customers">
+                <div class="kpi-executive-header">
+                    <div class="kpi-executive-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="kpi-executive-trend up">
+                        <i class="fas fa-trending-up"></i>
+                        +8.2% nuevos clientes
+                    </div>
+                </div>
+                <div class="kpi-executive-value">1,247</div>
+                <div class="kpi-executive-title">Clientes Activos</div>
+                <div class="kpi-executive-description">
+                    La base de clientes activos continúa creciendo con una tasa de retención del 94.2% 
+                    y 89 nuevos clientes este mes.
+                </div>
+                <div class="kpi-executive-progress">
+                    <div class="kpi-executive-progress-bar" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 3: Eficiencia Operacional -->
+            <div class="kpi-executive-card kpi-efficiency">
+                <div class="kpi-executive-header">
+                    <div class="kpi-executive-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="kpi-executive-trend down">
+                        <i class="fas fa-trending-down"></i>
+                        -5.1% tiempo promedio
+                    </div>
+                </div>
+                <div class="kpi-executive-value">96.8%</div>
+                <div class="kpi-executive-title">Eficiencia Operacional</div>
+                <div class="kpi-executive-description">
+                    La eficiencia operacional se mantiene en niveles óptimos con una reducción del 5.1% 
+                    en los tiempos de procesamiento.
+                </div>
+                <div class="kpi-executive-progress">
+                    <div class="kpi-executive-progress-bar" style="width: 96%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 4: Satisfacción del Cliente -->
+            <div class="kpi-executive-card kpi-satisfaction">
+                <div class="kpi-executive-header">
+                    <div class="kpi-executive-icon">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="kpi-executive-trend up">
+                        <i class="fas fa-trending-up"></i>
+                        +3.7% satisfacción
+                    </div>
+                </div>
+                <div class="kpi-executive-value">4.8/5</div>
+                <div class="kpi-executive-title">Satisfacción del Cliente</div>
+                <div class="kpi-executive-description">
+                    El índice de satisfacción del cliente alcanza 4.8/5 con un incremento del 3.7% 
+                    gracias a las mejoras implementadas.
+                </div>
+                <div class="kpi-executive-progress">
+                    <div class="kpi-executive-progress-bar" style="width: 96%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 5: Crecimiento -->
+            <div class="kpi-executive-card kpi-growth">
+                <div class="kpi-executive-header">
+                    <div class="kpi-executive-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="kpi-executive-trend up">
+                        <i class="fas fa-trending-up"></i>
+                        +15.3% crecimiento
+                    </div>
+                </div>
+                <div class="kpi-executive-value">+15.3%</div>
+                <div class="kpi-executive-title">Crecimiento Trimestral</div>
+                <div class="kpi-executive-description">
+                    El crecimiento trimestral supera las expectativas con un 15.3% de incremento 
+                    en volumen de negocio y expansión de mercado.
+                </div>
+                <div class="kpi-executive-progress">
+                    <div class="kpi-executive-progress-bar" style="width: 87%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 6: Conversión -->
+            <div class="kpi-executive-card kpi-conversion">
+                <div class="kpi-executive-header">
+                    <div class="kpi-executive-icon">
+                        <i class="fas fa-funnel-dollar"></i>
+                    </div>
+                    <div class="kpi-executive-trend up">
+                        <i class="fas fa-trending-up"></i>
+                        +6.8% conversión
+                    </div>
+                </div>
+                <div class="kpi-executive-value">18.4%</div>
+                <div class="kpi-executive-title">Tasa de Conversión</div>
+                <div class="kpi-executive-description">
+                    La tasa de conversión de leads a clientes ha mejorado al 18.4% con un incremento 
+                    del 6.8% gracias a la optimización del proceso de ventas.
+                </div>
+                <div class="kpi-executive-progress">
+                    <div class="kpi-executive-progress-bar" style="width: 73%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // =============================================================================
+    // DASHBOARD ERP13 ENTERPRISE - JAVASCRIPT CONTROLLER
+    // Arquitectura: Vanilla JS + Event-driven + Performance optimizado
+    // Integración: app/modules/dashboard/routes.py blueprint
+    // =============================================================================
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 ERP13 Enterprise Dashboard - Inicializando...');
+        
+        // Inicializar contadores animados
+        initializeCounters();
+        
+        // Configurar chat IA
+        setupAIChat();
+        
+        // Activar animaciones progresivas
+        setTimeout(() => {
+            animateProgressBars();
+        }, 1000);
+        
+        console.log('✅ ERP13 Enterprise Dashboard - Cargado completamente');
+    });
+
+    // =============================================================================
+    // SISTEMA DE PESTAÑAS
+    // =============================================================================
+    
+    function switchTab(tabName) {
+        // Remover clases activas
+        document.querySelectorAll('.dashboard-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Activar pestaña seleccionada
+        event.target.classList.add('active');
+        
+        const tabContent = document.getElementById(tabName + '-tab');
+        if (tabContent) {
+            tabContent.classList.add('active');
+        }
+        
+        // Efectos específicos por pestaña
+        switch(tabName) {
+            case 'ai-assistant':
+                focusChatInput();
+                break;
+            case 'modules':
+                animateModuleCards();
+                break;
+            case 'kpis':
+                animateKPICards();
+                break;
+        }
+        
+        console.log(`📊 Pestaña activada: ${tabName}`);
+    }
+
+    // =============================================================================
+    // ASISTENTE IA - FUNCIONES
+    // =============================================================================
+    
+    function setupAIChat() {
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+    }
+    
+    function sendMessage() {
+        const chatInput = document.getElementById('chat-input');
+        const message = chatInput.value.trim();
+        
+        if (!message) return;
+        
+        console.log('💬 Enviando mensaje a IA:', message);
+        
+        // Simular respuesta de IA
+        showAIResponse(message);
+        
+        // Limpiar input
+        chatInput.value = '';
+        
+        // Actualizar métricas
+        updateAIMetrics();
+    }
+    
+    function showAIResponse(userMessage) {
+        const chatWelcome = document.getElementById('chat-welcome');
+        
+        // Crear contenedor de conversación
+        const conversationHTML = `
+            <div class="chat-conversation" style="text-align: left; max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
+                <div class="user-message" style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>Tú:</strong> ${userMessage}
+                </div>
+                <div class="ai-message" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>IA:</strong> ${generateAIResponse(userMessage)}
+                </div>
+            </div>
+        `;
+        
+        chatWelcome.innerHTML = conversationHTML;
+    }
+    
+    function generateAIResponse(message) {
+        // Simulación de respuestas contextuales de IA
+        const responses = {
+            'kpi': 'Basándome en los datos actuales del ERP13, los KPIs más críticos son: Ingresos (+12.5%), Satisfacción del Cliente (4.8/5), y Eficiencia Operacional (96.8%). ¿Te gustaría profundizar en alguno específicamente?',
+            'ventas': 'Las ventas este mes han alcanzado €245K con un crecimiento del 12.5%. El pipeline está sólido con 89 nuevos clientes y una tasa de conversión del 18.4%.',
+            'clientes': 'Tenemos 1,247 clientes activos con una retención del 94.2%. La satisfacción promedio es de 4.8/5 y hemos agregado 89 clientes nuevos este mes.',
+            'eficiencia': 'La eficiencia operacional está en 96.8% con una reducción del 5.1% en tiempos de procesamiento. Las auditorías muestran 98.3% de conformidad.',
+            'financiero': 'Situación financiera: €245K facturado, €38K pendiente de cobro, 94.8% efectividad de cobro, promedio de cobro 12 días.',
+            'productividad': 'Productividad: 847 tareas completadas (96.2%), tiempo promedio 2.4h/tarea, 23 usuarios activos, mejora continua en procesos.'
+        };
+        
+        const lowerMessage = message.toLowerCase();
+        
+        for (const [key, response] of Object.entries(responses)) {
+            if (lowerMessage.includes(key)) {
+                return response;
+            }
+        }
+        
+        return 'He analizado tu consulta en el sistema ERP13. Los datos actuales muestran un rendimiento sólido en todas las áreas. ¿Hay algún módulo específico sobre el que quieras más detalles? Puedo ayudarte con clientes, facturación, auditorías, o productividad.';
+    }
+    
+    function updateAIMetrics() {
+        // Incrementar conversaciones
+        const conversationsEl = document.getElementById('ai-conversations');
+        if (conversationsEl) {
+            const current = parseInt(conversationsEl.textContent) || 0;
+            conversationsEl.textContent = current + 1;
+        }
+        
+        // Simular mejora en precisión
+        const accuracyEl = document.getElementById('ai-accuracy');
+        if (accuracyEl) {
+            const accuracy = Math.min(99, Math.floor(Math.random() * 2) + 96);
+            accuracyEl.textContent = accuracy + '%';
+        }
+    }
+    
+    function focusChatInput() {
+        setTimeout(() => {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.focus();
+            }
+        }, 300);
+    }
+
+    // =============================================================================
+    // NAVEGACIÓN A MÓDULOS (INTEGRACIÓN CON BLUEPRINTS)
+    // =============================================================================
+    
+    function navigateToClients() {
+        console.log('📋 Navegando a app/modules/clientes/...');
+        showNotification('Cargando módulo de Gestión de Clientes...', 'info');
+        // window.location.href = '/clientes/gestion';
+    }
+    
+    function navigateToInvoices() {
+        console.log('🧾 Navegando a app/modules/facturacion/...');
+        showNotification('Cargando módulo de Facturación...', 'info');
+        // window.location.href = '/facturacion/dashboard';
+    }
+    
+    function navigateToAudits() {
+        console.log('🔍 Navegando a app/modules/auditoria/...');
+        showNotification('Cargando módulo de Auditorías...', 'info');
+        // window.location.href = '/auditoria/panel';
+    }
+    
+    function navigateToTasks() {
+        console.log('✅ Navegando a app/modules/production/...');
+        showNotification('Cargando módulo de Productividad...', 'info');
+        // window.location.href = '/production/tasks';
+    }
+
+    // =============================================================================
+    // GENERACIÓN DE REPORTES
+    // =============================================================================
+    
+    function generateClientReport() {
+        console.log('📊 Generando reporte de clientes...');
+        showNotification('Generando reporte de clientes...', 'success');
+        setTimeout(() => {
+            showNotification('✅ Reporte de clientes generado', 'success');
+        }, 2000);
+    }
+    
+    function generateInvoiceReport() {
+        console.log('📈 Generando reporte de facturación...');
+        showNotification('Generando reporte de facturación...', 'success');
+        setTimeout(() => {
+            showNotification('✅ Reporte de facturación generado', 'success');
+        }, 2000);
+    }
+    
+    function generateAuditReport() {
+        console.log('🔍 Generando reporte de auditorías...');
+        showNotification('Generando reporte de auditorías...', 'success');
+        setTimeout(() => {
+            showNotification('✅ Reporte de auditorías generado', 'success');
+        }, 2000);
+    }
+    
+    function generateProductivityReport() {
+        console.log('⚡ Generando reporte de productividad...');
+        showNotification('Generando reporte de productividad...', 'success');
+        setTimeout(() => {
+            showNotification('✅ Reporte de productividad generado', 'success');
+        }, 2000);
+    }
+
+    // =============================================================================
+    // ANIMACIONES Y EFECTOS VISUALES
+    // =============================================================================
+    
+    function initializeCounters() {
+        // Animar contadores del header
+        animateCounter('active-users', 23, 500);
+        animateCounter('daily-transactions', 1200, 1000, 'K');
+        animateCounter('system-health', 99.8, 800, '%');
+        
+        // Animar métricas de AI
+        animateCounter('ai-conversations', 147, 1200);
+        animateCounter('ai-accuracy', 96, 900, '%');
+    }
+    
+    function animateCounter(elementId, finalValue, duration, suffix = '') {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const startValue = 0;
+        const increment = finalValue / (duration / 16);
+        let currentValue = startValue;
+        
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                currentValue = finalValue;
+                clearInterval(timer);
+            }
+            
+            const displayValue = suffix === 'K' ? 
+                (currentValue / 1000).toFixed(1) + 'K' :
+                suffix === '%' ? 
+                currentValue.toFixed(1) + '%' :
+                Math.floor(currentValue);
+                
+            element.textContent = displayValue;
+        }, 16);
+    }
+    
+    function animateProgressBars() {
+        const progressBars = document.querySelectorAll('.kpi-executive-progress-bar');
+        progressBars.forEach((bar, index) => {
+            setTimeout(() => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            }, index * 200);
+        });
+    }
+    
+    function animateModuleCards() {
+        const cards = document.querySelectorAll('.module-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.4s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }
+    
+    function animateKPICards() {
+        const cards = document.querySelectorAll('.kpi-executive-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.4s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            }, index * 150);
+        });
+    }
+
+    // =============================================================================
+    // SISTEMA DE NOTIFICACIONES
+    // =============================================================================
+    
+    function showNotification(message, type = 'info') {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 300px;
+            font-weight: 500;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Mostrar notificación
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Ocultar notificación
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // =============================================================================
+    // EVENTOS GLOBALES Y UTILIDADES
+    // =============================================================================
+    
+    // Actualizar métricas cada 30 segundos
+    setInterval(() => {
+        updateRealTimeMetrics();
+    }, 30000);
+    
+    function updateRealTimeMetrics() {
+        // Simular actualizaciones en tiempo real
+        const elements = [
+            { id: 'active-users', variance: 2 },
+            { id: 'daily-transactions', variance: 50 },
+            { id: 'system-health', variance: 0.1 }
+        ];
+        
+        elements.forEach(item => {
+            const element = document.getElementById(item.id);
+            if (element) {
+                const currentValue = parseFloat(element.textContent);
+                const change = (Math.random() - 0.5) * item.variance;
+                const newValue = Math.max(0, currentValue + change);
+                
+                if (item.id === 'daily-transactions') {
+                    element.textContent = (newValue / 1000).toFixed(1) + 'K';
+                } else if (item.id === 'system-health') {
+                    element.textContent = newValue.toFixed(1) + '%';
+                } else {
+                    element.textContent = Math.floor(newValue);
+                }
+            }
+        });
+    }
+    
+    // Manejo de errores globales
+    window.addEventListener('error', function(e) {
+        console.error('🚨 Error en Dashboard ERP13:', e.error);
+        showNotification('Error interno del sistema', 'error');
+    });
+    
+    console.log('🎯 Dashboard ERP13 Enterprise - Sistema completamente inicializado');
+</script>
+{% endblock %}

@@ -1,0 +1,1661 @@
+{% extends "layout.html" %}
+
+{% block title %}Configuración Facturación - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================================================
+   CONFIGURACIÓN FACTURACIÓN - ERP13 ENTERPRISE
+   📁 Ruta: /app/templates/configuracion/configuracion_facturacion.html
+   🏗️ Propósito: Administración completa del módulo facturación
+   ⚡ Performance: CSS Grid + Flexbox + Auto-save + Cache Redis
+   🔒 Seguridad: Super-admin roles + API keys management + Validación real-time
+============================================================================ */
+
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --accent-purple: #8b5cf6;
+    --config-bg: #fafbfc;
+}
+
+body {
+    background: linear-gradient(135deg, var(--config-bg) 0%, #f0f2f5 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ========== HEADER PRINCIPAL ========== */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-section {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #1e40af 100%);
+    color: white;
+    padding: 2rem 0;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.header-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>') repeat;
+    opacity: 0.3;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.title-icon {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.75rem;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+.page-subtitle {
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    margin-left: auto;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-outline-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-light {
+    background: white;
+    color: var(--primary-blue);
+    border: 2px solid transparent;
+}
+
+.btn-light:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+/* ========== ÁREA DE CONTENIDO ========== */
+.content-area {
+    flex: 1;
+    padding: 2rem;
+}
+
+/* ========== NAVEGACIÓN POR TABS ========== */
+.config-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 16px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.config-tab {
+    padding: 1rem 1.5rem;
+    border: none;
+    background: transparent;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.config-tab:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-blue);
+}
+
+.config-tab.active {
+    background: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* ========== CONTENIDO DE TABS ========== */
+.config-tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.config-tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.config-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.config-header {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.config-header h4 {
+    color: var(--dark-gray);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.config-header p {
+    color: #6b7280;
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* ========== GRIDS Y LAYOUTS ========== */
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.config-field {
+    margin-bottom: 1.5rem;
+}
+
+.config-field label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.config-field input,
+.config-field select,
+.config-field textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.config-field input:focus,
+.config-field select:focus,
+.config-field textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+
+/* ========== MÉTODOS DE PAGO ========== */
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.payment-method-card {
+    background: #f8fafc;
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.payment-method-card:hover {
+    border-color: var(--primary-blue);
+    background: white;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+}
+
+.payment-method-card.active {
+    border-color: var(--success-green);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.payment-method-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.payment-method-icon {
+    font-size: 2rem;
+    color: var(--primary-blue);
+}
+
+.payment-method-card.active .payment-method-icon {
+    color: var(--success-green);
+}
+
+.payment-method-title {
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.payment-method-description {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ========== PLANTILLAS ========== */
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.template-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-blue);
+}
+
+.template-header {
+    background: var(--light-gray);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.template-header h6 {
+    margin: 0;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.template-body {
+    padding: 1.5rem;
+}
+
+.template-preview {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-blue);
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.template-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.template-actions .btn {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    justify-content: center;
+    padding: 0.625rem 1rem;
+    font-size: 0.8rem;
+}
+
+/* ========== INDICADOR DE GUARDADO ========== */
+.save-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--success-green);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.save-indicator.show {
+    transform: translateX(0);
+}
+
+.save-indicator.error {
+    background: var(--danger-red);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* ========== BOTONES ESPECIALES ========== */
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+    border: 2px solid var(--primary-blue);
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+    border: 2px solid var(--success-green);
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--dark-gray);
+    border: 2px solid var(--border-color);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--dark-gray);
+    color: white;
+}
+
+/* ========== SWITCH TOGGLE ========== */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--success-green);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1024px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-methods-grid,
+    .templates-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .header-section {
+        padding: 1rem;
+    }
+
+    .content-area {
+        padding: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .config-tabs {
+        flex-wrap: wrap;
+    }
+
+    .config-tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        min-width: 100px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .config-section {
+        padding: 1rem;
+    }
+
+    .config-header {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .save-indicator {
+        right: 1rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- ========== ENCABEZADO REFINADO ========== -->
+    <div class="header-section">
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title">
+                        <div class="title-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        Configuración Facturación
+                    </h1>
+                    <p class="page-subtitle">
+                        Gestiona todos los aspectos del módulo de facturación
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-light" onclick="exportConfiguration()">
+                        <i class="fas fa-download"></i>
+                        Exportar Config
+                    </button>
+                    <button class="btn btn-light" onclick="saveAllConfiguration()">
+                        <i class="fas fa-save"></i>
+                        Guardar Todo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ÁREA DE CONTENIDO ========== -->
+    <div class="content-area">
+        <div class="container">
+            <!-- ========== NAVEGACIÓN POR TABS ========== -->
+            <div class="config-tabs">
+                <button class="config-tab active" onclick="switchTab('general')">
+                    <i class="fas fa-cog"></i>
+                    General
+                </button>
+                <button class="config-tab" onclick="switchTab('metodos-pago')">
+                    <i class="fas fa-credit-card"></i>
+                    Métodos de Pago
+                </button>
+                <button class="config-tab" onclick="switchTab('plantillas')">
+                    <i class="fas fa-file-invoice"></i>
+                    Plantillas
+                </button>
+                <button class="config-tab" onclick="switchTab('integracion')">
+                    <i class="fas fa-link"></i>
+                    Integración
+                </button>
+                <button class="config-tab" onclick="switchTab('automatizacion')">
+                    <i class="fas fa-robot"></i>
+                    Automatización
+                </button>
+            </div>
+
+            <!-- ========== TAB: CONFIGURACIÓN GENERAL ========== -->
+            <div id="tab-general" class="config-tab-content active">
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>⚙️ Configuración General</h4>
+                        <p>Parámetros básicos del sistema de facturación</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="serie_facturacion">Serie de Facturación</label>
+                            <input type="text" id="serie_facturacion" name="serie_facturacion" 
+                                   data-module="billing" data-key="invoice_series"
+                                   value="FAC" placeholder="FAC, FACT, INV...">
+                        </div>
+                        <div class="config-field">
+                            <label for="numeracion_inicial">Numeración Inicial</label>
+                            <input type="number" id="numeracion_inicial" name="numeracion_inicial"
+                                   data-module="billing" data-key="initial_numbering"
+                                   value="1" min="1" placeholder="1">
+                        </div>
+                        <div class="config-field">
+                            <label for="iva_por_defecto">IVA por Defecto (%)</label>
+                            <select id="iva_por_defecto" name="iva_por_defecto" 
+                                    data-module="billing" data-key="default_vat">
+                                <option value="21" selected>21% - IVA General</option>
+                                <option value="10">10% - IVA Reducido</option>
+                                <option value="4">4% - IVA Súper Reducido</option>
+                                <option value="0">0% - Exento</option>
+                            </select>
+                        </div>
+                        <div class="config-field">
+                            <label for="retencion_irpf">Retención IRPF (%)</label>
+                            <input type="number" id="retencion_irpf" name="retencion_irpf"
+                                   data-module="billing" data-key="irpf_retention"
+                                   value="15" min="0" max="47" step="0.01" placeholder="15">
+                        </div>
+                        <div class="config-field">
+                            <label for="moneda_defecto">Moneda por Defecto</label>
+                            <select id="moneda_defecto" name="moneda_defecto"
+                                    data-module="billing" data-key="default_currency">
+                                <option value="EUR" selected>EUR - Euro</option>
+                                <option value="USD">USD - Dólar Americano</option>
+                                <option value="GBP">GBP - Libra Esterlina</option>
+                                <option value="CHF">CHF - Franco Suizo</option>
+                            </select>
+                        </div>
+                        <div class="config-field">
+                            <label for="dias_vencimiento">Días de Vencimiento</label>
+                            <input type="number" id="dias_vencimiento" name="dias_vencimiento"
+                                   data-module="billing" data-key="due_days"
+                                   value="30" min="1" placeholder="30">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos de la Empresa -->
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>🏢 Datos de la Empresa</h4>
+                        <p>Información que aparecerá en las facturas</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="nombre_empresa">Nombre de la Empresa</label>
+                            <input type="text" id="nombre_empresa" name="nombre_empresa"
+                                   data-module="billing" data-key="company_name"
+                                   placeholder="Tu Empresa S.L.">
+                        </div>
+                        <div class="config-field">
+                            <label for="cif_empresa">CIF/NIF</label>
+                            <input type="text" id="cif_empresa" name="cif_empresa"
+                                   data-module="billing" data-key="company_tax_id"
+                                   placeholder="B12345678">
+                        </div>
+                        <div class="config-field">
+                            <label for="direccion_empresa">Dirección</label>
+                            <textarea id="direccion_empresa" name="direccion_empresa"
+                                      data-module="billing" data-key="company_address"
+                                      rows="3" placeholder="Calle Principal, 123&#10;28001 Madrid&#10;España"></textarea>
+                        </div>
+                        <div class="config-field">
+                            <label for="telefono_empresa">Teléfono</label>
+                            <input type="tel" id="telefono_empresa" name="telefono_empresa"
+                                   data-module="billing" data-key="company_phone"
+                                   placeholder="+34 912 345 678">
+                        </div>
+                        <div class="config-field">
+                            <label for="email_empresa">Email</label>
+                            <input type="email" id="email_empresa" name="email_empresa"
+                                   data-module="billing" data-key="company_email"
+                                   placeholder="facturacion@tuempresa.com">
+                        </div>
+                        <div class="config-field">
+                            <label for="web_empresa">Sitio Web</label>
+                            <input type="url" id="web_empresa" name="web_empresa"
+                                   data-module="billing" data-key="company_website"
+                                   placeholder="https://www.tuempresa.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos Bancarios -->
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>🏦 Datos Bancarios</h4>
+                        <p>Información bancaria para pagos</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="banco_nombre">Banco</label>
+                            <input type="text" id="banco_nombre" name="banco_nombre"
+                                   data-module="billing" data-key="bank_name"
+                                   placeholder="Banco Santander">
+                        </div>
+                        <div class="config-field">
+                            <label for="banco_iban">IBAN</label>
+                            <input type="text" id="banco_iban" name="banco_iban"
+                                   data-module="billing" data-key="bank_iban"
+                                   placeholder="ES91 2100 0418 4502 0005 1332">
+                        </div>
+                        <div class="config-field">
+                            <label for="banco_swift">BIC/SWIFT</label>
+                            <input type="text" id="banco_swift" name="banco_swift"
+                                   data-module="billing" data-key="bank_swift"
+                                   placeholder="CAIXESBBXXX">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: MÉTODOS DE PAGO ========== -->
+            <div id="tab-metodos-pago" class="config-tab-content">
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>💳 Métodos de Pago</h4>
+                        <p>Configura los métodos de pago disponibles</p>
+                    </div>
+                    
+                    <div class="payment-methods-grid">
+                        <!-- Transferencia Bancaria -->
+                        <div class="payment-method-card active" data-method="bank_transfer">
+                            <div class="payment-method-header">
+                                <div class="payment-method-icon">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div>
+                                    <h6 class="payment-method-title">Transferencia Bancaria</h6>
+                                    <p class="payment-method-description">Pago tradicional por transferencia</p>
+                                </div>
+                            </div>
+                            <div class="config-field">
+                                <label>
+                                    <input type="checkbox" checked data-method="bank_transfer" data-key="enabled"> 
+                                    Activado
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta de Crédito -->
+                        <div class="payment-method-card" data-method="credit_card">
+                            <div class="payment-method-header">
+                                <div class="payment-method-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div>
+                                    <h6 class="payment-method-title">Tarjeta de Crédito</h6>
+                                    <p class="payment-method-description">Visa, Mastercard, American Express</p>
+                                </div>
+                            </div>
+                            <div class="config-field">
+                                <label>
+                                    <input type="checkbox" data-method="credit_card" data-key="enabled"> 
+                                    Activado
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PayPal -->
+                        <div class="payment-method-card" data-method="paypal">
+                            <div class="payment-method-header">
+                                <div class="payment-method-icon">
+                                    <i class="fab fa-paypal"></i>
+                                </div>
+                                <div>
+                                    <h6 class="payment-method-title">PayPal</h6>
+                                    <p class="payment-method-description">Pagos seguros con PayPal</p>
+                                </div>
+                            </div>
+                            <div class="config-field">
+                                <label>
+                                    <input type="checkbox" data-method="paypal" data-key="enabled"> 
+                                    Activado
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Bizum -->
+                        <div class="payment-method-card" data-method="bizum">
+                            <div class="payment-method-header">
+                                <div class="payment-method-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div>
+                                    <h6 class="payment-method-title">Bizum</h6>
+                                    <p class="payment-method-description">Pagos instantáneos móviles</p>
+                                </div>
+                            </div>
+                            <div class="config-field">
+                                <label>
+                                    <input type="checkbox" data-method="bizum" data-key="enabled"> 
+                                    Activado
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Cheque -->
+                        <div class="payment-method-card" data-method="check">
+                            <div class="payment-method-header">
+                                <div class="payment-method-icon">
+                                    <i class="fas fa-money-check"></i>
+                                </div>
+                                <div>
+                                    <h6 class="payment-method-title">Cheque</h6>
+                                    <p class="payment-method-description">Pago mediante cheque bancario</p>
+                                </div>
+                            </div>
+                            <div class="config-field">
+                                <label>
+                                    <input type="checkbox" data-method="check" data-key="enabled"> 
+                                    Activado
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Efectivo -->
+                        <div class="payment-method-card" data-method="cash">
+                            <div class="payment-method-header">
+                                <div class="payment-method-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div>
+                                    <h6 class="payment-method-title">Efectivo</h6>
+                                    <p class="payment-method-description">Pago en metálico</p>
+                                </div>
+                            </div>
+                            <div class="config-field">
+                                <label>
+                                    <input type="checkbox" data-method="cash" data-key="enabled"> 
+                                    Activado
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: PLANTILLAS ========== -->
+            <div id="tab-plantillas" class="config-tab-content">
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>📄 Plantillas de Facturación</h4>
+                        <p>Personaliza el diseño de tus facturas y documentos</p>
+                    </div>
+                    
+                    <div class="templates-grid">
+                        <!-- Plantilla Clásica -->
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h6>Plantilla Clásica</h6>
+                            </div>
+                            <div class="template-body">
+                                <div class="template-preview">
+                                    <i class="fas fa-file-invoice fa-3x"></i>
+                                </div>
+                                <div class="template-actions">
+                                    <button class="btn btn-outline-primary" 
+                                            onclick="editTemplate('classic')">
+                                        <i class="fas fa-edit"></i>
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-success" 
+                                            onclick="setDefaultTemplate('classic')">
+                                        <i class="fas fa-check"></i>
+                                        Por Defecto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plantilla Moderna -->
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h6>Plantilla Moderna</h6>
+                            </div>
+                            <div class="template-body">
+                                <div class="template-preview">
+                                    <i class="fas fa-file-alt fa-3x"></i>
+                                </div>
+                                <div class="template-actions">
+                                    <button class="btn btn-outline-primary" 
+                                            onclick="editTemplate('modern')">
+                                        <i class="fas fa-edit"></i>
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-outline-secondary" 
+                                            onclick="setDefaultTemplate('modern')">
+                                        Usar por Defecto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plantilla Minimalista -->
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h6>Plantilla Minimalista</h6>
+                            </div>
+                            <div class="template-body">
+                                <div class="template-preview">
+                                    <i class="fas fa-file-contract fa-3x"></i>
+                                </div>
+                                <div class="template-actions">
+                                    <button class="btn btn-outline-primary" 
+                                            onclick="editTemplate('minimal')">
+                                        <i class="fas fa-edit"></i>
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-outline-secondary" 
+                                            onclick="setDefaultTemplate('minimal')">
+                                        Usar por Defecto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plantilla Personalizada -->
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h6>Plantilla Personalizada</h6>
+                            </div>
+                            <div class="template-body">
+                                <div class="template-preview">
+                                    <i class="fas fa-plus fa-3x" style="color: #ccc;"></i>
+                                </div>
+                                <div class="template-actions">
+                                    <button class="btn btn-primary" 
+                                            onclick="createNewTemplate()">
+                                        <i class="fas fa-plus"></i>
+                                        Crear Nueva
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <button class="btn btn-outline-primary" onclick="importTemplate()">
+                            <i class="fas fa-upload"></i>
+                            Importar Plantilla
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="exportTemplates()">
+                            <i class="fas fa-download"></i>
+                            Exportar Plantillas
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: INTEGRACIÓN ========== -->
+            <div id="tab-integracion" class="config-tab-content">
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>🔗 Integración con Sistemas Externos</h4>
+                        <p>Conecta el módulo de facturación con otros sistemas</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="auto_send_invoices">Envío Automático de Facturas</label>
+                            <select id="auto_send_invoices" name="auto_send_invoices" 
+                                    data-module="billing" data-key="auto_send_invoices">
+                                <option value="disabled" selected>Desactivado</option>
+                                <option value="immediate">Inmediato al crear</option>
+                                <option value="daily">Envío diario</option>
+                                <option value="weekly">Envío semanal</option>
+                            </select>
+                        </div>
+                        <div class="config-field">
+                            <label for="email_template">Plantilla de Email</label>
+                            <select id="email_template" name="email_template"
+                                    data-module="billing" data-key="email_template">
+                                <option value="default" selected>Plantilla por defecto</option>
+                                <option value="formal">Formal empresarial</option>
+                                <option value="friendly">Amigable</option>
+                                <option value="minimal">Minimalista</option>
+                            </select>
+                        </div>
+                        <div class="config-field">
+                            <label for="backup_enabled">Backup Automático</label>
+                            <label class="switch">
+                                <input type="checkbox" id="backup_enabled" 
+                                       data-module="billing" data-key="backup_enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="backup_frequency">Frecuencia de Backup</label>
+                            <select id="backup_frequency" name="backup_frequency"
+                                    data-module="billing" data-key="backup_frequency">
+                                <option value="daily" selected>Diario</option>
+                                <option value="weekly">Semanal</option>
+                                <option value="monthly">Mensual</option>
+                            </select>
+                        </div>
+                        <div class="config-field">
+                            <label for="api_integration">Integración API</label>
+                            <label class="switch">
+                                <input type="checkbox" id="api_integration" 
+                                       data-module="billing" data-key="api_integration">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="webhook_url">URL Webhook</label>
+                            <input type="url" id="webhook_url" name="webhook_url"
+                                   data-module="billing" data-key="webhook_url"
+                                   placeholder="https://tu-sistema.com/webhook">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de APIs Externas -->
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>🔌 APIs Externas</h4>
+                        <p>Configuración de servicios de terceros</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="stripe_public_key">Stripe - Clave Pública</label>
+                            <input type="text" id="stripe_public_key" name="stripe_public_key"
+                                   data-module="billing" data-key="stripe_public_key"
+                                   placeholder="pk_live_...">
+                        </div>
+                        <div class="config-field">
+                            <label for="stripe_secret_key">Stripe - Clave Secreta</label>
+                            <input type="password" id="stripe_secret_key" name="stripe_secret_key"
+                                   data-module="billing" data-key="stripe_secret_key"
+                                   placeholder="sk_live_...">
+                        </div>
+                        <div class="config-field">
+                            <label for="paypal_client_id">PayPal - Client ID</label>
+                            <input type="text" id="paypal_client_id" name="paypal_client_id"
+                                   data-module="billing" data-key="paypal_client_id"
+                                   placeholder="AYsyGQUBBWtJKFXnREBV...">
+                        </div>
+                        <div class="config-field">
+                            <label for="paypal_client_secret">PayPal - Client Secret</label>
+                            <input type="password" id="paypal_client_secret" name="paypal_client_secret"
+                                   data-module="billing" data-key="paypal_client_secret"
+                                   placeholder="ELpnvAYnHHbNMfQNyDz...">
+                        </div>
+                        <div class="config-field">
+                            <label for="mailchimp_api_key">Mailchimp - API Key</label>
+                            <input type="password" id="mailchimp_api_key" name="mailchimp_api_key"
+                                   data-module="billing" data-key="mailchimp_api_key"
+                                   placeholder="your-api-key">
+                        </div>
+                        <div class="config-field">
+                            <label for="google_analytics_id">Google Analytics ID</label>
+                            <input type="text" id="google_analytics_id" name="google_analytics_id"
+                                   data-module="billing" data-key="google_analytics_id"
+                                   placeholder="GA-XXXXXXXXX-X">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB: AUTOMATIZACIÓN ========== -->
+            <div id="tab-automatizacion" class="config-tab-content">
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>🤖 Automatización y Workflows</h4>
+                        <p>Configura procesos automatizados para la facturación</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="auto_numbering">Numeración Automática</label>
+                            <label class="switch">
+                                <input type="checkbox" id="auto_numbering" 
+                                       data-module="billing" data-key="auto_numbering" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="auto_tax_calculation">Cálculo Automático de Impuestos</label>
+                            <label class="switch">
+                                <input type="checkbox" id="auto_tax_calculation" 
+                                       data-module="billing" data-key="auto_tax_calculation" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="late_payment_reminders">Recordatorios de Pago</label>
+                            <label class="switch">
+                                <input type="checkbox" id="late_payment_reminders" 
+                                       data-module="billing" data-key="late_payment_reminders" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="reminder_days">Días para Recordatorio</label>
+                            <input type="number" id="reminder_days" name="reminder_days"
+                                   data-module="billing" data-key="reminder_days"
+                                   value="7" min="1" placeholder="7">
+                        </div>
+                        <div class="config-field">
+                            <label for="auto_archive">Archivado Automático</label>
+                            <label class="switch">
+                                <input type="checkbox" id="auto_archive" 
+                                       data-module="billing" data-key="auto_archive">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="archive_after_days">Archivar después de (días)</label>
+                            <input type="number" id="archive_after_days" name="archive_after_days"
+                                   data-module="billing" data-key="archive_after_days"
+                                   value="365" min="30" placeholder="365">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notificaciones -->
+                <div class="config-section">
+                    <div class="config-header">
+                        <h4>🔔 Notificaciones</h4>
+                        <p>Configura las notificaciones del sistema</p>
+                    </div>
+                    
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label for="email_notifications">Notificaciones por Email</label>
+                            <label class="switch">
+                                <input type="checkbox" id="email_notifications" 
+                                       data-module="billing" data-key="email_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="sms_notifications">Notificaciones por SMS</label>
+                            <label class="switch">
+                                <input type="checkbox" id="sms_notifications" 
+                                       data-module="billing" data-key="sms_notifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="push_notifications">Notificaciones Push</label>
+                            <label class="switch">
+                                <input type="checkbox" id="push_notifications" 
+                                       data-module="billing" data-key="push_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="notification_email">Email para Notificaciones</label>
+                            <input type="email" id="notification_email" name="notification_email"
+                                   data-module="billing" data-key="notification_email"
+                                   placeholder="admin@tuempresa.com">
+                        </div>
+                        <div class="config-field">
+                            <label for="notification_sms">Teléfono para SMS</label>
+                            <input type="tel" id="notification_sms" name="notification_sms"
+                                   data-module="billing" data-key="notification_sms"
+                                   placeholder="+34 612 345 678">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== INDICADOR DE GUARDADO ========== -->
+<div id="save-indicator" class="save-indicator">
+    <i class="fas fa-check"></i>
+    Guardado automáticamente
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ============================================================================
+   CONFIGURACIÓN FACTURACIÓN - JAVASCRIPT
+   🏗️ Propósito: Auto-save + Validación + UX + API calls
+   ⚡ Performance: Debounced saving + LocalStorage cache
+   🔒 Seguridad: CSRF tokens + Input sanitization
+============================================================================ */
+
+// Estado global de la configuración
+let configurationState = {};
+let saveTimeout = null;
+let isDirty = false;
+
+// ========== INICIALIZACIÓN ========== 
+document.addEventListener('DOMContentLoaded', function() {
+    initializeConfiguration();
+    setupEventListeners();
+    loadConfigurationData();
+});
+
+// ========== GESTIÓN DE TABS ========== 
+function switchTab(tabName) {
+    // Ocultar todos los tabs
+    const tabs = document.querySelectorAll('.config-tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    const tabButtons = document.querySelectorAll('.config-tab');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    
+    // Mostrar el tab seleccionado
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    event.target.classList.add('active');
+    
+    // Guardar el tab activo en localStorage
+    localStorage.setItem('activeConfigTab', tabName);
+}
+
+// ========== INICIALIZACIÓN DE CONFIGURACIÓN ========== 
+function initializeConfiguration() {
+    // Restaurar tab activo
+    const activeTab = localStorage.getItem('activeConfigTab') || 'general';
+    switchTab(activeTab);
+    
+    // Configurar auto-save para todos los campos
+    const configFields = document.querySelectorAll('[data-module][data-key]');
+    configFields.forEach(field => {
+        field.addEventListener('input', debounceAutoSave);
+        field.addEventListener('change', debounceAutoSave);
+    });
+    
+    // Configurar métodos de pago
+    setupPaymentMethods();
+}
+
+// ========== EVENT LISTENERS ========== 
+function setupEventListeners() {
+    // Listeners para métodos de pago
+    const paymentCards = document.querySelectorAll('.payment-method-card');
+    paymentCards.forEach(card => {
+        card.addEventListener('click', function() {
+            togglePaymentMethod(this);
+        });
+    });
+    
+    // Listeners para checkboxes de métodos de pago
+    const paymentCheckboxes = document.querySelectorAll('[data-method]');
+    paymentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function(e) {
+            e.stopPropagation();
+            updatePaymentMethodStatus(this);
+        });
+    });
+}
+
+// ========== MÉTODOS DE PAGO ========== 
+function setupPaymentMethods() {
+    const paymentCards = document.querySelectorAll('.payment-method-card');
+    paymentCards.forEach(card => {
+        const checkbox = card.querySelector('input[type="checkbox"]');
+        if (checkbox && checkbox.checked) {
+            card.classList.add('active');
+        }
+    });
+}
+
+function togglePaymentMethod(card) {
+    const checkbox = card.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        updatePaymentMethodStatus(checkbox);
+    }
+}
+
+function updatePaymentMethodStatus(checkbox) {
+    const card = checkbox.closest('.payment-method-card');
+    const method = checkbox.getAttribute('data-method');
+    
+    if (checkbox.checked) {
+        card.classList.add('active');
+    } else {
+        card.classList.remove('active');
+    }
+    
+    // Guardar estado
+    savePaymentMethodConfig(method, checkbox.checked);
+}
+
+// ========== AUTO-SAVE FUNCTIONALITY ========== 
+function debounceAutoSave() {
+    isDirty = true;
+    
+    // Limpiar timeout anterior
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+    }
+    
+    // Programar guardado en 1 segundo
+    saveTimeout = setTimeout(() => {
+        autoSaveConfiguration();
+    }, 1000);
+}
+
+function autoSaveConfiguration() {
+    const formData = {};
+    const configFields = document.querySelectorAll('[data-module][data-key]');
+    
+    configFields.forEach(field => {
+        const module = field.getAttribute('data-module');
+        const key = field.getAttribute('data-key');
+        let value = field.value;
+        
+        // Manejar checkboxes
+        if (field.type === 'checkbox') {
+            value = field.checked;
+        }
+        
+        if (!formData[module]) {
+            formData[module] = {};
+        }
+        formData[module][key] = value;
+    });
+    
+    // Enviar datos al servidor
+    fetch('/api/configuration/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSaveIndicator('success');
+            isDirty = false;
+        } else {
+            showSaveIndicator('error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving configuration:', error);
+        showSaveIndicator('error');
+    });
+}
+
+// ========== SAVE INDICATOR ========== 
+function showSaveIndicator(type = 'success') {
+    const indicator = document.getElementById('save-indicator');
+    
+    // Resetear clases
+    indicator.classList.remove('show', 'error');
+    
+    if (type === 'error') {
+        indicator.classList.add('error');
+        indicator.innerHTML = '<i class="fas fa-times"></i> Error al guardar';
+    } else {
+        indicator.innerHTML = '<i class="fas fa-check"></i> Guardado automáticamente';
+    }
+    
+    // Mostrar indicador
+    indicator.classList.add('show');
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        indicator.classList.remove('show');
+    }, 3000);
+}
+
+// ========== FUNCIONES DE PLANTILLAS ========== 
+function editTemplate(templateName) {
+    // Abrir modal de edición de plantilla
+    console.log(`Editando plantilla: ${templateName}`);
+    // Aquí iría la lógica para abrir el editor de plantillas
+    alert(`Función de edición de plantilla "${templateName}" en desarrollo`);
+}
+
+function setDefaultTemplate(templateName) {
+    // Establecer plantilla por defecto
+    const formData = {
+        billing: {
+            default_template: templateName
+        }
+    };
+    
+    fetch('/api/configuration/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSaveIndicator('success');
+            // Actualizar visual
+            updateDefaultTemplateUI(templateName);
+        } else {
+            showSaveIndicator('error');
+        }
+    })
+    .catch(error => {
+        console.error('Error setting default template:', error);
+        showSaveIndicator('error');
+    });
+}
+
+function updateDefaultTemplateUI(templateName) {
+    // Resetear todos los botones
+    const buttons = document.querySelectorAll('.template-actions .btn-success');
+    buttons.forEach(btn => {
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-secondary');
+        btn.innerHTML = 'Usar por Defecto';
+    });
+    
+    // Marcar el nuevo por defecto
+    const activeButton = document.querySelector(`[onclick="setDefaultTemplate('${templateName}')"]`);
+    if (activeButton) {
+        activeButton.classList.remove('btn-outline-secondary');
+        activeButton.classList.add('btn-success');
+        activeButton.innerHTML = '<i class="fas fa-check"></i> Por Defecto';
+    }
+}
+
+function createNewTemplate() {
+    console.log('Creando nueva plantilla');
+    alert('Función de creación de plantilla en desarrollo');
+}
+
+function importTemplate() {
+    console.log('Importando plantilla');
+    alert('Función de importación de plantilla en desarrollo');
+}
+
+function exportTemplates() {
+    console.log('Exportando plantillas');
+    alert('Función de exportación de plantillas en desarrollo');
+}
+
+// ========== FUNCIONES DE HEADER ========== 
+function exportConfiguration() {
+    // Exportar toda la configuración
+    fetch('/api/configuration/export', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'configuracion_facturacion.json';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+        console.error('Error exporting configuration:', error);
+        alert('Error al exportar la configuración');
+    });
+}
+
+function saveAllConfiguration() {
+    // Forzar guardado inmediato
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+    }
+    autoSaveConfiguration();
+}
+
+// ========== FUNCIONES HELPER ========== 
+function getCSRFToken() {
+    // Obtener token CSRF del meta tag o cookie
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute('content') : '';
+}
+
+function loadConfigurationData() {
+    // Cargar configuración existente del servidor
+    fetch('/api/configuration/load', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            populateConfigurationFields(data.configuration);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading configuration:', error);
+    });
+}
+
+function populateConfigurationFields(config) {
+    // Rellenar campos con la configuración cargada
+    Object.keys(config).forEach(module => {
+        Object.keys(config[module]).forEach(key => {
+            const field = document.querySelector(`[data-module="${module}"][data-key="${key}"]`);
+            if (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = config[module][key];
+                } else {
+                    field.value = config[module][key];
+                }
+                
+                // Trigger events para actualizar UI
+                field.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+}
+
+function savePaymentMethodConfig(method, enabled) {
+    const formData = {
+        payment_methods: {
+            [method]: {
+                enabled: enabled
+            }
+        }
+    };
+    
+    fetch('/api/configuration/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSaveIndicator('success');
+        } else {
+            showSaveIndicator('error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving payment method:', error);
+        showSaveIndicator('error');
+    });
+}
+
+// ========== VALIDACIÓN BEFORE UNLOAD ========== 
+window.addEventListener('beforeunload', function(e) {
+    if (isDirty) {
+        const confirmationMessage = 'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?';
+        e.returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
+});
+
+// ========== KEYBOARD SHORTCUTS ========== 
+document.addEventListener('keydown', function(e) {
+    // Ctrl+S para guardar
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveAllConfiguration();
+    }
+    
+    // Ctrl+E para exportar
+    if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        exportConfiguration();
+    }
+});
+
+// ========== RESPONSIVE HELPERS ========== 
+function handleResponsiveChanges() {
+    // Manejar cambios responsive si es necesario
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Ajustes para móvil
+        document.body.classList.add('mobile-view');
+    } else {
+        document.body.classList.remove('mobile-view');
+    }
+}
+
+// Listener para cambios de viewport
+window.addEventListener('resize', debounce(handleResponsiveChanges, 250));
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Inicializar responsive
+handleResponsiveChanges();
+</script>
+{% endblock %}

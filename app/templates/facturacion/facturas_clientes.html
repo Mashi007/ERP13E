@@ -1,0 +1,855 @@
+{% extends "layout.html" %}
+
+{% block title %}Facturas Avanzadas - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =============================================================================
+       FACTURAS AVANZADAS - SISTEMA COMPLETO ESPAÑA
+       Arquitectura: erp13-enterprise/templates/facturacion/facturas_clientes.html
+       Normativa: VeriFacTu AEAT + FacturaE + Firma Digital
+       Servicios: Profesionales + Normas ISO
+    ============================================================================= */
+    
+    /* Header Principal */
+    .facturas-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .facturas-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        opacity: 0.2;
+    }
+    
+    .facturas-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .facturas-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0;
+        position: relative;
+    }
+    
+    .facturas-actions {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .header-btn {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .header-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .header-btn.primary {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Módulos de Facturas Avanzadas */
+    .facturas-modulos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .modulo-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .modulo-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .modulo-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--modulo-color);
+    }
+    
+    .modulo-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        background: var(--modulo-color);
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modulo-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modulo-description {
+        color: #64748b;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modulo-features {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modulo-features li {
+        padding: 0.5rem 0;
+        color: #374151;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .modulo-features li::before {
+        content: '✓';
+        color: var(--modulo-color);
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .modulo-btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--modulo-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    .modulo-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        filter: brightness(1.1);
+    }
+
+    /* Búsqueda y Filtros */
+    .search-filters {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .search-container {
+        position: relative;
+        max-width: 500px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 1.1rem;
+    }
+
+    /* Estado Vacío */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #64748b;
+    }
+    
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .empty-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .empty-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    /* KPIs Dashboard */
+    .kpis-facturas {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        background: var(--kpi-color);
+    }
+    
+    .kpi-trend {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+    
+    .kpi-trend.up {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .kpi-trend.down {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .kpi-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .facturas-actions {
+            position: static;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .facturas-title {
+            font-size: 1.8rem;
+        }
+        
+        .facturas-modulos {
+            grid-template-columns: 1fr;
+        }
+        
+        .kpis-facturas {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Colores Modulares */
+    .verifactu { --modulo-color: #10b981; }
+    .facturae { --modulo-color: #3b82f6; }
+    .conceptos { --modulo-color: #8b5cf6; }
+    
+    .kpi-emitidas { --kpi-color: #10b981; }
+    .kpi-pendientes { --kpi-color: #f59e0b; }
+    .kpi-cobradas { --kpi-color: #3b82f6; }
+    .kpi-vencidas { --kpi-color: #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Header Principal -->
+    <div class="facturas-header">
+        <h1 class="facturas-title">
+            <i class="fas fa-file-invoice" style="color: rgba(255,255,255,0.9);"></i>
+            Facturas Avanzadas
+        </h1>
+        <p class="facturas-subtitle">Sistema avanzado con VeriFacTu, FacturaE y conceptos múltiples</p>
+        <div class="facturas-actions">
+            <a href="/configuracion/facturacion" class="header-btn">
+                <i class="fas fa-cog"></i>
+                Configuración
+            </a>
+            <a href="/facturacion/clientes/nueva" class="header-btn primary">
+                <i class="fas fa-plus"></i>
+                Nueva Factura
+            </a>
+        </div>
+    </div>
+
+    <!-- KPIs Dashboard -->
+    <div class="kpis-facturas">
+        <div class="kpi-card kpi-emitidas">
+            <div class="kpi-header">
+                <div class="kpi-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="kpi-trend up">
+                    <i class="fas fa-arrow-up"></i> +15.2%
+                </div>
+            </div>
+            <div class="kpi-value" id="facturas-emitidas">42</div>
+            <div class="kpi-label">Facturas Emitidas (Mes)</div>
+        </div>
+        
+        <div class="kpi-card kpi-pendientes">
+            <div class="kpi-header">
+                <div class="kpi-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="kpi-trend down">
+                    <i class="fas fa-arrow-down"></i> -8.3%
+                </div>
+            </div>
+            <div class="kpi-value" id="facturas-pendientes">€12,450</div>
+            <div class="kpi-label">Pendientes Cobro</div>
+        </div>
+        
+        <div class="kpi-card kpi-cobradas">
+            <div class="kpi-header">
+                <div class="kpi-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="kpi-trend up">
+                    <i class="fas fa-arrow-up"></i> +12.7%
+                </div>
+            </div>
+            <div class="kpi-value" id="facturas-cobradas">€89,320</div>
+            <div class="kpi-label">Cobradas (Mes)</div>
+        </div>
+        
+        <div class="kpi-card kpi-vencidas">
+            <div class="kpi-header">
+                <div class="kpi-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="kpi-trend up">
+                    <i class="fas fa-arrow-up"></i> +3.1%
+                </div>
+            </div>
+            <div class="kpi-value" id="facturas-vencidas">3</div>
+            <div class="kpi-label">Facturas Vencidas</div>
+        </div>
+    </div>
+
+    <!-- Módulos de Facturas Avanzadas -->
+    <div class="facturas-modulos">
+        <!-- VeriFacTu -->
+        <div class="modulo-card verifactu">
+            <div class="modulo-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="modulo-title">VeriFacTu</h3>
+            <p class="modulo-description">Cumplimiento AEAT automático</p>
+            <ul class="modulo-features">
+                <li>Validación automática AEAT</li>
+                <li>Cumplimiento normativo España</li>
+                <li>Integración SII automática</li>
+                <li>Numeración correlativa segura</li>
+                <li>Backup automático registros</li>
+            </ul>
+            <button class="modulo-btn" onclick="navigateToVeriFacTu()">
+                Gestionar VeriFacTu
+            </button>
+        </div>
+
+        <!-- FacturaE -->
+        <div class="modulo-card facturae">
+            <div class="modulo-icon">
+                <i class="fas fa-digital-tachograph"></i>
+            </div>
+            <h3 class="modulo-title">FacturaE</h3>
+            <p class="modulo-description">Firma digital y validación</p>
+            <ul class="modulo-features">
+                <li>Firma digital certificada</li>
+                <li>Validación XML automática</li>
+                <li>Formato estándar UBL</li>
+                <li>Workflow aprobación</li>
+                <li>Integración proveedores firma</li>
+            </ul>
+            <button class="modulo-btn" onclick="navigateToFacturaE()">
+                Gestionar FacturaE
+            </button>
+        </div>
+
+        <!-- Conceptos Múltiples -->
+        <div class="modulo-card conceptos">
+            <div class="modulo-icon">
+                <i class="fas fa-list-alt"></i>
+            </div>
+            <h3 class="modulo-title">Conceptos Múltiples</h3>
+            <p class="modulo-description">Detalle completo por línea</p>
+            <ul class="modulo-features">
+                <li>Líneas detalle ilimitadas</li>
+                <li>Servicios profesionales ISO</li>
+                <li>Códigos contables automáticos</li>
+                <li>Descuentos por línea</li>
+                <li>Plantillas servicios</li>
+            </ul>
+            <button class="modulo-btn" onclick="navigateToConceptos()">
+                Gestionar Conceptos
+            </button>
+        </div>
+    </div>
+
+    <!-- Búsqueda y Filtros -->
+    <div class="search-filters">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" 
+                   id="search-facturas"
+                   placeholder="Buscar por número de factura o cliente...">
+        </div>
+    </div>
+
+    <!-- Estado Vacío (mostrar cuando no hay facturas) -->
+    <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-file-invoice"></i>
+        </div>
+        <h3 class="empty-title">No hay facturas</h3>
+        <p class="empty-subtitle">Empieza creando tu primera factura a clientes</p>
+        <button class="empty-btn" onclick="createNewInvoice()">
+            <i class="fas fa-plus me-2"></i>
+            Crear Primera Factura
+        </button>
+    </div>
+
+    <!-- Tabla de Facturas (se mostrará cuando haya datos) -->
+    <div class="facturas-table" id="facturas-table" style="display: none;">
+        <!-- La tabla se cargará dinámicamente -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // =============================================================================
+    // FACTURAS AVANZADAS - JAVASCRIPT CONTROLLER
+    // Sistema: VeriFacTu + FacturaE + Conceptos Múltiples
+    // Integración: Firma digital + Plan contable + KPIs
+    // =============================================================================
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🧾 Facturas Avanzadas - Inicializando sistema...');
+        
+        // Inicializar componentes
+        initializeKPIs();
+        setupSearch();
+        loadFacturas();
+        
+        console.log('✅ Facturas Avanzadas - Sistema cargado completamente');
+    });
+
+    // =============================================================================
+    // NAVEGACIÓN MÓDULOS
+    // =============================================================================
+    
+    function navigateToVeriFacTu() {
+        console.log('🛡️ Navegando a VeriFacTu...');
+        showNotification('Cargando módulo VeriFacTu - Cumplimiento AEAT', 'info');
+        // window.location.href = '/facturacion/clientes/verifactu';
+    }
+    
+    function navigateToFacturaE() {
+        console.log('🔐 Navegando a FacturaE...');
+        showNotification('Cargando módulo FacturaE - Firma Digital', 'info');
+        // window.location.href = '/facturacion/clientes/facturae';
+    }
+    
+    function navigateToConceptos() {
+        console.log('📋 Navegando a Conceptos Múltiples...');
+        showNotification('Cargando módulo Conceptos Múltiples', 'info');
+        // window.location.href = '/facturacion/clientes/conceptos';
+    }
+
+    // =============================================================================
+    // GESTIÓN FACTURAS
+    // =============================================================================
+    
+    function createNewInvoice() {
+        console.log('📄 Creando nueva factura...');
+        showNotification('Iniciando asistente nueva factura', 'info');
+        // window.location.href = '/facturacion/clientes/nueva';
+    }
+    
+    function loadFacturas() {
+        // Simular carga de facturas (implementar llamada a API)
+        const hasFacturas = false; // Cambiar según datos reales
+        
+        if (hasFacturas) {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('facturas-table').style.display = 'block';
+            loadFacturasTable();
+        } else {
+            document.getElementById('empty-state').style.display = 'block';
+            document.getElementById('facturas-table').style.display = 'none';
+        }
+    }
+    
+    function loadFacturasTable() {
+        // Implementar carga de tabla con facturas existentes
+        console.log('📊 Cargando tabla de facturas...');
+    }
+
+    // =============================================================================
+    // BÚSQUEDA Y FILTROS
+    // =============================================================================
+    
+    function setupSearch() {
+        const searchInput = document.getElementById('search-facturas');
+        
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            searchFacturas(query);
+        });
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = e.target.value.toLowerCase();
+                searchFacturas(query);
+            }
+        });
+    }
+    
+    function searchFacturas(query) {
+        console.log('🔍 Buscando facturas:', query);
+        
+        if (query.length > 2) {
+            // Implementar búsqueda real
+            showNotification(`Buscando: "${query}"`, 'info');
+        }
+    }
+
+    // =============================================================================
+    // KPIs Y MÉTRICAS
+    // =============================================================================
+    
+    function initializeKPIs() {
+        // Animar contadores KPI
+        animateCounter('facturas-emitidas', 42, 1000);
+        animateCounter('facturas-pendientes', 12450, 1200, '€');
+        animateCounter('facturas-cobradas', 89320, 1500, '€');
+        animateCounter('facturas-vencidas', 3, 800);
+        
+        // Actualizar cada 30 segundos
+        setInterval(updateKPIs, 30000);
+    }
+    
+    function animateCounter(elementId, finalValue, duration, prefix = '') {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const startValue = 0;
+        const increment = finalValue / (duration / 16);
+        let currentValue = startValue;
+        
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                currentValue = finalValue;
+                clearInterval(timer);
+            }
+            
+            let displayValue;
+            if (prefix === '€') {
+                displayValue = `€${Math.floor(currentValue).toLocaleString()}`;
+            } else {
+                displayValue = Math.floor(currentValue);
+            }
+            
+            element.textContent = displayValue;
+        }, 16);
+    }
+    
+    function updateKPIs() {
+        // Actualizar KPIs con datos reales desde API
+        console.log('📊 Actualizando KPIs...');
+        
+        // Simulación de variación pequeña
+        const elements = [
+            { id: 'facturas-emitidas', variance: 1 },
+            { id: 'facturas-pendientes', variance: 100, prefix: '€' },
+            { id: 'facturas-cobradas', variance: 500, prefix: '€' },
+            { id: 'facturas-vencidas', variance: 1 }
+        ];
+        
+        elements.forEach(item => {
+            const element = document.getElementById(item.id);
+            if (element) {
+                const currentValue = parseInt(element.textContent.replace(/[€,]/g, ''));
+                const change = Math.floor((Math.random() - 0.5) * item.variance);
+                const newValue = Math.max(0, currentValue + change);
+                
+                if (item.prefix === '€') {
+                    element.textContent = `€${newValue.toLocaleString()}`;
+                } else {
+                    element.textContent = newValue;
+                }
+            }
+        });
+    }
+
+    // =============================================================================
+    // WORKFLOW Y FIRMA DIGITAL
+    // =============================================================================
+    
+    function approveInvoice(invoiceId) {
+        console.log('✍️ Iniciando proceso aprobación con firma digital:', invoiceId);
+        showNotification('Iniciando proceso de firma digital...', 'info');
+        
+        // Implementar workflow aprobación
+        // 1. Verificar rol usuario
+        // 2. Mostrar modal firma digital
+        // 3. Procesar firma (certificado o proveedor)
+        // 4. Actualizar estado factura
+    }
+    
+    function processPayment(invoiceId) {
+        console.log('💰 Registrando pago factura:', invoiceId);
+        showNotification('Registrando pago de factura...', 'success');
+        
+        // Implementar registro pago
+        // 1. Verificar rol financiero
+        // 2. Mostrar modal registro pago
+        // 3. Actualizar estado a "Cobrada"
+        // 4. Generar asiento contable
+    }
+
+    // =============================================================================
+    // SUBMÓDULO CONTABLE
+    // =============================================================================
+    
+    function generateAccountingEntry(invoiceData) {
+        console.log('📚 Generando asiento contable automático...');
+        
+        // Mapear según plan contable uploaded
+        const accountingEntry = {
+            number: invoiceData.number,
+            description: invoiceData.serviceDescription,
+            accounts: [
+                { account: '430', description: 'Clientes', debit: invoiceData.total },
+                { account: '705', description: 'Prestación servicios', credit: invoiceData.subtotal },
+                { account: '477', description: 'IVA repercutido', credit: invoiceData.iva }
+            ]
+        };
+        
+        return accountingEntry;
+    }
+    
+    function exportToExcel() {
+        console.log('📊 Exportando reporte a Excel...');
+        showNotification('Generando reporte Excel...', 'success');
+        
+        // Implementar export con filtros de fecha
+        setTimeout(() => {
+            showNotification('✅ Reporte Excel generado', 'success');
+        }, 2000);
+    }
+
+    // =============================================================================
+    // SISTEMA DE NOTIFICACIONES
+    // =============================================================================
+    
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 350px;
+            font-weight: 500;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // =============================================================================
+    // INTEGRACIÓN SERVICIOS PROFESIONALES ISO
+    // =============================================================================
+    
+    const SERVICIOS_ISO = {
+        'ISO_9001': {
+            name: 'Consultoría ISO 9001',
+            account: '705.001',
+            description: 'Servicios calidad ISO 9001'
+        },
+        'ISO_14001': {
+            name: 'Consultoría ISO 14001', 
+            account: '705.002',
+            description: 'Servicios ambientales ISO 14001'
+        },
+        'ISO_45001': {
+            name: 'Consultoría ISO 45001',
+            account: '705.003', 
+            description: 'Servicios seguridad ISO 45001'
+        },
+        'AUDITORIA_ISO': {
+            name: 'Auditoría ISO',
+            account: '705.010',
+            description: 'Servicios auditoría sistemas gestión'
+        },
+        'FORMACION_ISO': {
+            name: 'Formación ISO',
+            account: '705.020',
+            description: 'Servicios formación especializada'
+        }
+    };
+    
+    function getServiceTemplate(serviceType) {
+        return SERVICIOS_ISO[serviceType] || SERVICIOS_ISO['ISO_9001'];
+    }
+    
+    console.log('🎯 Facturas Avanzadas - Sistema completamente inicializado');
+</script>
+{% endblock %}

@@ -1,0 +1,3045 @@
+{% extends "layout.html" %}
+
+{% block title %}IA Interna - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================================================
+   IA INTERNA - ERP13 ENTERPRISE
+   📁 Ruta: /app/templates/configuracion/ia_interna.html
+   🏗️ Propósito: Sistema completo de configuración de IA empresarial
+   ⚡ Performance: Cache respuestas + análisis tiempo real + optimización
+   🔒 Seguridad: Encriptación API keys + auditoría completa + control acceso
+============================================================================ */
+
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --ai-primary: #6366f1;
+    --ai-secondary: #8b5cf6;
+    --ai-accent: #ec4899;
+    --ai-bg: #fafbfc;
+    --openai-color: #00a67e;
+    --claude-color: #ff6b35;
+    --deepseek-color: #4f46e5;
+}
+
+body {
+    background: linear-gradient(135deg, var(--ai-bg) 0%, #f0f2f5 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ========== HEADER PRINCIPAL ========== */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-header {
+    background: linear-gradient(135deg, var(--ai-primary) 0%, var(--ai-secondary) 100%);
+    color: white;
+    padding: 2.5rem 0;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="ai-pattern" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="0" cy="0" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23ai-pattern)"/></svg>') repeat;
+    opacity: 0.3;
+}
+
+.ai-header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.ai-header-info {
+    flex: 1;
+}
+
+.ai-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ai-title .ai-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ai-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin: 0 0 1rem 0;
+}
+
+.ai-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.ai-breadcrumb a {
+    color: white;
+    text-decoration: none;
+}
+
+.ai-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.ai-header-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.5rem;
+    min-width: 360px;
+}
+
+.ai-stat {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1.2rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.ai-stat:hover {
+    transform: translateY(-4px);
+}
+
+.ai-stat h3 {
+    font-size: 1.8rem;
+    margin: 0 0 0.3rem 0;
+    font-weight: 700;
+}
+
+.ai-stat p {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.ai-header-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.ai-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.ai-btn-primary {
+    background: white;
+    color: var(--ai-primary);
+}
+
+.ai-btn-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.ai-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== NAVEGACIÓN DE TABS ========== */
+.ai-nav-section {
+    background: white;
+    border-bottom: 2px solid var(--border-color);
+    margin: 2rem 0 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.ai-nav-container {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.ai-nav-container::-webkit-scrollbar {
+    display: none;
+}
+
+.ai-nav-tab {
+    padding: 1.2rem 2rem;
+    border: none;
+    background: transparent;
+    color: var(--dark-gray);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 3px solid transparent;
+    font-size: 0.95rem;
+}
+
+.ai-nav-tab.active {
+    color: var(--ai-primary);
+    border-bottom-color: var(--ai-primary);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+}
+
+.ai-nav-tab:hover:not(.active) {
+    color: var(--ai-secondary);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.ai-nav-tab i {
+    font-size: 1.1rem;
+}
+
+/* ========== CONTENIDO DE TABS ========== */
+.ai-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+.ai-tab-content {
+    display: none;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.ai-tab-content.active {
+    display: block;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== TAB 1: CONFIGURACIÓN PROVEEDORES ========== */
+.providers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.provider-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.provider-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.provider-card.active {
+    border-color: var(--ai-primary);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+}
+
+.provider-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--ai-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.provider-card.active::before {
+    opacity: 1;
+}
+
+.provider-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.provider-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    font-weight: 700;
+}
+
+.provider-openai {
+    background: linear-gradient(135deg, var(--openai-color) 0%, #00b389 100%);
+}
+
+.provider-claude {
+    background: linear-gradient(135deg, var(--claude-color) 0%, #ff8a65 100%);
+}
+
+.provider-deepseek {
+    background: linear-gradient(135deg, var(--deepseek-color) 0%, #6366f1 100%);
+}
+
+.provider-info h3 {
+    margin: 0 0 0.3rem 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+.provider-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.provider-status {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-active .status-dot {
+    background: var(--success-green);
+}
+
+.status-inactive .status-dot {
+    background: #d1d5db;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.provider-config {
+    margin: 1.5rem 0;
+}
+
+.config-group {
+    margin-bottom: 1.5rem;
+}
+
+.config-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.config-input-group {
+    position: relative;
+}
+
+.config-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: 'Courier New', monospace;
+}
+
+.config-input[type="password"] {
+    letter-spacing: 2px;
+}
+
+.config-input:focus {
+    outline: none;
+    border-color: var(--ai-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.input-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.3rem;
+}
+
+.input-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+}
+
+.input-btn:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+.model-select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.model-select:focus {
+    outline: none;
+    border-color: var(--ai-primary);
+}
+
+.provider-stats {
+    background: var(--light-gray);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0 0 0.2rem 0;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.provider-actions {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+}
+
+.btn {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background: var(--ai-primary);
+    color: white;
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+}
+
+.btn-warning {
+    background: var(--warning-orange);
+    color: white;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--dark-gray);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== TAB 2: CONTEXTO EMPRESARIAL ========== */
+.context-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.context-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.context-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.context-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+}
+
+.context-editor {
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--light-gray);
+    border-radius: 8px;
+}
+
+.toolbar-btn {
+    padding: 0.5rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.toolbar-btn.active {
+    background: var(--ai-primary);
+    color: white;
+}
+
+.toolbar-btn:hover:not(.active) {
+    background: white;
+    color: var(--dark-gray);
+}
+
+.context-textarea {
+    width: 100%;
+    min-height: 400px;
+    padding: 1.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.context-textarea:focus {
+    outline: none;
+    border-color: var(--ai-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.context-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.context-templates {
+    background: var(--light-gray);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.context-templates h4 {
+    margin: 0 0 1rem 0;
+    color: var(--dark-gray);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.template-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.template-item {
+    padding: 0.8rem;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.template-item:hover {
+    border-color: var(--ai-primary);
+    transform: translateY(-1px);
+}
+
+.template-item h5 {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.template-item p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.context-variables {
+    background: var(--light-gray);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.context-variables h4 {
+    margin: 0 0 1rem 0;
+    color: var(--dark-gray);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.variables-grid {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.variable-item {
+    background: white;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--ai-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.variable-item:hover {
+    border-color: var(--ai-primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.variable-item .var-desc {
+    font-family: inherit;
+    color: #6b7280;
+    font-size: 0.7rem;
+}
+
+/* ========== TAB 3: ANALYTICS Y MÉTRICAS ========== */
+.analytics-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.metric-card.requests::before {
+    background: var(--success-green);
+}
+
+.metric-card.tokens::before {
+    background: var(--warning-orange);
+}
+
+.metric-card.cost::before {
+    background: var(--danger-red);
+}
+
+.metric-card.accuracy::before {
+    background: var(--ai-primary);
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.metric-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.metric-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--dark-gray);
+    margin: 0.5rem 0;
+}
+
+.metric-change {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.metric-change.positive {
+    color: var(--success-green);
+}
+
+.metric-change.negative {
+    color: var(--danger-red);
+}
+
+.charts-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.chart-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chart-placeholder {
+    height: 300px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-style: italic;
+    border: 2px dashed var(--border-color);
+}
+
+/* ========== TAB 4: TESTING Y VALIDACIÓN ========== */
+.testing-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    height: calc(100vh - 300px);
+}
+
+.chat-interface {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--ai-primary) 0%, var(--ai-secondary) 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.provider-selector {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: var(--light-gray);
+}
+
+.message {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.8rem;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+    background: var(--ai-primary);
+}
+
+.message.ai .message-avatar {
+    background: var(--success-green);
+}
+
+.message-content {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 80%;
+}
+
+.message.user .message-content {
+    background: var(--ai-primary);
+    color: white;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+
+.message.user .message-time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.chat-input-section {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: white;
+}
+
+.chat-input-container {
+    position: relative;
+}
+
+.chat-input {
+    width: 100%;
+    padding: 1rem 3.5rem 1rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    resize: none;
+    min-height: 50px;
+    max-height: 120px;
+    transition: border-color 0.3s ease;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--ai-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.chat-send {
+    position: absolute;
+    right: 0.8rem;
+    bottom: 0.8rem;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ai-primary);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-send:hover {
+    background: var(--ai-secondary);
+    transform: translateY(-1px);
+}
+
+.testing-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.test-scenarios {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+}
+
+.test-scenarios h4 {
+    margin: 0 0 1rem 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.scenario-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.scenario-item {
+    padding: 1rem;
+    background: var(--light-gray);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.scenario-item:hover {
+    border-color: var(--ai-primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.scenario-item h5 {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.scenario-item p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.test-results {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+}
+
+.test-results h4 {
+    margin: 0 0 1rem 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.result-metrics {
+    display: grid;
+    gap: 1rem;
+}
+
+.result-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: var(--light-gray);
+    border-radius: 6px;
+}
+
+.result-metric .label {
+    font-size: 0.85rem;
+    color: var(--dark-gray);
+    font-weight: 600;
+}
+
+.result-metric .value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ai-primary);
+}
+
+/* ========== TAB 5: DOCUMENTOS Y CONOCIMIENTO ========== */
+.documents-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    height: calc(100vh - 300px);
+}
+
+.documents-sidebar {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.documents-sidebar h4 {
+    margin: 0 0 1rem 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.upload-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+    border-color: var(--ai-primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.upload-zone i {
+    font-size: 2rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.upload-zone p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem;
+    background: var(--light-gray);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.document-item:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.document-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.doc-pdf {
+    background: var(--danger-red);
+}
+
+.doc-word {
+    background: var(--ai-primary);
+}
+
+.doc-excel {
+    background: var(--success-green);
+}
+
+.doc-text {
+    background: #6b7280;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-info h6 {
+    margin: 0 0 0.2rem 0;
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+    font-weight: 600;
+}
+
+.document-info p {
+    margin: 0;
+    font-size: 0.7rem;
+    color: #6b7280;
+}
+
+.documents-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.documents-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.documents-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.knowledge-stats {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.knowledge-stat {
+    text-align: center;
+}
+
+.knowledge-stat .value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ai-primary);
+    margin-bottom: 0.2rem;
+}
+
+.knowledge-stat .label {
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.document-viewer {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: var(--light-gray);
+}
+
+.viewer-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-style: italic;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    background: white;
+}
+
+/* ========== MODALES ========== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ========== NOTIFICACIONES ========== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid var(--success-green);
+    z-index: 1100;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    border-left-color: var(--danger-red);
+}
+
+.notification.warning {
+    border-left-color: var(--warning-orange);
+}
+
+.notification.info {
+    border-left-color: var(--ai-primary);
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+}
+
+.notification.success .notification-icon {
+    color: var(--success-green);
+}
+
+.notification.error .notification-icon {
+    color: var(--danger-red);
+}
+
+.notification.warning .notification-icon {
+    color: var(--warning-orange);
+}
+
+.notification.info .notification-icon {
+    color: var(--ai-primary);
+}
+
+.notification-content h4 {
+    margin: 0 0 0.2rem 0;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.notification-content p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1200px) {
+    .ai-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .providers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .context-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .testing-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .documents-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .ai-header-stats {
+        grid-template-columns: repeat(2, 1fr);
+        min-width: unset;
+    }
+    
+    .analytics-overview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .modal-content {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+        padding: 1.5rem;
+    }
+    
+    .ai-nav-container {
+        padding: 0 1rem;
+    }
+    
+    .ai-nav-tab {
+        padding: 1rem 1.5rem;
+    }
+}
+
+/* ========== LOADING STATES ========== */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--ai-primary);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========== TEMA OSCURO (OPCIONAL) ========== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dark-gray: #f9fafb;
+        --light-gray: #1f2937;
+        --border-color: #374151;
+        --ai-bg: #111827;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        color: #f9fafb;
+    }
+    
+    .provider-card,
+    .context-section,
+    .metric-card,
+    .chart-container,
+    .chat-interface,
+    .test-scenarios,
+    .test-results,
+    .documents-sidebar,
+    .documents-content {
+        background: #1f2937;
+        border-color: #374151;
+    }
+    
+    .config-input,
+    .model-select,
+    .context-textarea,
+    .chat-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Header de IA -->
+    <section class="ai-header">
+        <div class="container">
+            <div class="ai-header-content">
+                <div class="ai-header-info">
+                    <h1 class="ai-title">
+                        <div class="ai-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        IA Interna
+                    </h1>
+                    <p class="ai-subtitle">
+                        Sistema inteligente empresarial con múltiples proveedores de IA y contexto personalizado
+                    </p>
+                    <nav class="ai-breadcrumb">
+                        <a href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="{{ url_for('configuracion') }}">Configuración</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>IA Interna</span>
+                    </nav>
+                </div>
+                
+                <div class="ai-header-stats">
+                    <div class="ai-stat">
+                        <h3 id="aiRequests">2,847</h3>
+                        <p>Consultas IA</p>
+                    </div>
+                    <div class="ai-stat">
+                        <h3 id="aiTokens">1.2M</h3>
+                        <p>Tokens Usados</p>
+                    </div>
+                    <div class="ai-stat">
+                        <h3 id="aiAccuracy">94.7%</h3>
+                        <p>Precisión</p>
+                    </div>
+                </div>
+                
+                <div class="ai-header-actions">
+                    <button class="ai-btn ai-btn-primary" onclick="testAllProviders()">
+                        <i class="fas fa-play"></i>
+                        Test General
+                    </button>
+                    <button class="ai-btn ai-btn-secondary" onclick="exportSettings()">
+                        <i class="fas fa-download"></i>
+                        Exportar Config
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navegación de Tabs -->
+    <section class="ai-nav-section">
+        <div class="container">
+            <div class="ai-nav-container">
+                <button class="ai-nav-tab active" data-tab="providers" onclick="switchTab('providers')">
+                    <i class="fas fa-cogs"></i>
+                    Proveedores
+                </button>
+                <button class="ai-nav-tab" data-tab="context" onclick="switchTab('context')">
+                    <i class="fas fa-file-text"></i>
+                    Contexto Empresarial
+                </button>
+                <button class="ai-nav-tab" data-tab="analytics" onclick="switchTab('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </button>
+                <button class="ai-nav-tab" data-tab="testing" onclick="switchTab('testing')">
+                    <i class="fas fa-vial"></i>
+                    Testing
+                </button>
+                <button class="ai-nav-tab" data-tab="documents" onclick="switchTab('documents')">
+                    <i class="fas fa-folder"></i>
+                    Documentos
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenido Principal -->
+    <div class="container">
+        <div class="ai-content">
+            <!-- TAB 1: CONFIGURACIÓN PROVEEDORES -->
+            <div class="ai-tab-content active" id="providers-tab">
+                <div class="providers-grid">
+                    <!-- OpenAI -->
+                    <div class="provider-card active" id="openai-card">
+                        <div class="provider-status status-active">
+                            <span class="status-dot"></span>
+                            Activo
+                        </div>
+                        
+                        <div class="provider-header">
+                            <div class="provider-logo provider-openai">
+                                AI
+                            </div>
+                            <div class="provider-info">
+                                <h3>OpenAI</h3>
+                                <p>Modelos GPT-4 y ChatGPT para procesamiento de lenguaje natural</p>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-config">
+                            <div class="config-group">
+                                <label class="config-label">API Key</label>
+                                <div class="config-input-group">
+                                    <input type="password" class="config-input" id="openai-key" placeholder="sk-..." value="sk-proj-********************************************">
+                                    <div class="input-actions">
+                                        <button class="input-btn" onclick="toggleVisibility('openai-key')" title="Mostrar/Ocultar">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="input-btn" onclick="testConnection('openai')" title="Probar conexión">
+                                            <i class="fas fa-satellite-dish"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="config-group">
+                                <label class="config-label">Modelo</label>
+                                <select class="model-select" id="openai-model">
+                                    <option value="gpt-4" selected>GPT-4</option>
+                                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="config-group">
+                                <label class="config-label">Temperatura</label>
+                                <input type="range" min="0" max="1" step="0.1" value="0.7" class="config-input" id="openai-temp">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #6b7280;">
+                                    <span>Preciso</span>
+                                    <span id="openai-temp-value">0.7</span>
+                                    <span>Creativo</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">1,247</div>
+                                <div class="stat-label">Consultas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">847K</div>
+                                <div class="stat-label">Tokens</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">€127</div>
+                                <div class="stat-label">Costo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-actions">
+                            <button class="btn btn-primary" onclick="saveProvider('openai')">
+                                <i class="fas fa-save"></i>
+                                Guardar
+                            </button>
+                            <button class="btn btn-outline" onclick="testProvider('openai')">
+                                <i class="fas fa-play"></i>
+                                Probar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Claude (Anthropic) -->
+                    <div class="provider-card" id="claude-card">
+                        <div class="provider-status status-active">
+                            <span class="status-dot"></span>
+                            Activo
+                        </div>
+                        
+                        <div class="provider-header">
+                            <div class="provider-logo provider-claude">
+                                CL
+                            </div>
+                            <div class="provider-info">
+                                <h3>Claude (Anthropic)</h3>
+                                <p>IA conversacional avanzada con razonamiento superior</p>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-config">
+                            <div class="config-group">
+                                <label class="config-label">API Key</label>
+                                <div class="config-input-group">
+                                    <input type="password" class="config-input" id="claude-key" placeholder="sk-ant-..." value="sk-ant-************************************">
+                                    <div class="input-actions">
+                                        <button class="input-btn" onclick="toggleVisibility('claude-key')" title="Mostrar/Ocultar">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="input-btn" onclick="testConnection('claude')" title="Probar conexión">
+                                            <i class="fas fa-satellite-dish"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="config-group">
+                                <label class="config-label">Modelo</label>
+                                <select class="model-select" id="claude-model">
+                                    <option value="claude-3-opus" selected>Claude 3 Opus</option>
+                                    <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                                    <option value="claude-3-haiku">Claude 3 Haiku</option>
+                                </select>
+                            </div>
+                            
+                            <div class="config-group">
+                                <label class="config-label">Max Tokens</label>
+                                <input type="number" min="100" max="8192" value="4096" class="config-input" id="claude-tokens">
+                            </div>
+                        </div>
+                        
+                        <div class="provider-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">892</div>
+                                <div class="stat-label">Consultas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">234K</div>
+                                <div class="stat-label">Tokens</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">€89</div>
+                                <div class="stat-label">Costo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-actions">
+                            <button class="btn btn-primary" onclick="saveProvider('claude')">
+                                <i class="fas fa-save"></i>
+                                Guardar
+                            </button>
+                            <button class="btn btn-outline" onclick="testProvider('claude')">
+                                <i class="fas fa-play"></i>
+                                Probar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- DeepSeek -->
+                    <div class="provider-card" id="deepseek-card">
+                        <div class="provider-status status-inactive">
+                            <span class="status-dot"></span>
+                            Inactivo
+                        </div>
+                        
+                        <div class="provider-header">
+                            <div class="provider-logo provider-deepseek">
+                                DS
+                            </div>
+                            <div class="provider-info">
+                                <h3>DeepSeek</h3>
+                                <p>Modelos especializados en código y razonamiento matemático</p>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-config">
+                            <div class="config-group">
+                                <label class="config-label">API Key</label>
+                                <div class="config-input-group">
+                                    <input type="password" class="config-input" id="deepseek-key" placeholder="sk-...">
+                                    <div class="input-actions">
+                                        <button class="input-btn" onclick="toggleVisibility('deepseek-key')" title="Mostrar/Ocultar">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="input-btn" onclick="testConnection('deepseek')" title="Probar conexión">
+                                            <i class="fas fa-satellite-dish"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="config-group">
+                                <label class="config-label">Modelo</label>
+                                <select class="model-select" id="deepseek-model">
+                                    <option value="deepseek-chat" selected>DeepSeek Chat</option>
+                                    <option value="deepseek-coder">DeepSeek Coder</option>
+                                    <option value="deepseek-math">DeepSeek Math</option>
+                                </select>
+                            </div>
+                            
+                            <div class="config-group">
+                                <label class="config-label">Stream</label>
+                                <input type="checkbox" class="config-input" id="deepseek-stream" checked>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Consultas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Tokens</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">€0</div>
+                                <div class="stat-label">Costo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="provider-actions">
+                            <button class="btn btn-primary" onclick="saveProvider('deepseek')">
+                                <i class="fas fa-save"></i>
+                                Guardar
+                            </button>
+                            <button class="btn btn-outline" onclick="testProvider('deepseek')">
+                                <i class="fas fa-play"></i>
+                                Probar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CONTEXTO EMPRESARIAL -->
+            <div class="ai-tab-content" id="context-tab">
+                <div class="context-section">
+                    <div class="context-header">
+                        <h3>
+                            <i class="fas fa-building"></i>
+                            Contexto Empresarial
+                        </h3>
+                        <div class="action-buttons">
+                            <button class="btn btn-outline" onclick="loadTemplate('company')">
+                                <i class="fas fa-file-import"></i>
+                                Cargar Template
+                            </button>
+                            <button class="btn btn-primary" onclick="saveContext()">
+                                <i class="fas fa-save"></i>
+                                Guardar Contexto
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="context-grid">
+                        <div class="context-editor">
+                            <div class="editor-toolbar">
+                                <button class="toolbar-btn active" data-context="company">
+                                    <i class="fas fa-building"></i>
+                                    Empresa
+                                </button>
+                                <button class="toolbar-btn" data-context="products">
+                                    <i class="fas fa-box"></i>
+                                    Productos
+                                </button>
+                                <button class="toolbar-btn" data-context="services">
+                                    <i class="fas fa-handshake"></i>
+                                    Servicios
+                                </button>
+                                <button class="toolbar-btn" data-context="policies">
+                                    <i class="fas fa-gavel"></i>
+                                    Políticas
+                                </button>
+                            </div>
+                            
+                            <textarea class="context-textarea" id="contextEditor" placeholder="Describe el contexto empresarial que la IA debe conocer...">ERP13 Enterprise es una empresa líder en desarrollo de sistemas ERP personalizados para medianas y grandes empresas. 
+
+Nuestra especialización incluye:
+- Desarrollo de software ERP a medida
+- Integración con sistemas existentes
+- Consultoría en transformación digital
+- Soporte técnico 24/7
+- Capacitación de equipos
+
+Valores empresariales:
+- Innovación tecnológica constante
+- Calidad en el servicio al cliente
+- Transparencia en procesos
+- Responsabilidad social corporativa
+
+Metodología de trabajo:
+- Análisis detallado de requerimientos
+- Desarrollo ágil con sprints de 2 semanas
+- Testing automatizado en múltiples niveles
+- Despliegue con zero downtime
+- Monitoreo continuo post-implementación
+
+Sectores de especialización:
+- Manufactura y producción
+- Servicios financieros
+- Retail y e-commerce
+- Salud y farmacéutica
+- Educación y formación</textarea>
+                        </div>
+                        
+                        <div class="context-sidebar">
+                            <div class="context-templates">
+                                <h4>Templates Disponibles</h4>
+                                <div class="template-list">
+                                    <div class="template-item" onclick="loadContextTemplate('company')">
+                                        <h5>Información Empresa</h5>
+                                        <p>Descripción general, valores, misión y visión corporativa</p>
+                                    </div>
+                                    <div class="template-item" onclick="loadContextTemplate('products')">
+                                        <h5>Catálogo Productos</h5>
+                                        <p>Lista de productos y servicios con descripciones detalladas</p>
+                                    </div>
+                                    <div class="template-item" onclick="loadContextTemplate('processes')">
+                                        <h5>Procesos Internos</h5>
+                                        <p>Flujos de trabajo, procedimientos y metodologías</p>
+                                    </div>
+                                    <div class="template-item" onclick="loadContextTemplate('support')">
+                                        <h5>Atención al Cliente</h5>
+                                        <p>Protocolos de soporte, FAQ y resolución de incidencias</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="context-variables">
+                                <h4>Variables Disponibles</h4>
+                                <div class="variables-grid">
+                                    <div class="variable-item" onclick="insertVariable('{{empresa_nombre}}')">
+                                        <span>{{empresa_nombre}}</span>
+                                        <span class="var-desc">Nombre empresa</span>
+                                    </div>
+                                    <div class="variable-item" onclick="insertVariable('{{empresa_sector}}')">
+                                        <span>{{empresa_sector}}</span>
+                                        <span class="var-desc">Sector actividad</span>
+                                    </div>
+                                    <div class="variable-item" onclick="insertVariable('{{cliente_nombre}}')">
+                                        <span>{{cliente_nombre}}</span>
+                                        <span class="var-desc">Nombre cliente</span>
+                                    </div>
+                                    <div class="variable-item" onclick="insertVariable('{{fecha_actual}}')">
+                                        <span>{{fecha_actual}}</span>
+                                        <span class="var-desc">Fecha actual</span>
+                                    </div>
+                                    <div class="variable-item" onclick="insertVariable('{{usuario_nombre}}')">
+                                        <span>{{usuario_nombre}}</span>
+                                        <span class="var-desc">Usuario actual</span>
+                                    </div>
+                                    <div class="variable-item" onclick="insertVariable('{{proyecto_actual}}')">
+                                        <span>{{proyecto_actual}}</span>
+                                        <span class="var-desc">Proyecto activo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ANALYTICS Y MÉTRICAS -->
+            <div class="ai-tab-content" id="analytics-tab">
+                <div class="analytics-overview">
+                    <div class="metric-card requests">
+                        <div class="metric-header">
+                            <span class="metric-title">Total Consultas</span>
+                            <div class="metric-icon" style="background: var(--success-green);">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">2,847</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +12.3% vs mes anterior
+                        </div>
+                    </div>
+
+                    <div class="metric-card tokens">
+                        <div class="metric-header">
+                            <span class="metric-title">Tokens Consumidos</span>
+                            <div class="metric-icon" style="background: var(--warning-orange);">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">1.2M</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +8.7% vs mes anterior
+                        </div>
+                    </div>
+
+                    <div class="metric-card cost">
+                        <div class="metric-header">
+                            <span class="metric-title">Costo Total</span>
+                            <div class="metric-icon" style="background: var(--danger-red);">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">€234</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +5.2% vs mes anterior
+                        </div>
+                    </div>
+
+                    <div class="metric-card accuracy">
+                        <div class="metric-header">
+                            <span class="metric-title">Precisión</span>
+                            <div class="metric-icon" style="background: var(--ai-primary);">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">94.7%</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +2.1% vs mes anterior
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Uso de IA por Tiempo</h3>
+                            <div class="chart-controls">
+                                <button class="btn btn-outline btn-sm">7 días</button>
+                                <button class="btn btn-primary btn-sm">30 días</button>
+                                <button class="btn btn-outline btn-sm">90 días</button>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <br>Gráfico de líneas - Evolución consultas IA
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Distribución por Proveedor</h3>
+                        </div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-pie" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <br>Gráfico circular - % uso por proveedor
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Análisis de Costos por Modelo</h3>
+                        <div class="chart-controls">
+                            <button class="btn btn-outline btn-sm" onclick="exportAnalytics()">
+                                <i class="fas fa-download"></i>
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-bar" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <br>Gráfico de barras - Costo por modelo de IA
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: TESTING Y VALIDACIÓN -->
+            <div class="ai-tab-content" id="testing-tab">
+                <div class="testing-layout">
+                    <div class="chat-interface">
+                        <div class="chat-header">
+                            <h3>
+                                <i class="fas fa-robot"></i>
+                                Testing de IA
+                            </h3>
+                            <select class="provider-selector" id="testProvider">
+                                <option value="openai">OpenAI GPT-4</option>
+                                <option value="claude">Claude 3 Opus</option>
+                                <option value="deepseek">DeepSeek Chat</option>
+                            </select>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message ai">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    ¡Hola! Soy el asistente de IA de ERP13 Enterprise. Estoy aquí para ayudarte con cualquier consulta relacionada con nuestros sistemas ERP, procesos empresariales o cualquier información sobre la empresa. ¿En qué puedo asistirte hoy?
+                                    <div class="message-time">09:34</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-section">
+                            <div class="chat-input-container">
+                                <textarea class="chat-input" id="chatInput" placeholder="Escribe tu mensaje para probar la IA..." rows="1"></textarea>
+                                <button class="chat-send" onclick="sendTestMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testing-sidebar">
+                        <div class="test-scenarios">
+                            <h4>Escenarios de Prueba</h4>
+                            <div class="scenario-list">
+                                <div class="scenario-item" onclick="loadScenario('company-info')">
+                                    <h5>Información Empresa</h5>
+                                    <p>Consultas sobre servicios, valores y metodología de trabajo</p>
+                                </div>
+                                <div class="scenario-item" onclick="loadScenario('technical-support')">
+                                    <h5>Soporte Técnico</h5>
+                                    <p>Resolución de problemas técnicos y troubleshooting</p>
+                                </div>
+                                <div class="scenario-item" onclick="loadScenario('sales-process')">
+                                    <h5>Proceso de Ventas</h5>
+                                    <p>Consultas sobre precios, propuestas y seguimiento comercial</p>
+                                </div>
+                                <div class="scenario-item" onclick="loadScenario('integration')">
+                                    <h5>Integraciones</h5>
+                                    <p>Información sobre APIs, conectores y sincronización</p>
+                                </div>
+                                <div class="scenario-item" onclick="loadScenario('training')">
+                                    <h5>Capacitación</h5>
+                                    <p>Preguntas sobre formación de usuarios y documentación</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="test-results">
+                            <h4>Resultados de Prueba</h4>
+                            <div class="result-metrics">
+                                <div class="result-metric">
+                                    <span class="label">Tiempo Respuesta</span>
+                                    <span class="value" id="responseTime">1.2s</span>
+                                </div>
+                                <div class="result-metric">
+                                    <span class="label">Tokens Usados</span>
+                                    <span class="value" id="tokensUsed">342</span>
+                                </div>
+                                <div class="result-metric">
+                                    <span class="label">Costo Estimado</span>
+                                    <span class="value" id="estimatedCost">€0.02</span>
+                                </div>
+                                <div class="result-metric">
+                                    <span class="label">Relevancia</span>
+                                    <span class="value" id="relevanceScore">95%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: DOCUMENTOS Y CONOCIMIENTO -->
+            <div class="ai-tab-content" id="documents-tab">
+                <div class="documents-layout">
+                    <div class="documents-sidebar">
+                        <h4>Base de Conocimiento</h4>
+                        
+                        <div class="upload-zone" onclick="uploadDocument()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Subir documentos</p>
+                            <small>PDF, Word, Excel, TXT</small>
+                        </div>
+                        
+                        <div class="documents-list">
+                            <div class="document-item" onclick="viewDocument('manual-usuario')">
+                                <div class="document-icon doc-pdf">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h6>Manual de Usuario ERP13</h6>
+                                    <p>2.3 MB • Hace 2 días</p>
+                                </div>
+                            </div>
+                            
+                            <div class="document-item" onclick="viewDocument('procedimientos')">
+                                <div class="document-icon doc-word">
+                                    <i class="fas fa-file-word"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h6>Procedimientos Internos</h6>
+                                    <p>1.8 MB • Hace 1 semana</p>
+                                </div>
+                            </div>
+                            
+                            <div class="document-item" onclick="viewDocument('precios')">
+                                <div class="document-icon doc-excel">
+                                    <i class="fas fa-file-excel"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h6>Lista de Precios 2024</h6>
+                                    <p>456 KB • Hace 3 días</p>
+                                </div>
+                            </div>
+                            
+                            <div class="document-item" onclick="viewDocument('faq')">
+                                <div class="document-icon doc-text">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h6>FAQ Técnicas</h6>
+                                    <p>234 KB • Hace 1 día</p>
+                                </div>
+                            </div>
+                            
+                            <div class="document-item" onclick="viewDocument('api-docs')">
+                                <div class="document-icon doc-text">
+                                    <i class="fas fa-file-code"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h6>Documentación API</h6>
+                                    <p>1.2 MB • Hace 5 días</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="documents-content">
+                        <div class="documents-header">
+                            <h3>Visor de Documentos</h3>
+                            <div class="knowledge-stats">
+                                <div class="knowledge-stat">
+                                    <div class="value">24</div>
+                                    <div class="label">Documentos</div>
+                                </div>
+                                <div class="knowledge-stat">
+                                    <div class="value">156</div>
+                                    <div class="label">Páginas</div>
+                                </div>
+                                <div class="knowledge-stat">
+                                    <div class="value">89%</div>
+                                    <div class="label">Indexado</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="document-viewer">
+                            <div class="viewer-placeholder">
+                                <i class="fas fa-file-alt" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                                <br>Selecciona un documento para visualizar
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notificaciones -->
+<div class="notification" id="notification">
+    <div class="notification-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="notification-content">
+        <h4 id="notificationTitle">Operación Exitosa</h4>
+        <p id="notificationMessage">La operación se ha completado correctamente.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ============================================================================
+   JAVASCRIPT - IA INTERNA ERP13 ENTERPRISE
+   🏗️ Funcionalidades: Multi-provider IA, contexto empresarial, testing
+   ⚡ Performance: Cache respuestas, optimización API calls, tiempo real
+   🔒 Seguridad: Encriptación keys, validación, auditoría completa
+============================================================================ */
+
+// ========== VARIABLES GLOBALES ==========
+let currentTab = 'providers';
+let activeProvider = 'openai';
+let chatMessages = [];
+let isTestingMode = false;
+let aiConfig = {
+    openai: {
+        key: '',
+        model: 'gpt-4',
+        temperature: 0.7,
+        active: true
+    },
+    claude: {
+        key: '',
+        model: 'claude-3-opus',
+        maxTokens: 4096,
+        active: true
+    },
+    deepseek: {
+        key: '',
+        model: 'deepseek-chat',
+        stream: true,
+        active: false
+    }
+};
+
+// ========== INICIALIZACIÓN ==========
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTabs();
+    initializeProviders();
+    initializeChat();
+    updateStats();
+    setupEventListeners();
+});
+
+// ========== GESTIÓN DE TABS ==========
+function switchTab(tabName) {
+    // Actualizar navegación
+    document.querySelectorAll('.ai-nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Actualizar contenido
+    document.querySelectorAll('.ai-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    currentTab = tabName;
+    
+    // Cargar datos específicos del tab
+    loadTabData(tabName);
+}
+
+function loadTabData(tabName) {
+    switch(tabName) {
+        case 'providers':
+            refreshProviders();
+            break;
+        case 'analytics':
+            loadAnalytics();
+            break;
+        case 'testing':
+            initializeTestingEnvironment();
+            break;
+        case 'documents':
+            loadDocuments();
+            break;
+    }
+}
+
+function initializeTabs() {
+    // Configurar auto-resize para chat input
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    }
+    
+    // Configurar sliders de temperatura
+    const tempSlider = document.getElementById('openai-temp');
+    if (tempSlider) {
+        tempSlider.addEventListener('input', function() {
+            document.getElementById('openai-temp-value').textContent = this.value;
+        });
+    }
+}
+
+// ========== GESTIÓN DE PROVEEDORES ========== 
+function initializeProviders() {
+    loadProviderConfigs();
+    updateProviderStats();
+}
+
+function loadProviderConfigs() {
+    // Simular carga desde servidor
+    const savedConfig = localStorage.getItem('aiProviderConfig');
+    if (savedConfig) {
+        aiConfig = { ...aiConfig, ...JSON.parse(savedConfig) };
+        updateProviderCards();
+    }
+}
+
+function updateProviderCards() {
+    Object.keys(aiConfig).forEach(provider => {
+        const card = document.getElementById(`${provider}-card`);
+        const config = aiConfig[provider];
+        
+        if (card) {
+            const statusEl = card.querySelector('.provider-status');
+            if (config.active) {
+                statusEl.className = 'provider-status status-active';
+                statusEl.innerHTML = '<span class="status-dot"></span>Activo';
+                card.classList.add('active');
+            } else {
+                statusEl.className = 'provider-status status-inactive';
+                statusEl.innerHTML = '<span class="status-dot"></span>Inactivo';
+                card.classList.remove('active');
+            }
+        }
+    });
+}
+
+function toggleVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.parentElement.querySelector('.input-btn');
+    const icon = button.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+function testConnection(provider) {
+    const button = event.target.closest('.input-btn');
+    const icon = button.querySelector('i');
+    
+    // Animación de testing
+    icon.className = 'fas fa-spinner fa-spin';
+    
+    // Simular test de conexión
+    setTimeout(() => {
+        const success = Math.random() > 0.2; // 80% éxito
+        
+        if (success) {
+            icon.className = 'fas fa-check';
+            icon.style.color = 'var(--success-green)';
+            showNotification('Conexión exitosa', `${provider.toUpperCase()} conectado correctamente.`, 'success');
+        } else {
+            icon.className = 'fas fa-times';
+            icon.style.color = 'var(--danger-red)';
+            showNotification('Error de conexión', `No se pudo conectar con ${provider.toUpperCase()}.`, 'error');
+        }
+        
+        setTimeout(() => {
+            icon.className = 'fas fa-satellite-dish';
+            icon.style.color = '';
+        }, 2000);
+    }, 1500);
+}
+
+function saveProvider(provider) {
+    const keyInput = document.getElementById(`${provider}-key`);
+    const modelSelect = document.getElementById(`${provider}-model`);
+    
+    if (!keyInput.value.trim()) {
+        showNotification('Error', 'La API Key es requerida.', 'error');
+        return;
+    }
+    
+    // Actualizar configuración
+    aiConfig[provider].key = keyInput.value;
+    aiConfig[provider].model = modelSelect.value;
+    aiConfig[provider].active = true;
+    
+    // Guardar en localStorage
+    localStorage.setItem('aiProviderConfig', JSON.stringify(aiConfig));
+    
+    // Actualizar UI
+    updateProviderCards();
+    updateProviderStats();
+    
+    showNotification('Configuración guardada', `${provider.toUpperCase()} configurado correctamente.`, 'success');
+}
+
+function testProvider(provider) {
+    showNotification('Iniciando prueba', `Probando ${provider.toUpperCase()}...`, 'info');
+    
+    // Simular test del proveedor
+    setTimeout(() => {
+        const testResult = {
+            success: Math.random() > 0.15,
+            responseTime: Math.random() * 2 + 0.5,
+            tokensUsed: Math.floor(Math.random() * 200 + 50),
+            cost: Math.random() * 0.05 + 0.01
+        };
+        
+        if (testResult.success) {
+            showNotification('Test exitoso', `${provider.toUpperCase()} funcionando correctamente. Tiempo: ${testResult.responseTime.toFixed(1)}s`, 'success');
+            
+            // Actualizar métricas de test
+            document.getElementById('responseTime').textContent = `${testResult.responseTime.toFixed(1)}s`;
+            document.getElementById('tokensUsed').textContent = testResult.tokensUsed;
+            document.getElementById('estimatedCost').textContent = `€${testResult.cost.toFixed(3)}`;
+        } else {
+            showNotification('Test fallido', `Error al probar ${provider.toUpperCase()}.`, 'error');
+        }
+    }, 2000);
+}
+
+function updateProviderStats() {
+    // Simular actualización de estadísticas
+    const stats = {
+        openai: { requests: 1247, tokens: '847K', cost: '€127' },
+        claude: { requests: 892, tokens: '234K', cost: '€89' },
+        deepseek: { requests: 0, tokens: '0', cost: '€0' }
+    };
+    
+    Object.keys(stats).forEach(provider => {
+        const card = document.getElementById(`${provider}-card`);
+        if (card) {
+            const statItems = card.querySelectorAll('.stat-value');
+            statItems[0].textContent = stats[provider].requests;
+            statItems[1].textContent = stats[provider].tokens;
+            statItems[2].textContent = stats[provider].cost;
+        }
+    });
+}
+
+function refreshProviders() {
+    updateProviderStats();
+    showNotification('Datos actualizados', 'Estadísticas de proveedores actualizadas.', 'info');
+}
+
+// ========== CONTEXTO EMPRESARIAL ==========
+function loadContextTemplate(templateType) {
+    const templates = {
+        company: `ERP13 Enterprise es una empresa líder en desarrollo de sistemas ERP personalizados para medianas y grandes empresas.
+
+Nuestra especialización incluye:
+- Desarrollo de software ERP a medida
+- Integración con sistemas existentes  
+- Consultoría en transformación digital
+- Soporte técnico 24/7
+- Capacitación de equipos
+
+Valores empresariales:
+- Innovación tecnológica constante
+- Calidad en el servicio al cliente
+- Transparencia en procesos
+- Responsabilidad social corporativa`,
+
+        products: `Catálogo de Productos y Servicios ERP13 Enterprise:
+
+MÓDULOS ERP:
+- Gestión de Clientes (CRM completo)
+- Facturación y Contabilidad
+- Gestión de Inventarios
+- Recursos Humanos
+- Gestión de Proyectos
+- Business Intelligence
+
+SERVICIOS PROFESIONALES:
+- Consultoría estratégica
+- Desarrollo personalizado
+- Integración de sistemas
+- Migración de datos
+- Capacitación especializada
+- Soporte técnico premium`,
+
+        processes: `Metodología de Trabajo ERP13 Enterprise:
+
+FASE 1: ANÁLISIS
+- Reuniones con stakeholders
+- Relevamiento de requerimientos
+- Análisis de procesos actuales
+- Definición de objetivos
+
+FASE 2: DISEÑO
+- Arquitectura de solución
+- Diseño de base de datos
+- Mockups y prototipos
+- Plan de implementación
+
+FASE 3: DESARROLLO
+- Desarrollo ágil con sprints
+- Testing automatizado
+- Revisiones semanales
+- Control de calidad
+
+FASE 4: IMPLEMENTACIÓN
+- Despliegue en producción
+- Migración de datos
+- Capacitación de usuarios
+- Go-live asistido`,
+
+        support: `Protocolos de Atención al Cliente ERP13 Enterprise:
+
+CANALES DE SOPORTE:
+- Email: soporte@erp13.com
+- Teléfono: +34 900 123 456
+- Portal web: https://support.erp13.com
+- Chat en vivo: 9:00 - 18:00
+
+NIVELES DE SOPORTE:
+Nivel 1: Consultas generales (Respuesta: 2h)
+Nivel 2: Problemas técnicos (Respuesta: 4h)
+Nivel 3: Incidencias críticas (Respuesta: 1h)
+Nivel 4: Emergencias (Respuesta: 30min)
+
+PROCEDIMIENTOS:
+1. Registro automático de ticket
+2. Asignación según prioridad
+3. Análisis y diagnóstico
+4. Resolución o escalamiento
+5. Seguimiento hasta cierre`
+    };
+    
+    const editor = document.getElementById('contextEditor');
+    if (templates[templateType]) {
+        editor.value = templates[templateType];
+        showNotification('Template cargado', `Template "${templateType}" cargado correctamente.`, 'info');
+    }
+}
+
+function insertVariable(variable) {
+    const editor = document.getElementById('contextEditor');
+    const startPos = editor.selectionStart;
+    const endPos = editor.selectionEnd;
+    const beforeText = editor.value.substring(0, startPos);
+    const afterText = editor.value.substring(endPos);
+    
+    editor.value = beforeText + variable + afterText;
+    editor.selectionStart = editor.selectionEnd = startPos + variable.length;
+    editor.focus();
+    
+    showNotification('Variable insertada', `${variable} insertado en el contexto.`, 'success');
+}
+
+function saveContext() {
+    const context = document.getElementById('contextEditor').value;
+    
+    if (!context.trim()) {
+        showNotification('Error', 'El contexto empresarial no puede estar vacío.', 'error');
+        return;
+    }
+    
+    // Simular guardado
+    localStorage.setItem('aiEnterpriseContext', context);
+    showNotification('Contexto guardado', 'El contexto empresarial ha sido guardado correctamente.', 'success');
+}
+
+// ========== ANALYTICS ==========
+function loadAnalytics() {
+    updateAnalyticsMetrics();
+    // Aquí se cargarían los gráficos reales
+}
+
+function updateAnalyticsMetrics() {
+    // Simular métricas dinámicas
+    const metrics = {
+        requests: 2847 + Math.floor(Math.random() * 100),
+        tokens: (1200000 + Math.floor(Math.random() * 50000)),
+        cost: 234 + Math.floor(Math.random() * 20),
+        accuracy: 94.7 + Math.random() * 2
+    };
+    
+    document.getElementById('aiRequests').textContent = metrics.requests.toLocaleString();
+    document.getElementById('aiTokens').textContent = `${(metrics.tokens / 1000000).toFixed(1)}M`;
+    document.getElementById('aiAccuracy').textContent = `${metrics.accuracy.toFixed(1)}%`;
+}
+
+function exportAnalytics() {
+    // Simular exportación de analytics
+    showNotification('Exportando datos', 'Generando reporte de analytics...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Exportación completada', 'Reporte de analytics descargado correctamente.', 'success');
+    }, 2000);
+}
+
+// ========== TESTING DE IA ==========
+function initializeTestingEnvironment() {
+    initializeChat();
+    loadTestScenarios();
+}
+
+function initializeChat() {
+    const messagesContainer = document.getElementById('chatMessages');
+    if (messagesContainer) {
+        // Limpiar mensajes existentes excepto el de bienvenida
+        // (El mensaje de bienvenida ya está en el HTML)
+    }
+}
+
+function sendTestMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Añadir mensaje del usuario
+    addMessage('user', message);
+    input.value = '';
+    input.style.height = 'auto';
+    
+    // Simular respuesta de IA
+    setTimeout(() => {
+        simulateAIResponse(message);
+    }, 1000 + Math.random() * 2000);
+}
+
+function addMessage(sender, content) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const currentTime = new Date().toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    const messageEl = document.createElement('div');
+    messageEl.className = `message ${sender}`;
+    messageEl.innerHTML = `
+        <div class="message-avatar">${sender === 'user' ? 'TU' : 'AI'}</div>
+        <div class="message-content">
+            ${content}
+            <div class="message-time">${currentTime}</div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageEl);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function simulateAIResponse(userMessage) {
+    const responses = {
+        'información empresa': 'ERP13 Enterprise es líder en desarrollo de sistemas ERP personalizados. Ofrecemos soluciones integrales que incluyen desarrollo a medida, consultoría, integración y soporte 24/7. Nuestros valores son la innovación, calidad, transparencia y responsabilidad social.',
+        
+        'servicios': 'Nuestros principales servicios incluyen: desarrollo de software ERP personalizado, integración con sistemas existentes, consultoría en transformación digital, soporte técnico 24/7, capacitación de equipos, y migración de datos. ¿Hay algún servicio específico que te interese?',
+        
+        'precios': 'Nuestros precios varían según el alcance del proyecto. Para módulos estándar, los precios van desde €15,000 por módulo básico hasta €50,000 por módulos complejos. Las implementaciones completas pueden oscilar entre €80,000 y €300,000. ¿Te interesa recibir una cotización personalizada?',
+        
+        'soporte': 'Ofrecemos soporte técnico 24/7 con diferentes niveles: Nivel 1 (consultas generales, respuesta en 2h), Nivel 2 (problemas técnicos, 4h), Nivel 3 (incidencias críticas, 1h), y Nivel 4 (emergencias, 30min). Puedes contactarnos por email, teléfono, portal web o chat en vivo.',
+        
+        'integración': 'Realizamos integraciones con múltiples sistemas: SAP, Oracle, Microsoft Dynamics, Sage, bases de datos SQL/NoSQL, APIs REST/SOAP, servicios cloud (AWS, Azure, GCP), y sistemas legacy. Nuestro equipo especializado garantiza una integración sin interrupciones.',
+        
+        'default': 'Gracias por tu consulta. Como asistente de ERP13 Enterprise, puedo ayudarte con información sobre nuestros servicios ERP, procesos de implementación, soporte técnico, precios, integraciones y cualquier aspecto de nuestras soluciones empresariales. ¿Podrías ser más específico sobre lo que necesitas?'
+    };
+    
+    let response = responses.default;
+    
+    // Buscar respuesta apropiada
+    Object.keys(responses).forEach(key => {
+        if (key !== 'default' && userMessage.toLowerCase().includes(key)) {
+            response = responses[key];
+        }
+    });
+    
+    addMessage('ai', response);
+    
+    // Actualizar métricas de test
+    updateTestMetrics();
+}
+
+function updateTestMetrics() {
+    const responseTime = Math.random() * 2 + 0.5;
+    const tokensUsed = Math.floor(Math.random() * 400 + 100);
+    const cost = Math.random() * 0.08 + 0.01;
+    const relevance = Math.random() * 10 + 85;
+    
+    document.getElementById('responseTime').textContent = `${responseTime.toFixed(1)}s`;
+    document.getElementById('tokensUsed').textContent = tokensUsed;
+    document.getElementById('estimatedCost').textContent = `€${cost.toFixed(3)}`;
+    document.getElementById('relevanceScore').textContent = `${relevance.toFixed(0)}%`;
+}
+
+function loadScenario(scenarioType) {
+    const scenarios = {
+        'company-info': '¿Puedes contarme sobre ERP13 Enterprise y sus principales servicios?',
+        'technical-support': 'Estoy teniendo problemas con la sincronización de datos en el módulo de inventarios. ¿Cómo puedo solucionarlo?',
+        'sales-process': '¿Cuál es el proceso para solicitar una cotización personalizada y cuáles son sus precios aproximados?',
+        'integration': 'Necesito integrar ERP13 con nuestro sistema SAP existente. ¿Qué opciones tenemos?',
+        'training': '¿Qué tipos de capacitación ofrecen para nuestro equipo de usuarios finales?'
+    };
+    
+    const input = document.getElementById('chatInput');
+    if (scenarios[scenarioType]) {
+        input.value = scenarios[scenarioType];
+        input.focus();
+        showNotification('Escenario cargado', 'Escenario de prueba cargado en el chat.', 'info');
+    }
+}
+
+// ========== GESTIÓN DE DOCUMENTOS ==========
+function loadDocuments() {
+    // Simular carga de documentos
+    showNotification('Documentos cargados', 'Base de conocimiento actualizada.', 'info');
+}
+
+function uploadDocument() {
+    // Simular subida de documento
+    showNotification('Función en desarrollo', 'La subida de documentos estará disponible próximamente.', 'info');
+}
+
+function viewDocument(docId) {
+    const viewer = document.querySelector('.document-viewer');
+    const documents = {
+        'manual-usuario': `
+            <h3>Manual de Usuario ERP13</h3>
+            <p><strong>Versión:</strong> 2.1.4</p>
+            <p><strong>Última actualización:</strong> 19/09/2024</p>
+            <hr>
+            <h4>Contenido del documento</h4>
+            <ul>
+                <li>Introducción al sistema ERP13</li>
+                <li>Navegación e interfaz de usuario</li>
+                <li>Módulos principales</li>
+                <li>Funciones avanzadas</li>
+                <li>Solución de problemas</li>
+                <li>FAQ frecuentes</li>
+            </ul>
+            <p>Este manual proporciona información completa sobre el uso del sistema ERP13 Enterprise...</p>
+        `,
+        'procedimientos': `
+            <h3>Procedimientos Internos</h3>
+            <p><strong>Documento:</strong> Flujos de trabajo empresariales</p>
+            <p><strong>Versión:</strong> 1.8.2</p>
+            <hr>
+            <h4>Procedimientos incluidos</h4>
+            <ul>
+                <li>Proceso de ventas</li>
+                <li>Gestión de proyectos</li>
+                <li>Soporte técnico</li>
+                <li>Facturación y cobranza</li>
+                <li>Gestión de calidad</li>
+            </ul>
+        `,
+        'precios': `
+            <h3>Lista de Precios 2024</h3>
+            <p><strong>Válida desde:</strong> 01/01/2024</p>
+            <p><strong>Moneda:</strong> EUR</p>
+            <hr>
+            <h4>Módulos ERP</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td><strong>Módulo CRM</strong></td>
+                    <td style="text-align: right;"><strong>€25,000</strong></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td><strong>Módulo Facturación</strong></td>
+                    <td style="text-align: right;"><strong>€30,000</strong></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td><strong>Módulo Inventarios</strong></td>
+                    <td style="text-align: right;"><strong>€20,000</strong></td>
+                </tr>
+            </table>
+        `
+    };
+    
+    if (documents[docId]) {
+        viewer.innerHTML = `<div style="padding: 2rem; background: white; border-radius: 8px; height: 100%; overflow-y: auto;">${documents[docId]}</div>`;
+    } else {
+        viewer.innerHTML = '<div class="viewer-placeholder"><i class="fas fa-file-alt" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;"></i><br>Documento no encontrado</div>';
+    }
+}
+
+// ========== FUNCIONES GENERALES ==========
+function updateStats() {
+    updateAnalyticsMetrics();
+    updateProviderStats();
+}
+
+function testAllProviders() {
+    showNotification('Iniciando test', 'Probando todos los proveedores de IA...', 'info');
+    
+    let delay = 0;
+    Object.keys(aiConfig).forEach(provider => {
+        if (aiConfig[provider].active) {
+            setTimeout(() => {
+                testProvider(provider);
+            }, delay);
+            delay += 1000;
+        }
+    });
+}
+
+function exportSettings() {
+    const settings = {
+        providers: aiConfig,
+        context: document.getElementById('contextEditor')?.value || '',
+        timestamp: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'erp13-ai-config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showNotification('Configuración exportada', 'Archivo de configuración descargado correctamente.', 'success');
+}
+
+function setupEventListeners() {
+    // Enter para enviar mensaje en chat
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendTestMessage();
+            }
+        });
+    }
+    
+    // Cambio de proveedor en testing
+    const providerSelect = document.getElementById('testProvider');
+    if (providerSelect) {
+        providerSelect.addEventListener('change', function() {
+            activeProvider = this.value;
+            showNotification('Proveedor cambiado', `Ahora usando ${this.value.toUpperCase()} para testing.`, 'info');
+        });
+    }
+    
+    // Toolbar de contexto
+    document.querySelectorAll('.toolbar-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.toolbar-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const contextType = this.dataset.context;
+            if (contextType) {
+                loadContextTemplate(contextType);
+            }
+        });
+    });
+}
+
+// ========== NOTIFICACIONES ==========
+function showNotification(title, message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const titleElement = document.getElementById('notificationTitle');
+    const messageElement = document.getElementById('notificationMessage');
+    const iconElement = notification.querySelector('.notification-icon i');
+    
+    titleElement.textContent = title;
+    messageElement.textContent = message;
+    
+    // Limpiar clases anteriores
+    notification.className = 'notification';
+    
+    // Agregar clase de tipo
+    notification.classList.add(type);
+    
+    // Cambiar icono según tipo
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    iconElement.className = `fas ${icons[type]}`;
+    
+    // Mostrar notificación
+    notification.classList.add('show');
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 5000);
+}
+
+// ========== AUTO-REFRESH ==========
+setInterval(() => {
+    if (currentTab === 'analytics') {
+        updateAnalyticsMetrics();
+    }
+    if (currentTab === 'providers') {
+        updateProviderStats();
+    }
+}, 30000); // Actualizar cada 30 segundos
+
+// Inicializar estadísticas al cargar
+updateStats();
+</script>
+{% endblock %}

@@ -1,0 +1,1557 @@
+{% extends "layout.html" %}
+
+{% block title %}Estados de Pago - ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =============================================================================
+   ESTADOS DE PAGO - SISTEMA FACTURACIÓN ERP13
+   Arquitectura: /templates/facturacion/estados_pago.html
+   Performance: CSS Grid + Flexbox + Progressive loading
+   Compatibilidad: Bootstrap 5 + Font Awesome 6 + Responsive
+   Integración: Cross-template con facturas_clientes.html & facturas_proveedores.html
+============================================================================= */
+
+:root {
+    --primary-blue: #3b82f6;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --danger-red: #ef4444;
+    --dark-gray: #374151;
+    --light-gray: #f8fafc;
+    --border-color: #e5e7eb;
+    --cobrado-color: #06d6a0;
+    --pendiente-color: #ffd166;
+    --vencido-color: #f25c54;
+}
+
+body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Section */
+.estados-header {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #1e40af 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.estados-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    opacity: 0.2;
+}
+
+.estados-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+.estados-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+}
+
+.estados-header .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* KPIs Dashboard - Imagen 1 Exacta */
+.kpis-section {
+    margin: 2rem 0;
+}
+
+.kpis-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.kpi-facturado::before { background: var(--primary-blue); }
+.kpi-cobrado::before { background: var(--cobrado-color); }
+.kpi-pendiente::before { background: var(--pendiente-color); }
+.kpi-vencido::before { background: var(--vencido-color); }
+
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.kpi-icon {
+    font-size: 2rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    color: white;
+}
+
+.kpi-facturado .kpi-icon { background: var(--primary-blue); }
+.kpi-cobrado .kpi-icon { background: var(--cobrado-color); }
+.kpi-pendiente .kpi-icon { background: var(--pendiente-color); }
+.kpi-vencido .kpi-icon { background: var(--vencido-color); }
+
+.kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0.5rem 0;
+}
+
+.kpi-facturado .kpi-value { color: var(--primary-blue); }
+.kpi-cobrado .kpi-value { color: var(--cobrado-color); }
+.kpi-pendiente .kpi-value { color: var(--pendiente-color); }
+.kpi-vencido .kpi-value { color: var(--vencido-color); }
+
+.kpi-label {
+    font-size: 0.95rem;
+    color: var(--dark-gray);
+    font-weight: 600;
+    margin: 0;
+}
+
+.kpi-sublabel {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Funciones Masivas */
+.bulk-actions {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.bulk-actions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.bulk-actions h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.bulk-actions-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.bulk-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.bulk-btn-primary {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.bulk-btn-warning {
+    background: var(--warning-orange);
+    color: white;
+}
+
+.bulk-btn-success {
+    background: var(--success-green);
+    color: white;
+}
+
+.bulk-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.bulk-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Tabla de Estados - Diseño Exacto */
+.estados-table-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.estados-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.estados-table thead th {
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 1rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    border-bottom: 2px solid var(--border-color);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.estados-table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.estados-table tbody tr:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f3f4f6 100%);
+}
+
+.estados-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+/* Columnas específicas */
+.col-factura {
+    width: 15%;
+    font-weight: 600;
+}
+
+.col-cliente {
+    width: 20%;
+}
+
+.col-fecha-venc {
+    width: 12%;
+    text-align: center;
+}
+
+.col-total {
+    width: 12%;
+    text-align: right;
+    font-weight: 700;
+}
+
+.col-pagado {
+    width: 12%;
+    text-align: right;
+    font-weight: 700;
+    color: var(--cobrado-color);
+}
+
+.col-pendiente {
+    width: 12%;
+    text-align: right;
+    font-weight: 700;
+    color: var(--pendiente-color);
+}
+
+.col-progreso {
+    width: 10%;
+}
+
+.col-estado {
+    width: 10%;
+    text-align: center;
+}
+
+.col-acciones {
+    width: 12%;
+    text-align: center;
+}
+
+/* Estados Badge */
+.estado-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.estado-cobrada {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.estado-pendiente {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-orange);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.estado-vencida {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Barra de Progreso */
+.progress-container {
+    background: #e5e7eb;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    background: linear-gradient(90deg, var(--cobrado-color) 0%, var(--success-green) 100%);
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-top: 0.25rem;
+    text-align: center;
+}
+
+/* Acciones por Factura - Imagen 2 Exacta */
+.acciones-factura {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.accion-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    position: relative;
+}
+
+.accion-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón Editar Factura */
+.btn-editar {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #1e40af 100%);
+    color: white;
+}
+
+.btn-editar:hover {
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+/* Botón Recordar Pago */
+.btn-recordar {
+    background: linear-gradient(135deg, var(--warning-orange) 0%, #d97706 100%);
+    color: white;
+}
+
+.btn-recordar:hover {
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* Botón Registrar Pago Parcial */
+.btn-pago-parcial {
+    background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+    color: white;
+}
+
+.btn-pago-parcial:hover {
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+/* Botón Ver Factura */
+.btn-ver {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+.btn-ver:hover {
+    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+}
+
+/* Tooltips para Acciones */
+.accion-btn[data-bs-toggle="tooltip"]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Checkbox Personalizado */
+.custom-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.custom-checkbox:checked {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.custom-checkbox:checked::after {
+    content: '✓';
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .kpis-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .bulk-actions-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulk-btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .estados-header h1 {
+        font-size: 2rem;
+    }
+    
+    .kpis-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .kpi-card {
+        padding: 1.5rem;
+    }
+    
+    .estados-table {
+        font-size: 0.85rem;
+    }
+    
+    .estados-table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .acciones-factura {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .accion-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Loading Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Estados Adicionales */
+.sin-facturas {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.sin-facturas i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.sin-facturas h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.sin-facturas p {
+    font-size: 1rem;
+    margin: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="estados-header">
+    <div class="container">
+        <h1><i class="fas fa-chart-line"></i> Estados de Pago</h1>
+        <p class="subtitle">Seguimiento completo del flujo de cobros - Integración con Facturas de Clientes y Proveedores</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- KPIs Dashboard - Imagen 1 Exacta -->
+    <div class="kpis-section">
+        <div class="kpis-row">
+            <!-- Total Facturado -->
+            <div class="kpi-card kpi-facturado">
+                <div class="kpi-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                </div>
+                <div class="kpi-value">4,010€</div>
+                <div class="kpi-label">Total Facturado</div>
+                <div class="kpi-sublabel">2 facturas emitidas</div>
+            </div>
+
+            <!-- Total Cobrado -->
+            <div class="kpi-card kpi-cobrado">
+                <div class="kpi-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="kpi-value">1,590€</div>
+                <div class="kpi-label">Total Cobrado</div>
+                <div class="kpi-sublabel">1 factura cobrada</div>
+            </div>
+
+            <!-- Pendiente de Cobro -->
+            <div class="kpi-card kpi-pendiente">
+                <div class="kpi-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="kpi-value">2,420€</div>
+                <div class="kpi-label">Pendiente</div>
+                <div class="kpi-sublabel">1 factura pendiente</div>
+            </div>
+
+            <!-- Facturas Vencidas -->
+            <div class="kpi-card kpi-vencido">
+                <div class="kpi-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="kpi-value">0€</div>
+                <div class="kpi-label">Vencido</div>
+                <div class="kpi-sublabel">0 facturas vencidas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funciones Masivas -->
+    <div class="bulk-actions">
+        <div class="bulk-actions-header">
+            <h3><i class="fas fa-tasks"></i> Acciones Masivas</h3>
+            <span class="text-muted">Gestión por lotes</span>
+        </div>
+        <div class="bulk-actions-controls">
+            <button class="bulk-btn bulk-btn-primary" id="editarMasivo" disabled>
+                <i class="fas fa-edit"></i>
+                Editar Masivo (0)
+            </button>
+            <button class="bulk-btn bulk-btn-warning" id="enviarRecordatorios" disabled>
+                <i class="fas fa-envelope"></i>
+                Enviar Recordatorios (0)
+            </button>
+            <button class="bulk-btn bulk-btn-success" id="exportarDatos">
+                <i class="fas fa-download"></i>
+                Exportar
+            </button>
+            <button class="bulk-btn bulk-btn-primary" id="seleccionarVencidas">
+                <i class="fas fa-filter"></i>
+                Seleccionar Vencidas
+            </button>
+            <button class="bulk-btn bulk-btn-warning" id="seleccionarPendientes">
+                <i class="fas fa-filter"></i>
+                Seleccionar Pendientes
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla de Estados de Pago -->
+    <div class="estados-table-container">
+        <div class="table-header">
+            <h3><i class="fas fa-table"></i> Estados de Facturas</h3>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="estados-table">
+                <thead>
+                    <tr>
+                        <th style="width: 3%;">
+                            <input type="checkbox" class="custom-checkbox" id="selectAll">
+                        </th>
+                        <th class="col-factura">Factura</th>
+                        <th class="col-cliente">Cliente</th>
+                        <th class="col-fecha-venc">Fecha Venc.</th>
+                        <th class="col-total">Total</th>
+                        <th class="col-pagado">Pagado</th>
+                        <th class="col-pendiente">Pendiente</th>
+                        <th class="col-progreso">Progreso</th>
+                        <th class="col-estado">Estado</th>
+                        <th class="col-acciones">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="estadosTableBody">
+                    <!-- Factura 1 - Completamente Cobrada -->
+                    <tr data-factura-id="FAC-2024-001">
+                        <td>
+                            <input type="checkbox" class="custom-checkbox factura-checkbox">
+                        </td>
+                        <td class="col-factura">
+                            <div>
+                                <strong>FAC-2024-001</strong><br>
+                                <small class="text-muted">15/03/2024</small>
+                            </div>
+                        </td>
+                        <td class="col-cliente">
+                            <div>
+                                <strong>TechSolutions S.L.</strong><br>
+                                <small class="text-muted">B12345678</small>
+                            </div>
+                        </td>
+                        <td class="col-fecha-venc">
+                            <div>
+                                <strong>14/04/2024</strong><br>
+                                <small class="text-success">A tiempo</small>
+                            </div>
+                        </td>
+                        <td class="col-total">
+                            <strong>1,590.00€</strong>
+                        </td>
+                        <td class="col-pagado">
+                            <strong>1,590.00€</strong>
+                        </td>
+                        <td class="col-pendiente">
+                            <strong>0.00€</strong>
+                        </td>
+                        <td class="col-progreso">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 100%;"></div>
+                            </div>
+                            <div class="progress-text">100%</div>
+                        </td>
+                        <td class="col-estado">
+                            <span class="estado-badge estado-cobrada">
+                                <i class="fas fa-check"></i> Cobrada
+                            </span>
+                        </td>
+                        <td class="col-acciones">
+                            <div class="acciones-factura">
+                                <button class="accion-btn btn-editar" title="Editar Factura" onclick="editarFactura('FAC-2024-001')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="accion-btn btn-recordar" title="Recordar Pago" onclick="recordarPago('FAC-2024-001')" disabled>
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                                <button class="accion-btn btn-pago-parcial" title="Registrar Pago Parcial" onclick="registrarPagoParcial('FAC-2024-001')" disabled>
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="accion-btn btn-ver" title="Ver Factura" onclick="verFactura('FAC-2024-001')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Factura 2 - Pendiente -->
+                    <tr data-factura-id="FAC-2024-002">
+                        <td>
+                            <input type="checkbox" class="custom-checkbox factura-checkbox">
+                        </td>
+                        <td class="col-factura">
+                            <div>
+                                <strong>FAC-2024-002</strong><br>
+                                <small class="text-muted">22/03/2024</small>
+                            </div>
+                        </td>
+                        <td class="col-cliente">
+                            <div>
+                                <strong>InnovaCorp Ltd.</strong><br>
+                                <small class="text-muted">A87654321</small>
+                            </div>
+                        </td>
+                        <td class="col-fecha-venc">
+                            <div>
+                                <strong>21/04/2024</strong><br>
+                                <small class="text-warning">7 días</small>
+                            </div>
+                        </td>
+                        <td class="col-total">
+                            <strong>2,420.00€</strong>
+                        </td>
+                        <td class="col-pagado">
+                            <strong>0.00€</strong>
+                        </td>
+                        <td class="col-pendiente">
+                            <strong>2,420.00€</strong>
+                        </td>
+                        <td class="col-progreso">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="progress-text">0%</div>
+                        </td>
+                        <td class="col-estado">
+                            <span class="estado-badge estado-pendiente">
+                                <i class="fas fa-clock"></i> Pendiente
+                            </span>
+                        </td>
+                        <td class="col-acciones">
+                            <div class="acciones-factura">
+                                <button class="accion-btn btn-editar" title="Editar Factura" onclick="editarFactura('FAC-2024-002')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="accion-btn btn-recordar" title="Recordar Pago" onclick="recordarPago('FAC-2024-002')">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                                <button class="accion-btn btn-pago-parcial" title="Registrar Pago Parcial" onclick="registrarPagoParcial('FAC-2024-002')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="accion-btn btn-ver" title="Ver Factura" onclick="verFactura('FAC-2024-002')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registrar Pago Parcial -->
+<div class="modal fade" id="modalPagoParcial" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle text-success"></i>
+                    Registrar Pago Parcial
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Factura</label>
+                            <input type="text" class="form-control" id="facturaNumero" readonly>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Total Factura</label>
+                            <input type="text" class="form-control" id="totalFactura" readonly>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Ya Pagado</label>
+                            <input type="text" class="form-control" id="yaPagado" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Importe del Pago *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="importePago" min="0" step="0.01" required>
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Fecha del Pago *</label>
+                            <input type="date" class="form-control" id="fechaPago" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Método de Pago</label>
+                            <select class="form-control" id="metodoPago">
+                                <option value="transferencia">Transferencia Bancaria</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="cheque">Cheque</option>
+                                <option value="tarjeta">Tarjeta</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Observaciones</label>
+                    <textarea class="form-control" id="observacionesPago" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" onclick="guardarPagoParcial()">
+                    <i class="fas fa-save"></i> Registrar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Recordar Pago -->
+<div class="modal fade" id="modalRecordarPago" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope text-warning"></i>
+                    Recordar Pago
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label class="form-label">Factura</label>
+                    <input type="text" class="form-control" id="recordarFacturaNumero" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Cliente</label>
+                    <input type="text" class="form-control" id="recordarCliente" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="recordarEmail" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Asunto</label>
+                    <input type="text" class="form-control" id="recordarAsunto" value="Recordatorio de Pago - Factura">
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Mensaje</label>
+                    <textarea class="form-control" id="recordarMensaje" rows="5">
+Estimado/a cliente,
+
+Le recordamos que tiene pendiente el pago de la factura mencionada.
+
+Detalles de la factura:
+- Número: [NUMERO_FACTURA]
+- Importe: [IMPORTE_FACTURA]
+- Fecha de vencimiento: [FECHA_VENCIMIENTO]
+
+Por favor, proceda al pago lo antes posible.
+
+Gracias por su atención.
+
+Atentamente,
+[NOMBRE_EMPRESA]
+                    </textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-warning" onclick="enviarRecordatorio()">
+                    <i class="fas fa-paper-plane"></i> Enviar Recordatorio
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* =============================================================================
+   ESTADOS DE PAGO - JAVASCRIPT FUNCIONAL
+   Integración: Cross-template con facturas_clientes.html & facturas_proveedores.html
+   Performance: Eventos optimizados + AJAX + Local Storage
+============================================================================= */
+
+$(document).ready(function() {
+    inicializarEstadosPago();
+    configurarEventos();
+    cargarDatosCrossTemplate();
+});
+
+// Inicialización del sistema
+function inicializarEstadosPago() {
+    console.log('🔄 Inicializando Estados de Pago...');
+    
+    // Configurar fecha actual por defecto
+    $('#fechaPago').val(new Date().toISOString().split('T')[0]);
+    
+    // Inicializar tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+    
+    // Cargar estados guardados
+    cargarEstadosLocalStorage();
+    
+    console.log('✅ Estados de Pago inicializados');
+}
+
+// Configurar todos los eventos
+function configurarEventos() {
+    // Checkbox maestro
+    $('#selectAll').change(function() {
+        const isChecked = $(this).is(':checked');
+        $('.factura-checkbox').prop('checked', isChecked);
+        actualizarContadoresMasivos();
+    });
+    
+    // Checkboxes individuales
+    $('.factura-checkbox').change(function() {
+        actualizarContadoresMasivos();
+        
+        // Actualizar checkbox maestro
+        const total = $('.factura-checkbox').length;
+        const checked = $('.factura-checkbox:checked').length;
+        $('#selectAll').prop('checked', checked === total);
+    });
+    
+    // Botones de acciones masivas
+    $('#editarMasivo').click(editarMasivo);
+    $('#enviarRecordatorios').click(enviarRecordatoriosMasivo);
+    $('#exportarDatos').click(exportarDatos);
+    $('#seleccionarVencidas').click(seleccionarVencidas);
+    $('#seleccionarPendientes').click(seleccionarPendientes);
+    
+    // Validación de importe en modal
+    $('#importePago').on('input', validarImportePago);
+}
+
+// Cargar datos de facturas_clientes.html y facturas_proveedores.html
+function cargarDatosCrossTemplate() {
+    console.log('🔗 Cargando datos cross-template...');
+    
+    // Simulación de carga desde otros templates
+    // En implementación real, esto vendría de APIs
+    const datosFacturas = obtenerDatosFacturas();
+    
+    if (datosFacturas && datosFacturas.length > 0) {
+        actualizarTablaConDatos(datosFacturas);
+        actualizarKPIs(datosFacturas);
+    }
+}
+
+// Obtener datos de facturas (integración cross-template)
+function obtenerDatosFacturas() {
+    // En implementación real, esto haría llamadas AJAX a:
+    // /api/facturas/clientes y /api/facturas/proveedores
+    
+    return [
+        {
+            numero: 'FAC-2024-001',
+            cliente: 'TechSolutions S.L.',
+            cif: 'B12345678',
+            fechaEmision: '2024-03-15',
+            fechaVencimiento: '2024-04-14',
+            total: 1590.00,
+            pagado: 1590.00,
+            pendiente: 0.00,
+            estado: 'cobrada',
+            progreso: 100
+        },
+        {
+            numero: 'FAC-2024-002',
+            cliente: 'InnovaCorp Ltd.',
+            cif: 'A87654321',
+            fechaEmision: '2024-03-22',
+            fechaVencimiento: '2024-04-21',
+            total: 2420.00,
+            pagado: 0.00,
+            pendiente: 2420.00,
+            estado: 'pendiente',
+            progreso: 0
+        }
+    ];
+}
+
+// Actualizar KPIs basado en datos reales
+function actualizarKPIs(facturas) {
+    const totalFacturado = facturas.reduce((sum, f) => sum + f.total, 0);
+    const totalCobrado = facturas.reduce((sum, f) => sum + f.pagado, 0);
+    const totalPendiente = facturas.reduce((sum, f) => sum + f.pendiente, 0);
+    const totalVencido = facturas.filter(f => 
+        new Date(f.fechaVencimiento) < new Date() && f.pendiente > 0
+    ).reduce((sum, f) => sum + f.pendiente, 0);
+    
+    // Actualizar valores en la UI
+    $('.kpi-facturado .kpi-value').text(formatearMoneda(totalFacturado));
+    $('.kpi-cobrado .kpi-value').text(formatearMoneda(totalCobrado));
+    $('.kpi-pendiente .kpi-value').text(formatearMoneda(totalPendiente));
+    $('.kpi-vencido .kpi-value').text(formatearMoneda(totalVencido));
+    
+    // Actualizar sublabels
+    $('.kpi-facturado .kpi-sublabel').text(`${facturas.length} facturas emitidas`);
+    $('.kpi-cobrado .kpi-sublabel').text(`${facturas.filter(f => f.estado === 'cobrada').length} facturas cobradas`);
+    $('.kpi-pendiente .kpi-sublabel').text(`${facturas.filter(f => f.estado === 'pendiente').length} facturas pendientes`);
+    $('.kpi-vencido .kpi-sublabel').text(`${facturas.filter(f => new Date(f.fechaVencimiento) < new Date() && f.pendiente > 0).length} facturas vencidas`);
+}
+
+// Acciones por Factura - Imagen 2 Implementación
+
+// 1. Editar Factura (icono documento)
+function editarFactura(numeroFactura) {
+    console.log(`📄 Editando factura: ${numeroFactura}`);
+    
+    // Mostrar loading
+    mostrarLoading();
+    
+    // En implementación real: redirigir a facturas_clientes.html#edit
+    setTimeout(() => {
+        ocultarLoading();
+        // window.location.href = `/facturacion/clientes?edit=${numeroFactura}`;
+        
+        // Demo: mostrar modal de confirmación
+        mostrarNotificacion(
+            'info',
+            'Editar Factura',
+            `Redirigiendo a edición de factura ${numeroFactura}...`
+        );
+    }, 1000);
+}
+
+// 2. Recordar Pago (email automático)
+function recordarPago(numeroFactura) {
+    console.log(`📧 Recordando pago: ${numeroFactura}`);
+    
+    // Cargar datos de la factura
+    const factura = obtenerFacturaPorNumero(numeroFactura);
+    if (!factura) {
+        mostrarNotificacion('error', 'Error', 'Factura no encontrada');
+        return;
+    }
+    
+    // Llenar modal con datos
+    $('#recordarFacturaNumero').val(factura.numero);
+    $('#recordarCliente').val(factura.cliente);
+    $('#recordarEmail').val('cliente@empresa.com'); // En real: obtener de BD
+    
+    // Personalizar mensaje
+    let mensaje = $('#recordarMensaje').val();
+    mensaje = mensaje.replace('[NUMERO_FACTURA]', factura.numero);
+    mensaje = mensaje.replace('[IMPORTE_FACTURA]', formatearMoneda(factura.total));
+    mensaje = mensaje.replace('[FECHA_VENCIMIENTO]', formatearFecha(factura.fechaVencimiento));
+    mensaje = mensaje.replace('[NOMBRE_EMPRESA]', 'ERP13 Enterprise');
+    $('#recordarMensaje').val(mensaje);
+    
+    // Mostrar modal
+    $('#modalRecordarPago').modal('show');
+}
+
+// 3. Registrar Pago Parcial (modal de pago)
+function registrarPagoParcial(numeroFactura) {
+    console.log(`➕ Registrando pago parcial: ${numeroFactura}`);
+    
+    // Cargar datos de la factura
+    const factura = obtenerFacturaPorNumero(numeroFactura);
+    if (!factura) {
+        mostrarNotificacion('error', 'Error', 'Factura no encontrada');
+        return;
+    }
+    
+    // Llenar modal con datos
+    $('#facturaNumero').val(factura.numero);
+    $('#totalFactura').val(formatearMoneda(factura.total));
+    $('#yaPagado').val(formatearMoneda(factura.pagado));
+    $('#importePago').attr('max', factura.pendiente);
+    $('#importePago').val('');
+    $('#observacionesPago').val('');
+    
+    // Mostrar modal
+    $('#modalPagoParcial').modal('show');
+}
+
+// 4. Ver Factura (vista detalle)
+function verFactura(numeroFactura) {
+    console.log(`👁️ Viendo factura: ${numeroFactura}`);
+    
+    // En implementación real: abrir en nueva pestaña
+    // window.open(`/facturas/ver/${numeroFactura}`, '_blank');
+    
+    // Demo: mostrar información
+    const factura = obtenerFacturaPorNumero(numeroFactura);
+    if (factura) {
+        mostrarNotificacion(
+            'info',
+            'Vista de Factura',
+            `
+            <strong>Factura:</strong> ${factura.numero}<br>
+            <strong>Cliente:</strong> ${factura.cliente}<br>
+            <strong>Total:</strong> ${formatearMoneda(factura.total)}<br>
+            <strong>Estado:</strong> ${factura.estado.toUpperCase()}
+            `
+        );
+    }
+}
+
+// Funciones de Acciones Masivas
+
+function actualizarContadoresMasivos() {
+    const seleccionadas = $('.factura-checkbox:checked').length;
+    
+    // Actualizar textos de botones
+    $('#editarMasivo').html(`<i class="fas fa-edit"></i> Editar Masivo (${seleccionadas})`);
+    $('#enviarRecordatorios').html(`<i class="fas fa-envelope"></i> Enviar Recordatorios (${seleccionadas})`);
+    
+    // Habilitar/deshabilitar botones
+    $('#editarMasivo').prop('disabled', seleccionadas === 0);
+    $('#enviarRecordatorios').prop('disabled', seleccionadas === 0);
+}
+
+function editarMasivo() {
+    const seleccionadas = $('.factura-checkbox:checked');
+    if (seleccionadas.length === 0) return;
+    
+    const facturas = [];
+    seleccionadas.each(function() {
+        const facturaId = $(this).closest('tr').data('factura-id');
+        facturas.push(facturaId);
+    });
+    
+    mostrarNotificacion(
+        'info',
+        'Edición Masiva',
+        `Procesando ${facturas.length} facturas para edición masiva...`
+    );
+    
+    console.log('📝 Edición masiva:', facturas);
+}
+
+function enviarRecordatoriosMasivo() {
+    const seleccionadas = $('.factura-checkbox:checked');
+    if (seleccionadas.length === 0) return;
+    
+    const facturas = [];
+    seleccionadas.each(function() {
+        const row = $(this).closest('tr');
+        const facturaId = row.data('factura-id');
+        const estado = row.find('.estado-badge').text().trim();
+        
+        // Solo recordar facturas pendientes
+        if (estado.includes('Pendiente')) {
+            facturas.push(facturaId);
+        }
+    });
+    
+    if (facturas.length === 0) {
+        mostrarNotificacion('warning', 'Aviso', 'No hay facturas pendientes seleccionadas');
+        return;
+    }
+    
+    mostrarLoading();
+    
+    // Simular envío
+    setTimeout(() => {
+        ocultarLoading();
+        mostrarNotificacion(
+            'success',
+            'Recordatorios Enviados',
+            `Se han enviado ${facturas.length} recordatorios de pago por email`
+        );
+        
+        console.log('📧 Recordatorios enviados:', facturas);
+    }, 2000);
+}
+
+function exportarDatos() {
+    mostrarLoading();
+    
+    // Simular exportación
+    setTimeout(() => {
+        ocultarLoading();
+        
+        // En implementación real: generar y descargar Excel/PDF
+        const datos = obtenerDatosFacturas();
+        const csv = convertirACSV(datos);
+        descargarArchivo(csv, 'estados_pago.csv', 'text/csv');
+        
+        mostrarNotificacion('success', 'Exportación', 'Datos exportados correctamente');
+    }, 1500);
+}
+
+function seleccionarVencidas() {
+    $('.factura-checkbox').prop('checked', false);
+    
+    // Seleccionar solo facturas vencidas
+    $('.estado-vencida').closest('tr').find('.factura-checkbox').prop('checked', true);
+    
+    actualizarContadoresMasivos();
+    mostrarNotificacion('info', 'Selección', 'Facturas vencidas seleccionadas');
+}
+
+function seleccionarPendientes() {
+    $('.factura-checkbox').prop('checked', false);
+    
+    // Seleccionar solo facturas pendientes
+    $('.estado-pendiente').closest('tr').find('.factura-checkbox').prop('checked', true);
+    
+    actualizarContadoresMasivos();
+    mostrarNotificacion('info', 'Selección', 'Facturas pendientes seleccionadas');
+}
+
+// Funciones de Modales
+
+function validarImportePago() {
+    const importe = parseFloat($('#importePago').val()) || 0;
+    const maxImporte = parseFloat($('#importePago').attr('max')) || 0;
+    
+    if (importe > maxImporte) {
+        $('#importePago').addClass('is-invalid');
+        mostrarNotificacion('warning', 'Aviso', 'El importe no puede ser mayor al pendiente');
+    } else {
+        $('#importePago').removeClass('is-invalid');
+    }
+}
+
+function guardarPagoParcial() {
+    const numeroFactura = $('#facturaNumero').val();
+    const importe = parseFloat($('#importePago').val());
+    const fecha = $('#fechaPago').val();
+    const metodo = $('#metodoPago').val();
+    const observaciones = $('#observacionesPago').val();
+    
+    // Validaciones
+    if (!importe || importe <= 0) {
+        mostrarNotificacion('error', 'Error', 'Debe especificar un importe válido');
+        return;
+    }
+    
+    if (!fecha) {
+        mostrarNotificacion('error', 'Error', 'Debe especificar la fecha del pago');
+        return;
+    }
+    
+    mostrarLoading();
+    
+    // Simular guardado
+    setTimeout(() => {
+        ocultarLoading();
+        $('#modalPagoParcial').modal('hide');
+        
+        // Actualizar tabla
+        actualizarFilaFactura(numeroFactura, importe);
+        
+        mostrarNotificacion(
+            'success',
+            'Pago Registrado',
+            `Pago de ${formatearMoneda(importe)} registrado para factura ${numeroFactura}`
+        );
+        
+        console.log('💰 Pago registrado:', {
+            factura: numeroFactura,
+            importe,
+            fecha,
+            metodo,
+            observaciones
+        });
+    }, 1000);
+}
+
+function enviarRecordatorio() {
+    const numeroFactura = $('#recordarFacturaNumero').val();
+    const email = $('#recordarEmail').val();
+    const asunto = $('#recordarAsunto').val();
+    const mensaje = $('#recordarMensaje').val();
+    
+    if (!email || !asunto || !mensaje) {
+        mostrarNotificacion('error', 'Error', 'Todos los campos son obligatorios');
+        return;
+    }
+    
+    mostrarLoading();
+    
+    // Simular envío
+    setTimeout(() => {
+        ocultarLoading();
+        $('#modalRecordarPago').modal('hide');
+        
+        mostrarNotificacion(
+            'success',
+            'Recordatorio Enviado',
+            `Recordatorio enviado a ${email} para factura ${numeroFactura}`
+        );
+        
+        console.log('📧 Recordatorio enviado:', {
+            factura: numeroFactura,
+            email,
+            asunto,
+            mensaje
+        });
+    }, 1500);
+}
+
+// Funciones Auxiliares
+
+function obtenerFacturaPorNumero(numero) {
+    const facturas = obtenerDatosFacturas();
+    return facturas.find(f => f.numero === numero);
+}
+
+function actualizarFilaFactura(numeroFactura, importePago) {
+    const fila = $(`tr[data-factura-id="${numeroFactura}"]`);
+    if (fila.length === 0) return;
+    
+    // Obtener valores actuales
+    const totalText = fila.find('.col-total strong').text();
+    const pagadoText = fila.find('.col-pagado strong').text();
+    
+    const total = parseFloat(totalText.replace('€', '').replace(',', ''));
+    const pagadoActual = parseFloat(pagadoText.replace('€', '').replace(',', ''));
+    
+    // Calcular nuevos valores
+    const nuevoPagado = pagadoActual + importePago;
+    const nuevoPendiente = total - nuevoPagado;
+    const nuevoProgreso = Math.round((nuevoPagado / total) * 100);
+    
+    // Actualizar UI
+    fila.find('.col-pagado strong').text(formatearMoneda(nuevoPagado));
+    fila.find('.col-pendiente strong').text(formatearMoneda(nuevoPendiente));
+    fila.find('.progress-bar').css('width', `${nuevoProgreso}%`);
+    fila.find('.progress-text').text(`${nuevoProgreso}%`);
+    
+    // Actualizar estado si está completamente pagada
+    if (nuevoPendiente <= 0) {
+        const estadoBadge = fila.find('.estado-badge');
+        estadoBadge.removeClass('estado-pendiente').addClass('estado-cobrada');
+        estadoBadge.html('<i class="fas fa-check"></i> Cobrada');
+        
+        // Deshabilitar botones de recordar y pago parcial
+        fila.find('.btn-recordar, .btn-pago-parcial').prop('disabled', true);
+    }
+    
+    // Actualizar KPIs
+    setTimeout(() => {
+        const facturas = obtenerDatosFacturas();
+        actualizarKPIs(facturas);
+    }, 100);
+}
+
+function formatearMoneda(cantidad) {
+    return new Intl.NumberFormat('es-ES', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(cantidad) + '€';
+}
+
+function formatearFecha(fecha) {
+    return new Date(fecha).toLocaleDateString('es-ES');
+}
+
+function convertirACSV(datos) {
+    const headers = ['Factura', 'Cliente', 'CIF', 'Fecha Emisión', 'Fecha Vencimiento', 'Total', 'Pagado', 'Pendiente', 'Estado'];
+    const csv = [headers.join(',')];
+    
+    datos.forEach(factura => {
+        const fila = [
+            factura.numero,
+            `"${factura.cliente}"`,
+            factura.cif,
+            factura.fechaEmision,
+            factura.fechaVencimiento,
+            factura.total,
+            factura.pagado,
+            factura.pendiente,
+            factura.estado
+        ];
+        csv.push(fila.join(','));
+    });
+    
+    return csv.join('\n');
+}
+
+function descargarArchivo(contenido, nombreArchivo, tipoMime) {
+    const blob = new Blob([contenido], { type: tipoMime });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
+function cargarEstadosLocalStorage() {
+    const estados = localStorage.getItem('erp_estados_pago');
+    if (estados) {
+        console.log('📂 Estados cargados desde localStorage');
+        // Aplicar estados guardados
+    }
+}
+
+function guardarEstadosLocalStorage() {
+    const estados = {
+        timestamp: new Date().toISOString(),
+        facturas: obtenerDatosFacturas()
+    };
+    localStorage.setItem('erp_estados_pago', JSON.stringify(estados));
+}
+
+function mostrarLoading() {
+    // Implementar overlay de loading
+    $('body').append(`
+        <div id="loadingOverlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        ">
+            <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+                <div class="loading-spinner"></div>
+                <p style="margin: 1rem 0 0 0;">Procesando...</p>
+            </div>
+        </div>
+    `);
+}
+
+function ocultarLoading() {
+    $('#loadingOverlay').fadeOut(300, function() {
+        $(this).remove();
+    });
+}
+
+function mostrarNotificacion(tipo, titulo, mensaje) {
+    // Implementar sistema de notificaciones toast
+    const tipoColor = {
+        'success': 'success',
+        'error': 'danger',
+        'warning': 'warning',
+        'info': 'info'
+    };
+    
+    const toast = `
+        <div class="toast align-items-center text-white bg-${tipoColor[tipo]} border-0" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 10000;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${titulo}</strong><br>
+                    ${mensaje}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(toast);
+    $('.toast:last').toast('show');
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        $('.toast:last').toast('hide');
+    }, 5000);
+}
+
+// Auto-guardar cada 30 segundos
+setInterval(guardarEstadosLocalStorage, 30000);
+
+console.log('✅ Estados de Pago - Sistema cargado completamente');
+</script>
+{% endblock %}

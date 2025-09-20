@@ -1,806 +1,719 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Clientes - ERP13 Enterprise</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #8B5CF6;
-            --secondary-color: #3B82F6;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
-            --dark-color: #1F2937;
-            --light-color: #F9FAFB;
-        }
+{% extends "layout.html" %}
 
-        body {
-            background-color: var(--light-color);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+{% block title %}Gestión de Clientes - ERP Enterprise{% endblock %}
 
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+{% block extra_css %}
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
-        .sidebar-item {
-            color: #D1D5DB;
-            padding: 12px 20px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 4px 8px;
-        }
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
 
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
 
-        .main-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin: 20px;
-            min-height: calc(100vh - 40px);
-        }
+    .chat-ai-container {
+        background: linear-gradient(135deg, #f8faff 0%, #e8f2ff 100%);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 2px solid #e8f2ff;
+    }
 
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            color: white;
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border: 1px solid #e5e7eb;
+    }
 
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
+    .chat-message {
+        margin-bottom: 15px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        max-width: 80%;
+    }
 
-        .chat-ai-container {
-            background: linear-gradient(135deg, #f8faff 0%, #e8f2ff 100%);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 2px solid #e8f2ff;
-        }
+    .chat-message.user {
+        background: var(--primary-color);
+        color: white;
+        margin-left: auto;
+        text-align: right;
+    }
 
-        .chat-messages {
-            max-height: 400px;
-            overflow-y: auto;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
-            border: 1px solid #e5e7eb;
-        }
+    .chat-message.ai {
+        background: #f3f4f6;
+        color: #374151;
+        border-left: 4px solid var(--secondary-color);
+    }
 
-        .chat-message {
-            margin-bottom: 15px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            max-width: 80%;
-        }
+    .client-selector {
+        background: rgba(255,255,255,0.9);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
 
-        .chat-message.user {
-            background: var(--primary-color);
-            color: white;
-            margin-left: auto;
-            text-align: right;
-        }
+    .table-modern {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
 
-        .chat-message.ai {
-            background: #f3f4f6;
-            color: #374151;
-            border-left: 4px solid var(--secondary-color);
-        }
+    .table-modern thead {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+    }
 
-        .client-selector {
-            background: rgba(255,255,255,0.9);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
+    .btn-primary {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+    }
 
-        .table-modern {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-        }
+    .btn-primary:hover {
+        background: #7C3AED;
+        border-color: #7C3AED;
+    }
 
-        .table-modern thead {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-        }
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
 
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
+    .status-activo { background: #D1FAE5; color: #065F46; }
+    .status-lead { background: #FEF3C7; color: #92400E; }
+    .status-cliente { background: #DBEAFE; color: #1E40AF; }
+    .status-pendiente { background: #FEE2E2; color: #991B1B; }
 
-        .btn-primary:hover {
-            background: #7C3AED;
-            border-color: #7C3AED;
-        }
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
 
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 
-        .status-activo { background: #D1FAE5; color: #065F46; }
-        .status-lead { background: #FEF3C7; color: #92400E; }
-        .status-cliente { background: #DBEAFE; color: #1E40AF; }
-        .status-pendiente { background: #FEE2E2; color: #991B1B; }
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
 
-        .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+{% block breadcrumbs %}
+<nav class="erp-breadcrumb">
+    <ol class="breadcrumb-list">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/clientes">Clientes</a></li>
+        <li class="active">Gestión de Clientes</li>
+    </ol>
+</nav>
+{% endblock %}
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
+{% block content %}
+<div class="content-wrapper">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Gestión de Clientes</h2>
+            <p class="text-muted mb-0">Gestiona tu cartera completa: LEADS sin presupuestos y CLIENTES con propuestas</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newClientModal">
+            <i class="fas fa-plus"></i> Nuevo Cliente
+        </button>
+    </div>
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-users"></i> Clientes
-                    </h4>
-                    
-                    <nav>
-                        <a href="{{ url_for('clientes.gestion_clientes') }}" class="sidebar-item active">
-                            <i class="fas fa-users-cog"></i> Gestión Clientes
-                        </a>
-                        <a href="{{ url_for('clientes.timeline_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-clock"></i> Timeline
-                        </a>
-                        <a href="{{ url_for('clientes.comunicaciones_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-comments"></i> Comunicaciones
-                        </a>
-                        <a href="{{ url_for('clientes.propuestas_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-file-alt"></i> Propuestas
-                        </a>
-                        <a href="{{ url_for('clientes.pipeline_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-chart-line"></i> Pipeline
-                        </a>
-                        <a href="{{ url_for('clientes.tickets_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-ticket-alt"></i> Tickets
-                        </a>
-                        <a href="{{ url_for('clientes.calendario_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-calendar-alt"></i> Calendario
-                        </a>
-                        <a href="{{ url_for('clientes.campanas_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-bullhorn"></i> Campañas Publicitarias
-                        </a>
-                        <a href="{{ url_for('clientes.automatizaciones_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-magic"></i> Automatizaciones
-                        </a>
-                    </nav>
+    <!-- Chat AI Container -->
+    <div class="chat-ai-container">
+        <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+                <div class="bg-primary rounded-circle p-2" style="width: 40px; height: 40px;">
+                    <i class="fas fa-robot text-white"></i>
                 </div>
             </div>
+            <div class="flex-grow-1">
+                <h5 class="mb-1">
+                    <i class="fas fa-brain"></i> Asistente IA de Clientes
+                </h5>
+                <div class="small text-muted">
+                    <span id="chat-stats">0 conversaciones</span> • 
+                    <span>0% aciertos</span>
+                </div>
+            </div>
+        </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10">
-                <div class="main-content">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Client Selector -->
+        <div class="client-selector">
+            <div class="d-flex align-items-center">
+                <label class="form-label me-3 mb-0">Cliente seleccionado:</label>
+                <select id="client-selector" class="form-select flex-grow-1" style="max-width: 400px;">
+                    <option value="">Selecciona un cliente específico (opcional)</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chat-messages">
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-comments fa-3x mb-3 opacity-25"></i>
+                <h5>Inicia una conversación con la IA</h5>
+                <p class="mb-0">Pregunta sobre clientes y ayuda a mejorar las respuestas</p>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="d-flex">
+            <input type="text" 
+                   class="form-control me-2" 
+                   id="chat-input" 
+                   placeholder="Pregunta sobre tus clientes: ¿Cuántos LEADS tengo del sector tecnológico? ¿Qué CLIENTES tienen presupuestos pendientes?"
+                   style="border-radius: 25px;">
+            <button class="btn btn-primary" id="send-chat" style="border-radius: 25px; min-width: 60px;">
+                <i class="fas fa-paper-plane"></i>
+                <div class="loading-spinner ms-1"></div>
+            </button>
+        </div>
+
+        <div class="mt-2 small text-muted">
+            Sistema de aprendizaje activo • Puntuación: 0%
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-1">{{ stats.total }}</h3>
+                        <p class="mb-0 opacity-75">Total</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-3">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-1">{{ stats.leads }}</h3>
+                        <p class="mb-0 opacity-75">LEADS</p>
+                        <small class="opacity-75">Sin presupuestos</small>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-3">
+                        <i class="fas fa-user-plus fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-1">{{ stats.clientes }}</h3>
+                        <p class="mb-0 opacity-75">CLIENTES</p>
+                        <small class="opacity-75">Con propuestas</small>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-3">
+                        <i class="fas fa-user-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-1">{{ stats.activos }}</h3>
+                        <p class="mb-0 opacity-75">Activos</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-3">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fa-2x"></i>
+                <div>
+                    <h6 class="mb-1">Propuestas Pendientes: {{ stats.propuestas_pendientes }}</h6>
+                    <small class="mb-0">Clientes con presupuestos pendientes de respuesta</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center flex-wrap gap-3">
+                            <div class="me-3">
+                                <i class="fas fa-filter"></i>
+                                <strong>Filtros:</strong>
+                            </div>
+                            <select class="form-select" id="filter-all" style="width: auto;">
+                                <option value="Todos">Todos</option>
+                            </select>
+                            <select class="form-select" id="filter-sector" style="width: auto;">
+                                <option value="">Todos los sectores</option>
+                                {% for sector in sectores %}
+                                <option value="{{ sector }}">{{ sector }}</option>
+                                {% endfor %}
+                            </select>
+                            <select class="form-select" id="filter-estado" style="width: auto;">
+                                <option value="">Todos los estados</option>
+                                {% for estado in estados %}
+                                <option value="{{ estado }}">{{ estado }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group" style="max-width: 300px;">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="search-clients" placeholder="Buscar clientes...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clients Table -->
+    <div class="table-responsive">
+        <table class="table table-modern" id="clients-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>CLIENTE</th>
+                    <th>NIF</th>
+                    <th>CONTACTO</th>
+                    <th>SECTOR</th>
+                    <th>ESTADO</th>
+                    <th>ÚLTIMA ACTIVIDAD</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr class="client-row fade-in" data-sector="{{ client.sector or '' }}" data-estado="{{ client.estado or '' }}">
+                    <td>
+                        <input type="checkbox" class="form-check-input">
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary rounded-circle p-2 me-3" style="width: 40px; height: 40px; font-size: 14px;">
+                                <span class="text-white fw-bold">
+                                    {{ client.nombre_empresa[:2].upper() if client.nombre_empresa else 'CL' }}
+                                </span>
+                            </div>
                             <div>
-                                <h2 class="mb-1">Gestión de Clientes</h2>
-                                <p class="text-muted mb-0">Gestiona tu cartera completa: LEADS sin presupuestos y CLIENTES con propuestas</p>
+                                <div class="fw-bold">{{ client.nombre_empresa or 'Sin nombre' }}</div>
+                                <div class="small text-muted">{{ client.emails or 'Sin email' }}</div>
                             </div>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newClientModal">
-                                <i class="fas fa-plus"></i> Nuevo Cliente
+                        </div>
+                    </td>
+                    <td>
+                        <span class="font-monospace">{{ client.nif_cif or 'N/A' }}</span>
+                    </td>
+                    <td>
+                        <div>
+                            <div class="fw-semibold">Contacto Principal</div>
+                            <div class="small text-muted">{{ client.telefonos or 'Sin teléfono' }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark">{{ client.sector or 'Sin sector' }}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ client.estado.lower() if client.estado else 'activo' }}">
+                            {% if client.estado == 'Activo' %}
+                                <i class="fas fa-circle text-success"></i>
+                            {% elif client.estado == 'Lead' %}
+                                <i class="fas fa-circle text-warning"></i>
+                            {% elif client.estado == 'Cliente' %}
+                                <i class="fas fa-circle text-primary"></i>
+                            {% else %}
+                                <i class="fas fa-circle text-secondary"></i>
+                            {% endif %}
+                            {{ client.estado or 'Activo' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="small">
+                            {% if client.ultima_comunicacion %}
+                                hace alrededor de 
+                                <span class="fw-semibold">
+                                    {{ moment(client.ultima_comunicacion).fromNow() if moment else 'poco tiempo' }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Sin actividad reciente</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver detalles</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar cliente</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-file-alt"></i> Crear presupuesto</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-envelope"></i> Enviar comunicación</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-ticket-alt"></i> Crear ticket</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note"></i> Añadir nota</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-phone"></i> Recordatorio llamada</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Eliminar cliente</a></li>
+                            </ul>
                         </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                        <!-- Chat AI Container -->
-                        <div class="chat-ai-container">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="me-3">
-                                    <div class="bg-primary rounded-circle p-2" style="width: 40px; height: 40px;">
-                                        <i class="fas fa-robot text-white"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1">
-                                        <i class="fas fa-brain"></i> Asistente IA de Clientes
-                                    </h5>
-                                    <div class="small text-muted">
-                                        <span id="chat-stats">0 conversaciones</span> • 
-                                        <span>0% aciertos</span>
-                                    </div>
-                                </div>
-                            </div>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="text-muted">
+            Mostrando 1 a {{ clients|length }} de {{ stats.total }} resultados
+        </div>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Anterior</a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
 
-                            <!-- Client Selector -->
-                            <div class="client-selector">
-                                <div class="d-flex align-items-center">
-                                    <label class="form-label me-3 mb-0">Cliente seleccionado:</label>
-                                    <select id="client-selector" class="form-select flex-grow-1" style="max-width: 400px;">
-                                        <option value="">Selecciona un cliente específico (opcional)</option>
-                                        {% for client in clients %}
-                                        <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Chat Messages -->
-                            <div class="chat-messages" id="chat-messages">
-                                <div class="text-center text-muted py-4">
-                                    <i class="fas fa-comments fa-3x mb-3 opacity-25"></i>
-                                    <h5>Inicia una conversación con la IA</h5>
-                                    <p class="mb-0">Pregunta sobre clientes y ayuda a mejorar las respuestas</p>
-                                </div>
-                            </div>
-
-                            <!-- Chat Input -->
-                            <div class="d-flex">
-                                <input type="text" 
-                                       class="form-control me-2" 
-                                       id="chat-input" 
-                                       placeholder="Pregunta sobre tus clientes: ¿Cuántos LEADS tengo del sector tecnológico? ¿Qué CLIENTES tienen presupuestos pendientes?"
-                                       style="border-radius: 25px;">
-                                <button class="btn btn-primary" id="send-chat" style="border-radius: 25px; min-width: 60px;">
-                                    <i class="fas fa-paper-plane"></i>
-                                    <div class="loading-spinner ms-1"></div>
-                                </button>
-                            </div>
-
-                            <div class="mt-2 small text-muted">
-                                Sistema de aprendizaje activo • Puntuación: 0%
-                            </div>
-                        </div>
-
-                        <!-- Statistics Cards -->
-                        <div class="row mb-4">
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="stats-card">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h3 class="mb-1">{{ stats.total }}</h3>
-                                            <p class="mb-0 opacity-75">Total</p>
-                                        </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-3">
-                                            <i class="fas fa-users fa-2x"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h3 class="mb-1">{{ stats.leads }}</h3>
-                                            <p class="mb-0 opacity-75">LEADS</p>
-                                            <small class="opacity-75">Sin presupuestos</small>
-                                        </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-3">
-                                            <i class="fas fa-user-plus fa-2x"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h3 class="mb-1">{{ stats.clientes }}</h3>
-                                            <p class="mb-0 opacity-75">CLIENTES</p>
-                                            <small class="opacity-75">Con propuestas</small>
-                                        </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-3">
-                                            <i class="fas fa-user-check fa-2x"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h3 class="mb-1">{{ stats.activos }}</h3>
-                                            <p class="mb-0 opacity-75">Activos</p>
-                                        </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-3">
-                                            <i class="fas fa-chart-line fa-2x"></i>
-                                        </div>
-                                    </div>
-                                </div>
+<!-- New Client Modal -->
+<div class="modal fade" id="newClientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newClientForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de la Empresa *</label>
+                                <input type="text" class="form-control" name="nombre_empresa" required>
                             </div>
                         </div>
-
-                        <!-- Additional Stats Row -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="alert alert-info d-flex align-items-center">
-                                    <i class="fas fa-info-circle me-3 fa-2x"></i>
-                                    <div>
-                                        <h6 class="mb-1">Propuestas Pendientes: {{ stats.propuestas_pendientes }}</h6>
-                                        <small class="mb-0">Clientes con presupuestos pendientes de respuesta</small>
-                                    </div>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">NIF/CIF</label>
+                                <input type="text" class="form-control" name="nif_cif">
                             </div>
                         </div>
-
-                        <!-- Filters -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div class="d-flex align-items-center flex-wrap gap-3">
-                                                <div class="me-3">
-                                                    <i class="fas fa-filter"></i>
-                                                    <strong>Filtros:</strong>
-                                                </div>
-                                                <select class="form-select" id="filter-all" style="width: auto;">
-                                                    <option value="Todos">Todos</option>
-                                                </select>
-                                                <select class="form-select" id="filter-sector" style="width: auto;">
-                                                    <option value="">Todos los sectores</option>
-                                                    {% for sector in sectores %}
-                                                    <option value="{{ sector }}">{{ sector }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <select class="form-select" id="filter-estado" style="width: auto;">
-                                                    <option value="">Todos los estados</option>
-                                                    {% for estado in estados %}
-                                                    <option value="{{ estado }}">{{ estado }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <div class="input-group" style="max-width: 300px;">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-search"></i>
-                                                </span>
-                                                <input type="text" class="form-control" id="search-clients" placeholder="Buscar clientes...">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="emails">
                             </div>
                         </div>
-
-                        <!-- Clients Table -->
-                        <div class="table-responsive">
-                            <table class="table table-modern" id="clients-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>CLIENTE</th>
-                                        <th>NIF</th>
-                                        <th>CONTACTO</th>
-                                        <th>SECTOR</th>
-                                        <th>ESTADO</th>
-                                        <th>ÚLTIMA ACTIVIDAD</th>
-                                        <th>ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for client in clients %}
-                                    <tr class="client-row fade-in" data-sector="{{ client.sector or '' }}" data-estado="{{ client.estado or '' }}">
-                                        <td>
-                                            <input type="checkbox" class="form-check-input">
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-primary rounded-circle p-2 me-3" style="width: 40px; height: 40px; font-size: 14px;">
-                                                    <span class="text-white fw-bold">
-                                                        {{ client.nombre_empresa[:2].upper() if client.nombre_empresa else 'CL' }}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-bold">{{ client.nombre_empresa or 'Sin nombre' }}</div>
-                                                    <div class="small text-muted">{{ client.emails or 'Sin email' }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="font-monospace">{{ client.nif_cif or 'N/A' }}</span>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <div class="fw-semibold">Contacto Principal</div>
-                                                <div class="small text-muted">{{ client.telefonos or 'Sin teléfono' }}</div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark">{{ client.sector or 'Sin sector' }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="status-badge status-{{ client.estado.lower() if client.estado else 'activo' }}">
-                                                {% if client.estado == 'Activo' %}
-                                                    <i class="fas fa-circle text-success"></i>
-                                                {% elif client.estado == 'Lead' %}
-                                                    <i class="fas fa-circle text-warning"></i>
-                                                {% elif client.estado == 'Cliente' %}
-                                                    <i class="fas fa-circle text-primary"></i>
-                                                {% else %}
-                                                    <i class="fas fa-circle text-secondary"></i>
-                                                {% endif %}
-                                                {{ client.estado or 'Activo' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="small">
-                                                {% if client.ultima_comunicacion %}
-                                                    hace alrededor de 
-                                                    <span class="fw-semibold">
-                                                        {{ moment(client.ultima_comunicacion).fromNow() if moment else 'poco tiempo' }}
-                                                    </span>
-                                                {% else %}
-                                                    <span class="text-muted">Sin actividad reciente</span>
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver detalles</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Editar cliente</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-file-alt"></i> Crear presupuesto</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope"></i> Enviar comunicación</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-ticket-alt"></i> Crear ticket</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note"></i> Añadir nota</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-phone"></i> Recordatorio llamada</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Eliminar cliente</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div class="text-muted">
-                                Mostrando 1 a {{ clients|length }} de {{ stats.total }} resultados
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" name="telefonos">
                             </div>
-                            <nav>
-                                <ul class="pagination mb-0">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#">Anterior</a>
-                                    </li>
-                                    <li class="page-item active">
-                                        <a class="page-link" href="#">1</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">2</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">3</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">Siguiente</a>
-                                    </li>
-                                </ul>
-                            </nav>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Sector</label>
+                                <select class="form-select" name="sector">
+                                    <option value="">Seleccionar sector</option>
+                                    <option value="tecnologia">Tecnología</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="industrial">Industrial</option>
+                                    <option value="servicios">Servicios</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" name="estado">
+                                    <option value="Lead">Lead</option>
+                                    <option value="Cliente">Cliente</option>
+                                    <option value="Activo" selected>Activo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Dirección</label>
+                                <textarea class="form-control" name="direccion" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Notas</label>
+                                <textarea class="form-control" name="notas" rows="3"></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveClient">
+                    <i class="fas fa-save"></i> Guardar Cliente
+                </button>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- New Client Modal -->
-    <div class="modal fade" id="newClientModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nuevo Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newClientForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre de la Empresa *</label>
-                                    <input type="text" class="form-control" name="nombre_empresa" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">NIF/CIF</label>
-                                    <input type="text" class="form-control" name="nif_cif">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" name="emails">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Teléfono</label>
-                                    <input type="text" class="form-control" name="telefonos">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Sector</label>
-                                    <select class="form-select" name="sector">
-                                        <option value="">Seleccionar sector</option>
-                                        <option value="tecnologia">Tecnología</option>
-                                        <option value="retail">Retail</option>
-                                        <option value="industrial">Industrial</option>
-                                        <option value="servicios">Servicios</option>
-                                        <option value="otros">Otros</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Estado</label>
-                                    <select class="form-select" name="estado">
-                                        <option value="Lead">Lead</option>
-                                        <option value="Cliente">Cliente</option>
-                                        <option value="Activo" selected>Activo</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Dirección</label>
-                                    <textarea class="form-control" name="direccion" rows="2"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Notas</label>
-                                    <textarea class="form-control" name="notas" rows="3"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveClient">
-                        <i class="fas fa-save"></i> Guardar Cliente
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block extra_js %}
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            // Initialize Select2 for client selector
-            $('#client-selector').select2({
-                placeholder: 'Buscar cliente...',
-                allowClear: true,
-                width: '100%'
-            });
-
-            // Chat AI functionality
-            let chatHistory = [];
-            let selectedClientId = null;
-
-            // Client selector change
-            $('#client-selector').change(function() {
-                selectedClientId = $(this).val();
-                if (selectedClientId) {
-                    loadClientContext(selectedClientId);
-                }
-            });
-
-            // Send chat message
-            $('#send-chat, #chat-input').on('click keypress', function(e) {
-                if (e.type === 'click' || (e.type === 'keypress' && e.which === 13)) {
-                    sendChatMessage();
-                }
-            });
-
-            function sendChatMessage() {
-                const message = $('#chat-input').val().trim();
-                if (!message) return;
-
-                // Show user message
-                appendChatMessage(message, 'user');
-                $('#chat-input').val('');
-
-                // Show loading
-                showChatLoading(true);
-
-                // Send to AI
-                $.ajax({
-                    url: '/clientes/api/chat',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        message: message,
-                        client_id: selectedClientId
-                    }),
-                    success: function(response) {
-                        showChatLoading(false);
-                        appendChatMessage(response.response, 'ai');
-                        chatHistory.push({
-                            user: message,
-                            ai: response.response,
-                            timestamp: response.timestamp,
-                            client_id: selectedClientId
-                        });
-                        updateChatStats();
-                    },
-                    error: function(xhr) {
-                        showChatLoading(false);
-                        const error = xhr.responseJSON ? xhr.responseJSON.error : 'Error de conexión';
-                        appendChatMessage('Lo siento, ocurrió un error: ' + error, 'ai');
-                    }
-                });
-            }
-
-            function appendChatMessage(message, sender) {
-                const chatMessages = $('#chat-messages');
-                
-                // Remove welcome message if exists
-                if (chatMessages.find('.text-center').length) {
-                    chatMessages.empty();
-                }
-
-                const messageHtml = `
-                    <div class="chat-message ${sender} fade-in">
-                        ${message.replace(/\n/g, '<br>')}
-                        <div class="small mt-1 opacity-75">
-                            ${new Date().toLocaleTimeString()}
-                        </div>
-                    </div>
-                `;
-                
-                chatMessages.append(messageHtml);
-                chatMessages.scrollTop(chatMessages[0].scrollHeight);
-            }
-
-            function showChatLoading(show) {
-                if (show) {
-                    $('#send-chat i').hide();
-                    $('#send-chat .loading-spinner').show();
-                    $('#send-chat').prop('disabled', true);
-                } else {
-                    $('#send-chat i').show();
-                    $('#send-chat .loading-spinner').hide();
-                    $('#send-chat').prop('disabled', false);
-                }
-            }
-
-            function updateChatStats() {
-                const conversationCount = chatHistory.length;
-                $('#chat-stats').text(`${conversationCount} conversaciones`);
-            }
-
-            function loadClientContext(clientId) {
-                $.ajax({
-                    url: `/clientes/api/client/${clientId}/context`,
-                    method: 'GET',
-                    success: function(response) {
-                        const contextMessage = `Contexto del cliente ${response.client_name} cargado correctamente. Puedo responder preguntas específicas sobre este cliente.`;
-                        appendChatMessage(contextMessage, 'ai');
-                    },
-                    error: function() {
-                        appendChatMessage('Error cargando contexto del cliente.', 'ai');
-                    }
-                });
-            }
-
-            // Table filtering
-            $('#search-clients, #filter-sector, #filter-estado').on('input change', function() {
-                filterClients();
-            });
-
-            function filterClients() {
-                const searchTerm = $('#search-clients').val().toLowerCase();
-                const sectorFilter = $('#filter-sector').val();
-                const estadoFilter = $('#filter-estado').val();
-
-                $('.client-row').each(function() {
-                    const row = $(this);
-                    const clientName = row.find('.fw-bold').text().toLowerCase();
-                    const clientEmail = row.find('.small.text-muted').text().toLowerCase();
-                    const clientSector = row.data('sector') || '';
-                    const clientEstado = row.data('estado') || '';
-
-                    const matchesSearch = searchTerm === '' || 
-                                        clientName.includes(searchTerm) || 
-                                        clientEmail.includes(searchTerm);
-                    
-                    const matchesSector = sectorFilter === '' || clientSector === sectorFilter;
-                    const matchesEstado = estadoFilter === '' || clientEstado === estadoFilter;
-
-                    if (matchesSearch && matchesSector && matchesEstado) {
-                        row.show();
-                    } else {
-                        row.hide();
-                    }
-                });
-            }
-
-            // Stats cards click
-            $('.stats-card').click(function() {
-                const cardText = $(this).find('p').text().toLowerCase();
-                let filterValue = '';
-                
-                if (cardText.includes('leads')) {
-                    filterValue = 'Lead';
-                } else if (cardText.includes('clientes')) {
-                    filterValue = 'Cliente';
-                } else if (cardText.includes('activos')) {
-                    filterValue = 'Activo';
-                }
-                
-                if (filterValue) {
-                    $('#filter-estado').val(filterValue).trigger('change');
-                }
-            });
-
-            // New client form
-            $('#saveClient').click(function() {
-                const formData = $('#newClientForm').serialize();
-                
-                // Here you would typically send the form data to the server
-                console.log('Saving client:', formData);
-                
-                // For now, just close the modal
-                $('#newClientModal').modal('hide');
-                
-                // Show success message
-                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                  'Cliente creado exitosamente!' +
-                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                  '</div>').prependTo('.main-content .p-4');
-            });
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 for client selector
+        $('#client-selector').select2({
+            placeholder: 'Buscar cliente...',
+            allowClear: true,
+            width: '100%'
         });
-    </script>
-</body>
-</html>
+
+        // Chat AI functionality
+        let chatHistory = [];
+        let selectedClientId = null;
+
+        // Client selector change
+        $('#client-selector').change(function() {
+            selectedClientId = $(this).val();
+            if (selectedClientId) {
+                loadClientContext(selectedClientId);
+            }
+        });
+
+        // Send chat message
+        $('#send-chat, #chat-input').on('click keypress', function(e) {
+            if (e.type === 'click' || (e.type === 'keypress' && e.which === 13)) {
+                sendChatMessage();
+            }
+        });
+
+        function sendChatMessage() {
+            const message = $('#chat-input').val().trim();
+            if (!message) return;
+
+            // Show user message
+            appendChatMessage(message, 'user');
+            $('#chat-input').val('');
+
+            // Show loading
+            showChatLoading(true);
+
+            // Send to AI
+            $.ajax({
+                url: '/clientes/api/chat',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    message: message,
+                    client_id: selectedClientId
+                }),
+                success: function(response) {
+                    showChatLoading(false);
+                    appendChatMessage(response.response, 'ai');
+                    chatHistory.push({
+                        user: message,
+                        ai: response.response,
+                        timestamp: response.timestamp,
+                        client_id: selectedClientId
+                    });
+                    updateChatStats();
+                },
+                error: function(xhr) {
+                    showChatLoading(false);
+                    const error = xhr.responseJSON ? xhr.responseJSON.error : 'Error de conexión';
+                    appendChatMessage('Lo siento, ocurrió un error: ' + error, 'ai');
+                }
+            });
+        }
+
+        function appendChatMessage(message, sender) {
+            const chatMessages = $('#chat-messages');
+            
+            // Remove welcome message if exists
+            if (chatMessages.find('.text-center').length) {
+                chatMessages.empty();
+            }
+
+            const messageHtml = `
+                <div class="chat-message ${sender} fade-in">
+                    ${message.replace(/\n/g, '<br>')}
+                    <div class="small mt-1 opacity-75">
+                        ${new Date().toLocaleTimeString()}
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.append(messageHtml);
+            chatMessages.scrollTop(chatMessages[0].scrollHeight);
+        }
+
+        function showChatLoading(show) {
+            if (show) {
+                $('#send-chat i').hide();
+                $('#send-chat .loading-spinner').show();
+                $('#send-chat').prop('disabled', true);
+            } else {
+                $('#send-chat i').show();
+                $('#send-chat .loading-spinner').hide();
+                $('#send-chat').prop('disabled', false);
+            }
+        }
+
+        function updateChatStats() {
+            const conversationCount = chatHistory.length;
+            $('#chat-stats').text(`${conversationCount} conversaciones`);
+        }
+
+        function loadClientContext(clientId) {
+            $.ajax({
+                url: `/clientes/api/client/${clientId}/context`,
+                method: 'GET',
+                success: function(response) {
+                    const contextMessage = `Contexto del cliente ${response.client_name} cargado correctamente. Puedo responder preguntas específicas sobre este cliente.`;
+                    appendChatMessage(contextMessage, 'ai');
+                },
+                error: function() {
+                    appendChatMessage('Error cargando contexto del cliente.', 'ai');
+                }
+            });
+        }
+
+        // Table filtering
+        $('#search-clients, #filter-sector, #filter-estado').on('input change', function() {
+            filterClients();
+        });
+
+        function filterClients() {
+            const searchTerm = $('#search-clients').val().toLowerCase();
+            const sectorFilter = $('#filter-sector').val();
+            const estadoFilter = $('#filter-estado').val();
+
+            $('.client-row').each(function() {
+                const row = $(this);
+                const clientName = row.find('.fw-bold').text().toLowerCase();
+                const clientEmail = row.find('.small.text-muted').text().toLowerCase();
+                const clientSector = row.data('sector') || '';
+                const clientEstado = row.data('estado') || '';
+
+                const matchesSearch = searchTerm === '' || 
+                                    clientName.includes(searchTerm) || 
+                                    clientEmail.includes(searchTerm);
+                
+                const matchesSector = sectorFilter === '' || clientSector === sectorFilter;
+                const matchesEstado = estadoFilter === '' || clientEstado === estadoFilter;
+
+                if (matchesSearch && matchesSector && matchesEstado) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
+        }
+
+        // Stats cards click
+        $('.stats-card').click(function() {
+            const cardText = $(this).find('p').text().toLowerCase();
+            let filterValue = '';
+            
+            if (cardText.includes('leads')) {
+                filterValue = 'Lead';
+            } else if (cardText.includes('clientes')) {
+                filterValue = 'Cliente';
+            } else if (cardText.includes('activos')) {
+                filterValue = 'Activo';
+            }
+            
+            if (filterValue) {
+                $('#filter-estado').val(filterValue).trigger('change');
+            }
+        });
+
+        // New client form
+        $('#saveClient').click(function() {
+            const formData = $('#newClientForm').serialize();
+            
+            // Here you would typically send the form data to the server
+            console.log('Saving client:', formData);
+            
+            // For now, just close the modal
+            $('#newClientModal').modal('hide');
+            
+            // Show success message
+            $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+              'Cliente creado exitosamente!' +
+              '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+              '</div>').prependTo('.content-wrapper');
+        });
+
+        console.log('✅ Gestión de Clientes - Usando layout.html template system');
+    });
+</script>
+{% endblock %}

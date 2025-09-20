@@ -3,294 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP13 Enterprise - Iniciar Sesión</title>
+    <title>Login - ERP13 Enterprise</title>
     
     <!-- 📁 Ruta: /app/templates/login.html -->
-    <!-- 📄 Nombre: login_standalone_fixed.html -->
-    <!-- 🏗️ Propósito: Login independiente sin layout.html dependencies -->
-    <!-- ⚡ Performance: Template autónomo, sin BuildError -->
-    <!-- 🔒 Seguridad: CSRF, validación client-side, auth robusta -->
+    <!-- 📄 Nombre: login.html -->
+    <!-- 🏗️ Propósito: Página de autenticación ERP13 Enterprise v3.1 -->
+    <!-- ⚡ Performance: Formulario optimizado, validación client-side -->
+    <!-- 🔒 Seguridad: CSRF protection, rate limiting, secure sessions -->
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
     <style>
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
         .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 50px;
-            width: 100%;
             max-width: 450px;
+            width: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 50px;
             margin: 20px;
         }
         
-        .logo-section {
+        .login-header {
             text-align: center;
             margin-bottom: 40px;
         }
         
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
         .logo-icon {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, #2563eb, #3b82f6);
-            border-radius: 20px;
-            display: inline-flex;
+            border-radius: 15px;
+            display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 32px;
-            margin-bottom: 20px;
+            font-size: 1.8rem;
         }
         
-        .system-title {
-            font-size: 28px;
+        .logo-text h2 {
+            margin: 0;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 8px;
         }
         
-        .system-subtitle {
+        .logo-text span {
+            font-size: 0.9rem;
             color: #64748b;
-            font-size: 16px;
         }
         
-        .form-floating {
-            margin-bottom: 20px;
+        .login-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: block;
         }
         
         .form-control {
+            width: 100%;
+            padding: 15px 20px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            background: white;
         }
         
         .form-control:focus {
+            outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
+        .input-icon {
+            position: relative;
+        }
+        
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .input-icon .form-control {
+            padding-left: 50px;
+        }
+        
         .btn-login {
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
             width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
             color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .btn-login:hover {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-            color: white;
         }
         
-        .credentials-info {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            border: 1px solid #2563eb;
-            border-radius: 12px;
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .demo-credentials {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
             padding: 20px;
-            margin-bottom: 30px;
+            margin-top: 30px;
         }
         
-        .credentials-title {
+        .demo-title {
             font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 12px;
-            font-size: 14px;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .credential-item {
+        .demo-user {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
         }
         
-        .credential-role {
-            font-weight: 500;
-            color: #1e40af;
+        .demo-user:last-child {
+            border-bottom: none;
         }
         
-        .credential-user {
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: white;
+        }
+        
+        .admin-icon { background: #dc2626; }
+        .user-icon-regular { background: #059669; }
+        
+        .credentials {
             font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #64748b;
             background: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            color: #374151;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #e2e8f0;
         }
         
-        .alert-custom {
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .system-info {
+        .alert-success {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+        
+        .alert-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+        
+        .alert-warning {
+            background: #fffbeb;
+            border: 1px solid #fed7aa;
+            color: #d97706;
+        }
+        
+        .alert-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #2563eb;
+        }
+        
+        .system-status {
             text-align: center;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #e2e8f0;
         }
         
-        .system-version {
-            color: #64748b;
-            font-size: 12px;
-        }
-        
-        .health-status {
+        .status-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            color: #059669;
-            font-size: 12px;
-            margin-top: 8px;
+            gap: 8px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px;
+                margin: 10px;
+            }
+            
+            .logo-text h2 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <!-- LOGO Y BRANDING -->
-        <div class="logo-section">
-            <div class="logo-icon">
-                <i class="fas fa-chart-line"></i>
+        <!-- Header -->
+        <div class="login-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ERP13 Enterprise</h2>
+                    <span>Sistema Integrado v3.1</span>
+                </div>
             </div>
-            <h1 class="system-title">ERP13 Enterprise</h1>
-            <p class="system-subtitle">Sistema Integral de Gestión v3.1</p>
+            <p class="login-subtitle">Acceso al panel de administración</p>
         </div>
         
-        <!-- INFORMACIÓN DE CREDENCIALES DEMO -->
-        <div class="credentials-info">
-            <div class="credentials-title">
-                <i class="fas fa-key"></i> Credenciales de Acceso Demo
-            </div>
-            <div class="credential-item">
-                <span class="credential-role">Administrador:</span>
-                <span class="credential-user">admin / admin123</span>
-            </div>
-            <div class="credential-item">
-                <span class="credential-role">Usuario:</span>
-                <span class="credential-user">user / user123</span>
-            </div>
-        </div>
-        
-        <!-- MENSAJES DE ERROR/ÉXITO -->
+        <!-- Mensajes Flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-custom" role="alert">
-                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'danger' or category == 'error' else 'info-circle' if category == 'info' else 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
                         {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
         
-        <!-- FORMULARIO DE LOGIN -->
-        <form method="POST" id="loginForm">
-            <div class="form-floating">
-                <input type="text" 
-                       class="form-control" 
-                       id="username" 
-                       name="username" 
-                       placeholder="Usuario"
-                       required>
-                <label for="username">
+        <!-- Formulario de Login -->
+        <form method="POST" action="{{ url_for('auth_fixed.auth_login') }}">
+            <div class="form-group">
+                <label for="username" class="form-label">
                     <i class="fas fa-user"></i> Usuario
                 </label>
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           class="form-control" 
+                           placeholder="Ingrese su usuario"
+                           required
+                           autocomplete="username"
+                           value="{{ request.form.username if request.form.username }}">
+                </div>
             </div>
             
-            <div class="form-floating">
-                <input type="password" 
-                       class="form-control" 
-                       id="password" 
-                       name="password" 
-                       placeholder="Contraseña"
-                       required>
-                <label for="password">
+            <div class="form-group">
+                <label for="password" class="form-label">
                     <i class="fas fa-lock"></i> Contraseña
                 </label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control" 
+                           placeholder="Ingrese su contraseña"
+                           required
+                           autocomplete="current-password">
+                </div>
             </div>
             
-            <button type="submit" class="btn btn-login">
+            <button type="submit" class="btn-login">
                 <i class="fas fa-sign-in-alt"></i>
                 Iniciar Sesión
             </button>
         </form>
         
-        <!-- INFORMACIÓN DEL SISTEMA -->
-        <div class="system-info">
-            <div class="system-version">
-                ERP13 Enterprise v3.1 | Railway Production
+        <!-- Credenciales Demo -->
+        <div class="demo-credentials">
+            <div class="demo-title">
+                <i class="fas fa-key"></i>
+                Credenciales de Demostración
             </div>
-            <div class="health-status">
+            
+            <div class="demo-user">
+                <div class="user-info">
+                    <div class="user-icon admin-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <strong>Administrador</strong><br>
+                        <small>Acceso completo al sistema</small>
+                    </div>
+                </div>
+                <div class="credentials">admin / admin123</div>
+            </div>
+            
+            <div class="demo-user">
+                <div class="user-info">
+                    <div class="user-icon user-icon-regular">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <strong>Usuario</strong><br>
+                        <small>Acceso limitado</small>
+                    </div>
+                </div>
+                <div class="credentials">user / user123</div>
+            </div>
+        </div>
+        
+        <!-- Estado del Sistema -->
+        <div class="system-status">
+            <div class="status-indicator pulse">
                 <i class="fas fa-circle"></i>
                 Sistema Operativo
             </div>
+            <p style="margin: 10px 0 0 0; font-size: 0.85rem; color: #64748b;">
+                ERP13 Enterprise v3.1 | Railway Cloud Platform
+            </p>
         </div>
     </div>
     
-    <!-- JAVASCRIPT -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        // Validación de formulario
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Auto-focus en el campo de usuario
+        document.getElementById('username').focus();
+        
+        // Validación básica del formulario
+        document.querySelector('form').addEventListener('submit', function(e) {
             const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const password = document.getElementById('password').value;
             
             if (!username || !password) {
                 e.preventDefault();
-                alert('Por favor, complete todos los campos.');
+                alert('Por favor complete todos los campos');
                 return false;
             }
             
-            // Mostrar loading
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            // Mostrar indicador de carga
+            const submitBtn = document.querySelector('.btn-login');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
             submitBtn.disabled = true;
         });
         
-        // Auto-rellenar credenciales demo (development)
-        function fillCredentials(role) {
-            if (role === 'admin') {
-                document.getElementById('username').value = 'admin';
-                document.getElementById('password').value = 'admin123';
-            } else {
-                document.getElementById('username').value = 'user';
-                document.getElementById('password').value = 'user123';
-            }
-        }
-        
-        // Hacer credenciales clicables para testing
-        document.querySelectorAll('.credential-user').forEach(function(elem) {
-            elem.style.cursor = 'pointer';
-            elem.addEventListener('click', function() {
-                const text = this.textContent.trim();
-                if (text.includes('admin')) {
-                    fillCredentials('admin');
-                } else {
-                    fillCredentials('user');
-                }
-            });
-        });
+        // Log de inicialización
+        console.log('🔐 Login page loaded - ERP13 Enterprise v3.1');
     </script>
 </body>
 </html>

@@ -1,175 +1,252 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-📁 Ruta: /app/wsgi.py
-📄 Nombre: wsgi_enterprise_fixed.py
-🏗️ Propósito: Entry point WSGI para Railway optimizado
-⚡ Performance: Lazy loading + health checks robustos
-🔒 Seguridad: Validación completa antes de inicialización
+ERP13E Enterprise - WSGI Application Entry Point
+Optimized for Railway deployment with PostgreSQL integration
+Compatible with existing JWT and SECRET_KEY configuration
 """
 
 import os
 import sys
 import logging
-from pathlib import Path
+from datetime import datetime
+import psutil
+import signal
+import atexit
 
-# Configuración de logging ANTES de cualquier import
+# Configure logging for ERP13E production
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] WSGI-%(name)s: %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 
-logger = logging.getLogger('ERP13_WSGI')
+logger = logging.getLogger(__name__)
 
-def initialize_wsgi():
-    """Inicialización robusta del WSGI con validaciones"""
-    logger.info("=" * 60)
-    logger.info("🚀 ERP13 ENTERPRISE v3.0 - WSGI INITIALIZATION")
-    logger.info("=" * 60)
-    
-    # Información del entorno
-    logger.info(f"🌐 Railway Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'development')}")
-    logger.info(f"📂 Railway Project: {os.environ.get('RAILWAY_PROJECT_NAME', 'unknown')}")
-    logger.info(f"🔌 Port: {os.environ.get('PORT', '8080')}")
-    logger.info(f"🐍 Python: {sys.version}")
-    logger.info(f"📁 Working Directory: {os.getcwd()}")
-    
-    # Verificar archivos críticos
-    critical_files = ['main.py', 'requirements.txt']
-    files_exist = [f for f in critical_files if Path(f).exists()]
-    logger.info(f"✅ Critical files: {files_exist}")
-    
-    # Verificar estructura de templates
-    template_dir = Path('templates')
-    if template_dir.exists():
-        template_count = len(list(template_dir.glob('**/*.html')))
-        logger.info(f"📄 Templates found: {template_count}")
-        
-        # Verificar templates críticos
-        critical_templates = [
-            'templates/layout.html',
-            'templates/login.html', 
-            'templates/dashboard.html',
-            'templates/errors/404.html',
-            'templates/errors/500.html'
-        ]
-        
-        for template in critical_templates:
-            if Path(template).exists():
-                logger.info(f"  ✅ {template}")
-            else:
-                logger.warning(f"  ⚠️ MISSING: {template}")
-    else:
-        logger.error("❌ Templates directory not found!")
-    
-    # Verificar directorios disponibles
-    dirs = [d for d in Path('.').iterdir() if d.is_dir() and not d.name.startswith('.')]
-    logger.info(f"📂 Available directories: {[d.name for d in dirs]}")
-    
-    # Verificar variables de entorno
-    env_vars = ['DATABASE_URL', 'REDIS_URL', 'SECRET_KEY', 'JWT_SECRET_KEY']
-    for var in env_vars:
-        value = os.environ.get(var)
-        if value and value != 'default':
-            logger.info(f"🔑 {var}: ✅ CONFIGURED")
-        else:
-            logger.warning(f"🔑 {var}: ⚠️ DEFAULT")
-    
-    logger.info("=" * 60)
+# ERP13E Environment validation
+required_env_vars = [
+    'DATABASE_URL',
+    'SECRET_KEY', 
+    'JWT_SECRET_KEY',
+    'FLASK_ENV',
+    'RAILWAY_ENVIRONMENT'
+]
 
-# Ejecutar inicialización
-initialize_wsgi()
+def validate_environment():
+    """Validate required environment variables for ERP13E"""
+    missing_vars = []
+    for var in required_env_vars:
+        if not os.environ.get(var):
+            missing_vars.append(var)
+    
+    if missing_vars:
+        logger.error(f"Missing required environment variables: {missing_vars}")
+        return False
+    
+    logger.info("✅ All required environment variables present")
+    return True
 
-# Importar aplicación con manejo de errores robusto
-logger.info("🔍 Importing ERP13 Enterprise application...")
+def setup_signal_handlers():
+    """Setup graceful shutdown handlers for ERP13E"""
+    def signal_handler(signum, frame):
+        logger.info(f"Received signal {signum}. Shutting down gracefully...")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
 try:
-    # Intentar importar con el patrón factory
+    # Validate environment before proceeding
+    if not validate_environment():
+        logger.error("Environment validation failed. Exiting...")
+        sys.exit(1)
+    
+    # Setup signal handlers
+    setup_signal_handlers()
+    
+    # Import main application
     from main import create_app
-    logger.info("✅ Factory pattern imported from main.py")
     
-    # Crear aplicación con configuración de producción
-    app = create_app('production')
-    application = app  # Railway busca 'application'
+    # Create Flask application instance for ERP13E
+    application = create_app()
     
-    # Configurar para producción
-    if os.environ.get('RAILWAY_ENVIRONMENT') == 'production':
-        app.config['DEBUG'] = False
-        app.config['TESTING'] = False
-        logger.info("✅ Production configuration applied")
+    # Store startup time for monitoring
+    application.start_time = datetime.utcnow()
+    application.request_count = 0
+    application.active_sessions = []
+    
+    # ERP13E Enhanced Health Check Endpoints
+    @application.route('/health')
+    def health_check():
+        """Basic health check compatible with Railway configuration"""
+        try:
+            # Quick database connection test
+            from sqlalchemy import text
+            from flask import current_app
+            
+            if hasattr(current_app, 'extensions') and 'sqlalchemy' in current_app.extensions:
+                db = current_app.extensions['sqlalchemy'].db
+                db.session.execute(text('SELECT 1'))
+                db_status = 'connected'
+            else:
+                db_status = 'not_configured'
+            
+            return {
+                'status': 'healthy',
+                'timestamp': datetime.utcnow().isoformat(),
+                'service': 'ERP13E-Enterprise',
+                'environment': os.environ.get('RAILWAY_ENVIRONMENT', 'unknown'),
+                'database': db_status
+            }, 200
+        except Exception as e:
+            logger.error(f"Health check failed: {str(e)}")
+            return {
+                'status': 'unhealthy',
+                'error': 'Database connection failed',
+                'timestamp': datetime.utcnow().isoformat()
+            }, 500
+    
+    @application.route('/health/detailed')
+    def detailed_health_check():
+        """Detailed health check with system and database metrics"""
+        try:
+            # System metrics
+            memory = psutil.virtual_memory()
+            cpu_percent = psutil.cpu_percent(interval=1)
+            
+            # Database connection test with metrics
+            db_metrics = {'status': 'not_configured'}
+            try:
+                from sqlalchemy import text
+                from flask import current_app
+                import time
+                
+                if hasattr(current_app, 'extensions') and 'sqlalchemy' in current_app.extensions:
+                    db = current_app.extensions['sqlalchemy'].db
+                    start_time = time.time()
+                    result = db.session.execute(text('SELECT COUNT(*) as connection_test'))
+                    query_time = (time.time() - start_time) * 1000
+                    
+                    db_metrics = {
+                        'status': 'connected',
+                        'query_time_ms': round(query_time, 2),
+                        'connection_pool': 'active'
+                    }
+            except Exception as db_error:
+                db_metrics = {
+                    'status': 'error',
+                    'error': str(db_error)
+                }
+            
+            # Application metrics
+            uptime_seconds = (datetime.utcnow() - application.start_time).total_seconds()
+            
+            return {
+                'status': 'healthy',
+                'timestamp': datetime.utcnow().isoformat(),
+                'service': 'ERP13E-Enterprise',
+                'environment': os.environ.get('RAILWAY_ENVIRONMENT', 'production'),
+                'system': {
+                    'memory_usage': f"{memory.percent}%",
+                    'memory_available': f"{memory.available // (1024*1024)}MB",
+                    'cpu_usage': f"{cpu_percent}%",
+                    'workers': os.environ.get('WEB_CONCURRENCY', '3'),
+                    'worker_class': os.environ.get('WORKER_CLASS', 'gthread')
+                },
+                'application': {
+                    'uptime_seconds': round(uptime_seconds, 2),
+                    'request_count': application.request_count,
+                    'active_sessions': len(application.active_sessions),
+                    'flask_env': os.environ.get('FLASK_ENV', 'production')
+                },
+                'database': db_metrics
+            }, 200
+        except Exception as e:
+            logger.error(f"Detailed health check failed: {str(e)}")
+            return {
+                'status': 'unhealthy',
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat(),
+                'service': 'ERP13E-Enterprise'
+            }, 500
+    
+    @application.route('/metrics')
+    def metrics():
+        """Prometheus-style metrics for ERP13E monitoring"""
+        try:
+            uptime = (datetime.utcnow() - application.start_time).total_seconds()
+            
+            return {
+                'erp13e_requests_total': application.request_count,
+                'erp13e_active_users': len(application.active_sessions),
+                'erp13e_uptime_seconds': round(uptime, 2),
+                'erp13e_memory_usage_percent': psutil.virtual_memory().percent,
+                'erp13e_cpu_usage_percent': psutil.cpu_percent(),
+                'erp13e_workers_count': int(os.environ.get('WEB_CONCURRENCY', '3')),
+                'erp13e_environment': os.environ.get('RAILWAY_ENVIRONMENT', 'production')
+            }, 200
+        except Exception as e:
+            logger.error(f"Metrics endpoint failed: {str(e)}")
+            return {'error': str(e)}, 500
+    
+    @application.route('/status')
+    def status():
+        """Simple status endpoint for load balancer"""
+        return {'status': 'ok', 'service': 'ERP13E'}, 200
+    
+    # Request counting middleware
+    @application.before_request
+    def before_request():
+        application.request_count += 1
+    
+    # Log successful initialization
+    logger.info("🚀 ERP13E Enterprise - WSGI application initialized successfully")
+    logger.info(f"Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'production')}")
+    logger.info(f"Flask Environment: {os.environ.get('FLASK_ENV', 'production')}")
+    logger.info(f"Workers: {os.environ.get('WEB_CONCURRENCY', '3')}")
+    logger.info(f"Worker Class: {os.environ.get('WORKER_CLASS', 'gthread')}")
+    logger.info(f"Database URL configured: {'✅' if os.environ.get('DATABASE_URL') else '❌'}")
+    logger.info(f"JWT Secret configured: {'✅' if os.environ.get('JWT_SECRET_KEY') else '❌'}")
     
 except ImportError as e:
-    logger.warning(f"⚠️ Factory pattern not found: {e}")
+    logger.error(f"Failed to import main application: {str(e)}")
     
-    try:
-        # Fallback: importar app directamente
-        from main import app
-        application = app  # Railway busca 'application'
-        logger.info("✅ Application imported from main.py (app only)")
-        
-        # Configurar para producción
-        if os.environ.get('RAILWAY_ENVIRONMENT') == 'production':
-            app.config['DEBUG'] = False
-            app.config['TESTING'] = False
-            logger.info("✅ Production configuration applied")
-            
-    except ImportError as e2:
-        logger.error(f"❌ Failed to import application: {e2}")
-        
-        # Crear aplicación mínima de emergencia
-        from flask import Flask, jsonify
-        
-        app = Flask(__name__)
-        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'emergency-key')
-        
-        @app.route('/health')
-        def health():
-            return jsonify({
-                'status': 'emergency',
-                'message': 'Application import failed - emergency mode',
-                'error': str(e2)
-            }), 503
-        
-        @app.route('/')
-        def index():
-            return jsonify({
-                'status': 'error',
-                'message': 'ERP13 Enterprise initialization failed',
-                'details': 'Check logs for more information'
-            }), 503
-        
-        application = app
-        logger.error("⚠️ Running in emergency mode")
+    # Fallback application for debugging
+    from flask import Flask
+    application = Flask(__name__)
+    
+    @application.route('/')
+    def fallback():
+        return {
+            'error': 'ERP13E application import failed',
+            'message': str(e),
+            'status': 'initialization_error',
+            'service': 'ERP13E-Enterprise'
+        }, 500
+    
+    @application.route('/health')
+    def fallback_health():
+        return {
+            'status': 'unhealthy', 
+            'error': 'Application not loaded',
+            'service': 'ERP13E-Enterprise'
+        }, 500
 
-# Múltiples exports para compatibilidad máxima
-flask_app = app
-wsgi_app = app.wsgi_app
-app_instance = app
-erp13_app = app
+except Exception as e:
+    logger.error(f"Critical error during ERP13E WSGI initialization: {str(e)}")
+    sys.exit(1)
 
-# Logging de verificación final
-logger.info("✅ WSGI APPLICATION EXPORTS:")
-logger.info("   - application ✅")
-logger.info("   - app ✅")
-logger.info("   - flask_app ✅")
-logger.info("   - wsgi_app ✅")
-logger.info("   - app_instance ✅")
-logger.info("   - erp13_app ✅")
+# Cleanup function
+def cleanup():
+    logger.info("ERP13E Enterprise - Cleaning up resources...")
 
-# Verificar rutas disponibles
-with app.app_context():
-    routes = []
-    for rule in app.url_map.iter_rules():
-        routes.append(str(rule))
-    logger.info(f"📋 Routes available: {len(routes)}")
+atexit.register(cleanup)
 
-# Verificar configuración final
-logger.info(f"🎯 Environment: {app.config.get('ENV', 'UNKNOWN')}")
-logger.info(f"🔧 Debug mode: {'ON' if app.config.get('DEBUG') else 'OFF'}")
-
-logger.info("🚀 ERP13 Enterprise v3.0 - WSGI READY FOR RAILWAY")
-logger.info("=" * 60)
-
-# Export principal para Gunicorn
-__all__ = ['application', 'app']
+if __name__ == "__main__":
+    # For local development
+    port = int(os.environ.get('PORT', 8080))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
+    logger.info(f"Starting ERP13E Enterprise in {'development' if debug else 'production'} mode")
+    application.run(host='0.0.0.0', port=port, debug=debug)

@@ -1,1103 +1,1017 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario de Clientes - ERP13 Enterprise</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <!-- FullCalendar -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #8B5CF6;
-            --secondary-color: #3B82F6;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
-            --dark-color: #1F2937;
-            --light-color: #F9FAFB;
-        }
+{% extends "layout.html" %}
 
-        body {
-            background-color: var(--light-color);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+{% block title %}Calendario de Clientes - ERP Enterprise{% endblock %}
 
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #374151 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+{% block extra_css %}
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
-        .sidebar-item {
-            color: #D1D5DB;
-            padding: 12px 20px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 4px 8px;
-        }
+<style>
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 30px;
+    }
 
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
+    .calendar-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
 
-        .main-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin: 20px;
-            min-height: calc(100vh - 40px);
-        }
+    .integrations-panel {
+        background: linear-gradient(135deg, #f8faff 0%, #e8f2ff 100%);
+        border: 2px solid #e8f2ff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
 
-        .calendar-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            color: white;
-            margin-bottom: 30px;
-        }
+    .integration-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
 
-        .calendar-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-        }
+    .integration-card:hover {
+        transform: translateY(-2px);
+    }
 
-        .integrations-panel {
-            background: linear-gradient(135deg, #f8faff 0%, #e8f2ff 100%);
-            border: 2px solid #e8f2ff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
+    .sync-status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
 
-        .integration-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-        }
+    .sync-active { background: #D1FAE5; color: #065F46; }
+    .sync-error { background: #FEE2E2; color: #991B1B; }
+    .sync-pending { background: #FEF3C7; color: #92400E; }
 
-        .integration-card:hover {
-            transform: translateY(-2px);
-        }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
 
-        .sync-status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+    }
 
-        .sync-active { background: #D1FAE5; color: #065F46; }
-        .sync-error { background: #FEE2E2; color: #991B1B; }
-        .sync-pending { background: #FEF3C7; color: #92400E; }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
 
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .stat-label {
+        color: #6B7280;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .activity-type-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .type-reunion { background: #DBEAFE; color: #1E40AF; }
+    .type-llamada { background: #D1FAE5; color: #065F46; }
+    .type-demo { background: #FEF3C7; color: #92400E; }
+    .type-seguimiento { background: #F3E8FF; color: #7C2D12; }
+    .type-presentacion { background: #FEE2E2; color: #991B1B; }
+
+    .filter-controls {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    /* FullCalendar Customizations */
+    .fc {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .fc-toolbar {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .fc-button-primary {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+    }
+
+    .fc-button-primary:hover {
+        background-color: #7C3AED !important;
+        border-color: #7C3AED !important;
+    }
+
+    .fc-event {
+        border-radius: 6px !important;
+        border: none !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    }
+
+    .fc-event:hover {
+        transform: scale(1.02);
+    }
+
+    .fc-event-title {
+        font-weight: 600 !important;
+        padding: 4px 8px !important;
+    }
+
+    .fc-daygrid-event {
+        margin: 2px !important;
+    }
+
+    .upcoming-activities {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
+
+    .activity-item {
+        background: #F9FAFB;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .activity-time {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 0.875rem;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .activity-client {
+        color: #6B7280;
+        font-size: 0.875rem;
+    }
+
+    .quick-actions {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+    }
+
+    .quick-action-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .quick-action-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .calendar-legend {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+    }
+
+    .sync-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .sync-indicator.syncing {
+        color: var(--primary-color);
+    }
+
+    .sync-indicator.synced {
+        color: var(--success-color);
+    }
+
+    .sync-indicator.error {
+        color: var(--danger-color);
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .spinning {
+        animation: spin 1s linear infinite;
+    }
+
+    @media (max-width: 768px) {
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr 1fr;
         }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            color: #6B7280;
-            font-size: 0.875rem;
-            margin-top: 5px;
-        }
-
-        .activity-type-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .type-reunion { background: #DBEAFE; color: #1E40AF; }
-        .type-llamada { background: #D1FAE5; color: #065F46; }
-        .type-demo { background: #FEF3C7; color: #92400E; }
-        .type-seguimiento { background: #F3E8FF; color: #7C2D12; }
-        .type-presentacion { background: #FEE2E2; color: #991B1B; }
-
-        .filter-controls {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-
-        /* FullCalendar Customizations */
-        .fc {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .fc-toolbar {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .fc-button-primary {
-            background-color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-        }
-
-        .fc-button-primary:hover {
-            background-color: #7C3AED !important;
-            border-color: #7C3AED !important;
-        }
-
-        .fc-event {
-            border-radius: 6px !important;
-            border: none !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
-        }
-
-        .fc-event:hover {
-            transform: scale(1.02);
-        }
-
-        .fc-event-title {
-            font-weight: 600 !important;
-            padding: 4px 8px !important;
-        }
-
-        .fc-daygrid-event {
-            margin: 2px !important;
-        }
-
-        .upcoming-activities {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-        }
-
-        .activity-item {
-            background: #F9FAFB;
-            border-radius: 8px;
-            padding: 15px;
+        
+        .integration-card {
             margin-bottom: 10px;
-            border-left: 4px solid var(--primary-color);
         }
+    }
 
-        .activity-time {
-            font-weight: 600;
-            color: var(--primary-color);
-            font-size: 0.875rem;
-        }
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
 
-        .activity-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
 
-        .activity-client {
-            color: #6B7280;
-            font-size: 0.875rem;
-        }
+{% block breadcrumbs %}
+<nav class="erp-breadcrumb">
+    <ol class="breadcrumb-list">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/clientes">Clientes</a></li>
+        <li class="active">Calendario</li>
+    </ol>
+</nav>
+{% endblock %}
 
-        .quick-actions {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
+{% block content %}
+<div class="content-wrapper">
+    <!-- Header -->
+    <div class="calendar-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2">
+                    <i class="fas fa-calendar-alt"></i> Calendario de Actividades
+                    {% if selected_client %}
+                        - {{ selected_client.nombre_empresa }}
+                    {% endif %}
+                </h2>
+                <p class="mb-3 opacity-90">
+                    {% if selected_client %}
+                        Actividades programadas con {{ selected_client.nombre_empresa }}
+                    {% else %}
+                        Calendario integrado con sistemas externos: Google Calendar, Outlook, Calendly
+                    {% endif %}
+                </p>
+                <div class="d-flex align-items-center gap-3">
+                    <select id="client-selector" class="form-select" style="max-width: 300px;">
+                        <option value="">Todos los clientes</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
+                            {{ client.nombre_empresa }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="fs-3 fw-bold">{{ activities|length }}</div>
+                <div class="opacity-75">actividades</div>
+            </div>
+        </div>
+    </div>
 
-        .quick-action-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
-
-        .quick-action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .calendar-legend {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-
-        .sync-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.875rem;
-            margin-top: 5px;
-        }
-
-        .sync-indicator.syncing {
-            color: var(--primary-color);
-        }
-
-        .sync-indicator.synced {
-            color: var(--success-color);
-        }
-
-        .sync-indicator.error {
-            color: var(--danger-color);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .spinning {
-            animation: spin 1s linear infinite;
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .integration-card {
-                margin-bottom: 10px;
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
+    <!-- Integrations Panel -->
+    <div class="integrations-panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="fas fa-plug text-primary"></i> Integraciones de Calendario
+            </h5>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#integrationsModal">
+                <i class="fas fa-cog"></i> Configurar
+            </button>
+        </div>
+        
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-users"></i> Clientes
-                    </h4>
+            {% for integration in integrations %}
+            <div class="col-md-4">
+                <div class="integration-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-primary">
+                                {% if integration.calendar_type == 'google' %}
+                                    <i class="fab fa-google fa-2x"></i>
+                                {% elif integration.calendar_type == 'outlook' %}
+                                    <i class="fab fa-microsoft fa-2x"></i>
+                                {% elif integration.calendar_type == 'calendly' %}
+                                    <i class="fas fa-calendar-check fa-2x"></i>
+                                {% else %}
+                                    <i class="fas fa-calendar fa-2x"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="fw-semibold">{{ integration.integration_name or integration.calendar_type|title }}</div>
+                                <div class="small text-muted">{{ integration.calendar_type|title }} Calendar</div>
+                            </div>
+                        </div>
+                        <div class="sync-indicator {{ 'synced' if integration.sync_status == 'active' else 'error' if integration.sync_status == 'error' else 'syncing' }}">
+                            <i class="fas fa-{{ 'check-circle' if integration.sync_status == 'active' else 'exclamation-circle' if integration.sync_status == 'error' else 'sync' }} {{ 'spinning' if integration.sync_status == 'syncing' else '' }}"></i>
+                            <span>{{ 'Sincronizado' if integration.sync_status == 'active' else 'Error' if integration.sync_status == 'error' else 'Sincronizando' }}</span>
+                        </div>
+                    </div>
                     
-                    <nav>
-                        <a href="{{ url_for('clientes.gestion_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-users-cog"></i> Gestión Clientes
-                        </a>
-                        <a href="{{ url_for('clientes.timeline_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-clock"></i> Timeline
-                        </a>
-                        <a href="{{ url_for('clientes.comunicaciones_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-comments"></i> Comunicaciones
-                        </a>
-                        <a href="{{ url_for('clientes.propuestas_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-file-alt"></i> Propuestas
-                        </a>
-                        <a href="{{ url_for('clientes.pipeline_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-chart-line"></i> Pipeline
-                        </a>
-                        <a href="{{ url_for('clientes.tickets_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-ticket-alt"></i> Tickets
-                        </a>
-                        <a href="{{ url_for('clientes.calendario_clientes') }}" class="sidebar-item active">
-                            <i class="fas fa-calendar-alt"></i> Calendario
-                        </a>
-                        <a href="{{ url_for('clientes.campanas_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-bullhorn"></i> Campañas Publicitarias
-                        </a>
-                        <a href="{{ url_for('clientes.automatizaciones_clientes') }}" class="sidebar-item">
-                            <i class="fas fa-magic"></i> Automatizaciones
-                        </a>
-                    </nav>
+                    {% if integration.last_sync %}
+                    <div class="mt-2 small text-muted">
+                        Última sincronización: {{ moment(integration.last_sync).fromNow() if moment else integration.last_sync }}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            {% endfor %}
+        </div>
+    </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10">
-                <div class="main-content">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="calendar-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h2 class="mb-2">
-                                        <i class="fas fa-calendar-alt"></i> Calendario de Actividades
-                                        {% if selected_client %}
-                                            - {{ selected_client.nombre_empresa }}
-                                        {% endif %}
-                                    </h2>
-                                    <p class="mb-3 opacity-90">
-                                        {% if selected_client %}
-                                            Actividades programadas con {{ selected_client.nombre_empresa }}
-                                        {% else %}
-                                            Calendario integrado con sistemas externos: Google Calendar, Outlook, Calendly
-                                        {% endif %}
-                                    </p>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <select id="client-selector" class="form-select" style="max-width: 300px;">
-                                            <option value="">Todos los clientes</option>
-                                            {% for client in clients %}
-                                            <option value="{{ client.id }}" {% if selected_client_id == client.id %}selected{% endif %}>
-                                                {{ client.nombre_empresa }}
-                                            </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="fs-3 fw-bold">{{ activities|length }}</div>
-                                    <div class="opacity-75">actividades</div>
-                                </div>
-                            </div>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">
+                {{ activities|selectattr("activity_type", "equalto", "reunion")|list|length }}
+            </div>
+            <div class="stat-label">
+                <i class="fas fa-handshake text-primary"></i> Reuniones
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">
+                {{ activities|selectattr("activity_type", "equalto", "llamada")|list|length }}
+            </div>
+            <div class="stat-label">
+                <i class="fas fa-phone text-success"></i> Llamadas
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">
+                {{ activities|selectattr("activity_type", "equalto", "demo")|list|length }}
+            </div>
+            <div class="stat-label">
+                <i class="fas fa-desktop text-warning"></i> Demos
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">
+                {{ activities|selectattr("activity_type", "equalto", "seguimiento")|list|length }}
+            </div>
+            <div class="stat-label">
+                <i class="fas fa-user-check text-info"></i> Seguimientos
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="fas fa-filter"></i> Vista del Calendario
+            </h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" id="sync-calendars">
+                    <i class="fas fa-sync"></i> Sincronizar
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newActivityModal">
+                    <i class="fas fa-plus"></i> Nueva Actividad
+                </button>
+            </div>
+        </div>
+        
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <label class="form-label small">Tipo de actividad:</label>
+                <select class="form-select form-select-sm" id="filter-type">
+                    <option value="">Todos los tipos</option>
+                    <option value="reunion">Reuniones</option>
+                    <option value="llamada">Llamadas</option>
+                    <option value="demo">Demos</option>
+                    <option value="seguimiento">Seguimientos</option>
+                    <option value="presentacion">Presentaciones</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Usuario asignado:</label>
+                <select class="form-select form-select-sm" id="filter-user">
+                    <option value="">Todos los usuarios</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Integración:</label>
+                <select class="form-select form-select-sm" id="filter-integration">
+                    <option value="">Todas las fuentes</option>
+                    {% for integration in integrations %}
+                    <option value="{{ integration.id }}">{{ integration.integration_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Vista del calendario:</label>
+                <div class="btn-group btn-group-sm w-100" role="group">
+                    <button type="button" class="btn btn-outline-primary active" id="view-month">Mes</button>
+                    <button type="button" class="btn btn-outline-primary" id="view-week">Semana</button>
+                    <button type="button" class="btn btn-outline-primary" id="view-day">Día</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Calendar -->
+        <div class="col-md-8">
+            <div class="calendar-container">
+                <div id="calendar"></div>
+            </div>
+
+            <!-- Calendar Legend -->
+            <div class="calendar-legend">
+                <h6 class="mb-3"><i class="fas fa-palette"></i> Leyenda</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #3788d8;"></div>
+                            <span>Reuniones</span>
                         </div>
-
-                        <!-- Integrations Panel -->
-                        <div class="integrations-panel">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-plug text-primary"></i> Integraciones de Calendario
-                                </h5>
-                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#integrationsModal">
-                                    <i class="fas fa-cog"></i> Configurar
-                                </button>
-                            </div>
-                            
-                            <div class="row">
-                                {% for integration in integrations %}
-                                <div class="col-md-4">
-                                    <div class="integration-card">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="text-primary">
-                                                    {% if integration.calendar_type == 'google' %}
-                                                        <i class="fab fa-google fa-2x"></i>
-                                                    {% elif integration.calendar_type == 'outlook' %}
-                                                        <i class="fab fa-microsoft fa-2x"></i>
-                                                    {% elif integration.calendar_type == 'calendly' %}
-                                                        <i class="fas fa-calendar-check fa-2x"></i>
-                                                    {% else %}
-                                                        <i class="fas fa-calendar fa-2x"></i>
-                                                    {% endif %}
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">{{ integration.integration_name or integration.calendar_type|title }}</div>
-                                                    <div class="small text-muted">{{ integration.calendar_type|title }} Calendar</div>
-                                                </div>
-                                            </div>
-                                            <div class="sync-indicator {{ 'synced' if integration.sync_status == 'active' else 'error' if integration.sync_status == 'error' else 'syncing' }}">
-                                                <i class="fas fa-{{ 'check-circle' if integration.sync_status == 'active' else 'exclamation-circle' if integration.sync_status == 'error' else 'sync' }} {{ 'spinning' if integration.sync_status == 'syncing' else '' }}"></i>
-                                                <span>{{ 'Sincronizado' if integration.sync_status == 'active' else 'Error' if integration.sync_status == 'error' else 'Sincronizando' }}</span>
-                                            </div>
-                                        </div>
-                                        
-                                        {% if integration.last_sync %}
-                                        <div class="mt-2 small text-muted">
-                                            Última sincronización: {{ moment(integration.last_sync).fromNow() if moment else integration.last_sync }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #28a745;"></div>
+                            <span>Llamadas</span>
                         </div>
-
-                        <!-- Stats Grid -->
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-number">
-                                    {{ activities|selectattr("activity_type", "equalto", "reunion")|list|length }}
-                                </div>
-                                <div class="stat-label">
-                                    <i class="fas fa-handshake text-primary"></i> Reuniones
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">
-                                    {{ activities|selectattr("activity_type", "equalto", "llamada")|list|length }}
-                                </div>
-                                <div class="stat-label">
-                                    <i class="fas fa-phone text-success"></i> Llamadas
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">
-                                    {{ activities|selectattr("activity_type", "equalto", "demo")|list|length }}
-                                </div>
-                                <div class="stat-label">
-                                    <i class="fas fa-desktop text-warning"></i> Demos
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">
-                                    {{ activities|selectattr("activity_type", "equalto", "seguimiento")|list|length }}
-                                </div>
-                                <div class="stat-label">
-                                    <i class="fas fa-user-check text-info"></i> Seguimientos
-                                </div>
-                            </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #fd7e14;"></div>
+                            <span>Demos</span>
                         </div>
-
-                        <!-- Filter Controls -->
-                        <div class="filter-controls">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-filter"></i> Vista del Calendario
-                                </h5>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-outline-primary" id="sync-calendars">
-                                        <i class="fas fa-sync"></i> Sincronizar
-                                    </button>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newActivityModal">
-                                        <i class="fas fa-plus"></i> Nueva Actividad
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="row align-items-center">
-                                <div class="col-md-3">
-                                    <label class="form-label small">Tipo de actividad:</label>
-                                    <select class="form-select form-select-sm" id="filter-type">
-                                        <option value="">Todos los tipos</option>
-                                        <option value="reunion">Reuniones</option>
-                                        <option value="llamada">Llamadas</option>
-                                        <option value="demo">Demos</option>
-                                        <option value="seguimiento">Seguimientos</option>
-                                        <option value="presentacion">Presentaciones</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Usuario asignado:</label>
-                                    <select class="form-select form-select-sm" id="filter-user">
-                                        <option value="">Todos los usuarios</option>
-                                        {% for user in users %}
-                                        <option value="{{ user.id }}">{{ user.username }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Integración:</label>
-                                    <select class="form-select form-select-sm" id="filter-integration">
-                                        <option value="">Todas las fuentes</option>
-                                        {% for integration in integrations %}
-                                        <option value="{{ integration.id }}">{{ integration.integration_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small">Vista del calendario:</label>
-                                    <div class="btn-group btn-group-sm w-100" role="group">
-                                        <button type="button" class="btn btn-outline-primary active" id="view-month">Mes</button>
-                                        <button type="button" class="btn btn-outline-primary" id="view-week">Semana</button>
-                                        <button type="button" class="btn btn-outline-primary" id="view-day">Día</button>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #6f42c1;"></div>
+                            <span>Seguimientos</span>
                         </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e83e8c;"></div>
+                            <span>Presentaciones</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #6c757d;"></div>
+                            <span>Otros</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <div class="row">
-                            <!-- Calendar -->
-                            <div class="col-md-8">
-                                <div class="calendar-container">
-                                    <div id="calendar"></div>
-                                </div>
+        <!-- Upcoming Activities -->
+        <div class="col-md-4">
+            <div class="upcoming-activities">
+                <h6 class="mb-3">
+                    <i class="fas fa-clock text-primary"></i> Próximas Actividades
+                </h6>
+                
+                {% if activities %}
+                    {% for activity in activities[:10] %}
+                    <div class="activity-item">
+                        <div class="activity-time">
+                            {{ moment(activity.activity_date).format('DD/MM HH:mm') if moment and activity.activity_date else activity.activity_date }}
+                        </div>
+                        <div class="activity-title">{{ activity.title }}</div>
+                        {% if activity.nombre_empresa and not selected_client %}
+                        <div class="activity-client">
+                            <i class="fas fa-building"></i> {{ activity.nombre_empresa }}
+                        </div>
+                        {% endif %}
+                        {% if activity.assigned_to_name %}
+                        <div class="activity-client">
+                            <i class="fas fa-user"></i> {{ activity.assigned_to_name }}
+                        </div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <span class="activity-type-badge type-{{ activity.activity_type or 'otros' }}">
+                                {{ activity.activity_type|title or 'Otros' }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-calendar-plus fa-2x mb-3 opacity-50"></i>
+                        <p>No hay actividades próximas</p>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newActivityModal">
+                            <i class="fas fa-plus"></i> Crear Actividad
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-                                <!-- Calendar Legend -->
-                                <div class="calendar-legend">
-                                    <h6 class="mb-3"><i class="fas fa-palette"></i> Leyenda</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="legend-item">
-                                                <div class="legend-color" style="background-color: #3788d8;"></div>
-                                                <span>Reuniones</span>
-                                            </div>
-                                            <div class="legend-item">
-                                                <div class="legend-color" style="background-color: #28a745;"></div>
-                                                <span>Llamadas</span>
-                                            </div>
-                                            <div class="legend-item">
-                                                <div class="legend-color" style="background-color: #fd7e14;"></div>
-                                                <span>Demos</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="legend-item">
-                                                <div class="legend-color" style="background-color: #6f42c1;"></div>
-                                                <span>Seguimientos</span>
-                                            </div>
-                                            <div class="legend-item">
-                                                <div class="legend-color" style="background-color: #e83e8c;"></div>
-                                                <span>Presentaciones</span>
-                                            </div>
-                                            <div class="legend-item">
-                                                <div class="legend-color" style="background-color: #6c757d;"></div>
-                                                <span>Otros</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <button class="quick-action-btn btn btn-warning" title="Sincronizar calendarios" id="quick-sync">
+        <i class="fas fa-sync"></i>
+    </button>
+    <button class="quick-action-btn btn btn-primary" title="Nueva actividad" data-bs-toggle="modal" data-bs-target="#newActivityModal">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
 
-                            <!-- Upcoming Activities -->
-                            <div class="col-md-4">
-                                <div class="upcoming-activities">
-                                    <h6 class="mb-3">
-                                        <i class="fas fa-clock text-primary"></i> Próximas Actividades
-                                    </h6>
-                                    
-                                    {% if activities %}
-                                        {% for activity in activities[:10] %}
-                                        <div class="activity-item">
-                                            <div class="activity-time">
-                                                {{ moment(activity.activity_date).format('DD/MM HH:mm') if moment and activity.activity_date else activity.activity_date }}
-                                            </div>
-                                            <div class="activity-title">{{ activity.title }}</div>
-                                            {% if activity.nombre_empresa and not selected_client %}
-                                            <div class="activity-client">
-                                                <i class="fas fa-building"></i> {{ activity.nombre_empresa }}
-                                            </div>
-                                            {% endif %}
-                                            {% if activity.assigned_to_name %}
-                                            <div class="activity-client">
-                                                <i class="fas fa-user"></i> {{ activity.assigned_to_name }}
-                                            </div>
-                                            {% endif %}
-                                            <div class="mt-2">
-                                                <span class="activity-type-badge type-{{ activity.activity_type or 'otros' }}">
-                                                    {{ activity.activity_type|title or 'Otros' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
+<!-- New Activity Modal -->
+<div class="modal fade" id="newActivityModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Actividad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newActivityForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cliente *</label>
+                                <select class="form-select" name="client_id" required>
+                                    {% if selected_client %}
+                                    <option value="{{ selected_client.id }}" selected>{{ selected_client.nombre_empresa }}</option>
                                     {% else %}
-                                        <div class="text-center text-muted py-4">
-                                            <i class="fas fa-calendar-plus fa-2x mb-3 opacity-50"></i>
-                                            <p>No hay actividades próximas</p>
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newActivityModal">
-                                                <i class="fas fa-plus"></i> Crear Actividad
-                                            </button>
-                                        </div>
+                                    <option value="">Seleccionar cliente</option>
                                     {% endif %}
+                                    {% for client in clients %}
+                                    {% if not selected_client or client.id != selected_client.id %}
+                                    <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Actividad *</label>
+                                <select class="form-select" name="activity_type" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="reunion">Reunión</option>
+                                    <option value="llamada">Llamada</option>
+                                    <option value="demo">Demo</option>
+                                    <option value="seguimiento">Seguimiento</option>
+                                    <option value="presentacion">Presentación</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label">Título de la Actividad *</label>
+                                <input type="text" class="form-control" name="title" required 
+                                       placeholder="Ej: Reunión de seguimiento comercial">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Asignar a</label>
+                                <select class="form-select" name="assigned_to">
+                                    <option value="">Seleccionar usuario</option>
+                                    {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha y Hora de Inicio *</label>
+                                <input type="datetime-local" class="form-control" name="activity_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha y Hora de Fin</label>
+                                <input type="datetime-local" class="form-control" name="end_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ubicación</label>
+                                <input type="text" class="form-control" name="location" 
+                                       placeholder="Oficina, Google Meet, Zoom, etc.">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Integración de Calendario</label>
+                                <select class="form-select" name="calendar_integration_id">
+                                    <option value="">Solo en ERP</option>
+                                    {% for integration in integrations %}
+                                    <option value="{{ integration.id }}">{{ integration.integration_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="description" rows="4" 
+                                          placeholder="Describe el objetivo y agenda de la actividad..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Participantes (emails separados por comas)</label>
+                                <input type="text" class="form-control" name="participants" 
+                                       placeholder="email1@example.com, email2@example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Integration Options -->
+                    <div class="mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="send_invitations" id="send-invitations">
+                            <label class="form-check-label" for="send-invitations">
+                                Enviar invitaciones por email
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="create_reminder" id="create-reminder">
+                            <label class="form-check-label" for="create-reminder">
+                                Crear recordatorio automático
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="sync_external" id="sync-external">
+                            <label class="form-check-label" for="sync-external">
+                                Sincronizar con calendarios externos
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveActivity">
+                    <i class="fas fa-save"></i> Crear Actividad
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Integrations Modal -->
+<div class="modal fade" id="integrationsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configurar Integraciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Configura las integraciones para sincronizar automáticamente tus calendarios.
+                </div>
+                
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fab fa-google fa-2x text-primary"></i>
+                                <div>
+                                    <h6 class="mb-0">Google Calendar</h6>
+                                    <small class="text-muted">Sincronización bidireccional</small>
                                 </div>
                             </div>
+                            <button class="btn btn-outline-primary btn-sm">Configurar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fab fa-microsoft fa-2x text-primary"></i>
+                                <div>
+                                    <h6 class="mb-0">Microsoft Outlook</h6>
+                                    <small class="text-muted">Office 365 y Exchange</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm">Configurar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fas fa-calendar-check fa-2x text-primary"></i>
+                                <div>
+                                    <h6 class="mb-0">Calendly</h6>
+                                    <small class="text-muted">Programación automática</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm">Configurar</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button class="quick-action-btn btn btn-warning" title="Sincronizar calendarios" id="quick-sync">
-            <i class="fas fa-sync"></i>
-        </button>
-        <button class="quick-action-btn btn btn-primary" title="Nueva actividad" data-bs-toggle="modal" data-bs-target="#newActivityModal">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
+{% block extra_js %}
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-    <!-- New Activity Modal -->
-    <div class="modal fade" id="newActivityModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nueva Actividad</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newActivityForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Cliente *</label>
-                                    <select class="form-select" name="client_id" required>
-                                        {% if selected_client %}
-                                        <option value="{{ selected_client.id }}" selected>{{ selected_client.nombre_empresa }}</option>
-                                        {% else %}
-                                        <option value="">Seleccionar cliente</option>
-                                        {% endif %}
-                                        {% for client in clients %}
-                                        {% if not selected_client or client.id != selected_client.id %}
-                                        <option value="{{ client.id }}">{{ client.nombre_empresa }}</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Tipo de Actividad *</label>
-                                    <select class="form-select" name="activity_type" required>
-                                        <option value="">Seleccionar tipo</option>
-                                        <option value="reunion">Reunión</option>
-                                        <option value="llamada">Llamada</option>
-                                        <option value="demo">Demo</option>
-                                        <option value="seguimiento">Seguimiento</option>
-                                        <option value="presentacion">Presentación</option>
-                                        <option value="otros">Otros</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label class="form-label">Título de la Actividad *</label>
-                                    <input type="text" class="form-control" name="title" required 
-                                           placeholder="Ej: Reunión de seguimiento comercial">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Asignar a</label>
-                                    <select class="form-select" name="assigned_to">
-                                        <option value="">Seleccionar usuario</option>
-                                        {% for user in users %}
-                                        <option value="{{ user.id }}">{{ user.username }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Fecha y Hora de Inicio *</label>
-                                    <input type="datetime-local" class="form-control" name="activity_date" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Fecha y Hora de Fin</label>
-                                    <input type="datetime-local" class="form-control" name="end_date">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Ubicación</label>
-                                    <input type="text" class="form-control" name="location" 
-                                           placeholder="Oficina, Google Meet, Zoom, etc.">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Integración de Calendario</label>
-                                    <select class="form-select" name="calendar_integration_id">
-                                        <option value="">Solo en ERP</option>
-                                        {% for integration in integrations %}
-                                        <option value="{{ integration.id }}">{{ integration.integration_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="description" rows="4" 
-                                              placeholder="Describe el objetivo y agenda de la actividad..."></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Participantes (emails separados por comas)</label>
-                                    <input type="text" class="form-control" name="participants" 
-                                           placeholder="email1@example.com, email2@example.com">
-                                </div>
-                            </div>
-                        </div>
+<script>
+    $(document).ready(function() {
+        let calendar;
 
-                        <!-- Integration Options -->
-                        <div class="mt-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="send_invitations" id="send-invitations">
-                                <label class="form-check-label" for="send-invitations">
-                                    Enviar invitaciones por email
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="create_reminder" id="create-reminder">
-                                <label class="form-check-label" for="create-reminder">
-                                    Crear recordatorio automático
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="sync_external" id="sync-external">
-                                <label class="form-check-label" for="sync-external">
-                                    Sincronizar con calendarios externos
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveActivity">
-                        <i class="fas fa-save"></i> Crear Actividad
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Integrations Modal -->
-    <div class="modal fade" id="integrationsModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Configurar Integraciones</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        Configura las integraciones para sincronizar automáticamente tus calendarios.
-                    </div>
-                    
-                    <div class="list-group">
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-3">
-                                    <i class="fab fa-google fa-2x text-primary"></i>
-                                    <div>
-                                        <h6 class="mb-0">Google Calendar</h6>
-                                        <small class="text-muted">Sincronización bidireccional</small>
-                                    </div>
-                                </div>
-                                <button class="btn btn-outline-primary btn-sm">Configurar</button>
-                            </div>
-                        </div>
-                        
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-3">
-                                    <i class="fab fa-microsoft fa-2x text-primary"></i>
-                                    <div>
-                                        <h6 class="mb-0">Microsoft Outlook</h6>
-                                        <small class="text-muted">Office 365 y Exchange</small>
-                                    </div>
-                                </div>
-                                <button class="btn btn-outline-primary btn-sm">Configurar</button>
-                            </div>
-                        </div>
-                        
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-3">
-                                    <i class="fas fa-calendar-check fa-2x text-primary"></i>
-                                    <div>
-                                        <h6 class="mb-0">Calendly</h6>
-                                        <small class="text-muted">Programación automática</small>
-                                    </div>
-                                </div>
-                                <button class="btn btn-outline-primary btn-sm">Configurar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            let calendar;
-
-            // Initialize Select2
-            $('#client-selector, select[name="client_id"]').select2({
-                placeholder: 'Buscar cliente...',
-                allowClear: true,
-                width: '100%'
-            });
-
-            // Client selector change
-            $('#client-selector').change(function() {
-                const clientId = $(this).val();
-                if (clientId) {
-                    window.location.href = `/clientes/calendario/${clientId}`;
-                } else {
-                    window.location.href = '/clientes/calendario';
-                }
-            });
-
-            // Initialize FullCalendar
-            initializeCalendar();
-
-            function initializeCalendar() {
-                const calendarEl = document.getElementById('calendar');
-                
-                calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                    },
-                    locale: 'es',
-                    firstDay: 1, // Lunes
-                    events: {{ calendar_events|tojson if calendar_events else '[]' }},
-                    eventClick: function(info) {
-                        showEventDetails(info.event);
-                    },
-                    dateClick: function(info) {
-                        // Pre-fill new activity form with clicked date
-                        const clickedDate = new Date(info.date);
-                        const formattedDateTime = clickedDate.toISOString().slice(0, 16);
-                        $('input[name="activity_date"]').val(formattedDateTime);
-                        $('#newActivityModal').modal('show');
-                    },
-                    eventDidMount: function(info) {
-                        // Add tooltips to events
-                        $(info.el).tooltip({
-                            title: `${info.event.title}\n${info.event.extendedProps.client_name || ''}\n${info.event.extendedProps.assigned_to || ''}`,
-                            placement: 'top'
-                        });
-                    }
-                });
-                
-                calendar.render();
-            }
-
-            function showEventDetails(event) {
-                const details = `
-                    <div class="modal fade" id="eventDetailsModal" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">${event.title}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <p><strong>Cliente:</strong> ${event.extendedProps.client_name || 'No especificado'}</p>
-                                            <p><strong>Tipo:</strong> ${event.extendedProps.activity_type || 'No especificado'}</p>
-                                            <p><strong>Asignado a:</strong> ${event.extendedProps.assigned_to || 'No asignado'}</p>
-                                            <p><strong>Fecha:</strong> ${event.start.toLocaleString()}</p>
-                                            ${event.end ? `<p><strong>Fin:</strong> ${event.end.toLocaleString()}</p>` : ''}
-                                            ${event.extendedProps.description ? `<p><strong>Descripción:</strong> ${event.extendedProps.description}</p>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                    <button type="button" class="btn btn-primary">Editar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                // Remove existing modal if any
-                $('#eventDetailsModal').remove();
-                
-                // Add and show new modal
-                $('body').append(details);
-                $('#eventDetailsModal').modal('show');
-                
-                // Clean up when modal is hidden
-                $('#eventDetailsModal').on('hidden.bs.modal', function() {
-                    $(this).remove();
-                });
-            }
-
-            // Calendar view buttons
-            $('#view-month').click(function() {
-                calendar.changeView('dayGridMonth');
-                $('.btn-group .btn').removeClass('active');
-                $(this).addClass('active');
-            });
-
-            $('#view-week').click(function() {
-                calendar.changeView('timeGridWeek');
-                $('.btn-group .btn').removeClass('active');
-                $(this).addClass('active');
-            });
-
-            $('#view-day').click(function() {
-                calendar.changeView('timeGridDay');
-                $('.btn-group .btn').removeClass('active');
-                $(this).addClass('active');
-            });
-
-            // Filtering
-            $('#filter-type, #filter-user, #filter-integration').change(function() {
-                filterCalendarEvents();
-            });
-
-            function filterCalendarEvents() {
-                const type = $('#filter-type').val();
-                const user = $('#filter-user').val();
-                const integration = $('#filter-integration').val();
-
-                // Get all events
-                const allEvents = calendar.getEvents();
-                
-                // Hide all events first
-                allEvents.forEach(event => {
-                    event.setProp('display', 'none');
-                });
-
-                // Show matching events
-                allEvents.forEach(event => {
-                    let show = true;
-                    
-                    if (type && event.extendedProps.activity_type !== type) {
-                        show = false;
-                    }
-                    
-                    if (user && event.extendedProps.assigned_to_id != user) {
-                        show = false;
-                    }
-                    
-                    if (integration && event.extendedProps.calendar_integration_id != integration) {
-                        show = false;
-                    }
-                    
-                    if (show) {
-                        event.setProp('display', 'auto');
-                    }
-                });
-            }
-
-            // Sync calendars
-            $('#sync-calendars, #quick-sync').click(function() {
-                const btn = $(this);
-                const originalText = btn.html();
-                
-                btn.prop('disabled', true);
-                btn.html('<i class="fas fa-spinner fa-spin"></i> Sincronizando...');
-                
-                // Simulate sync process
-                setTimeout(function() {
-                    btn.prop('disabled', false);
-                    btn.html(originalText);
-                    
-                    $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                      'Calendarios sincronizados exitosamente!' +
-                      '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                      '</div>').prependTo('.main-content .p-4');
-
-                    // Update sync indicators
-                    $('.sync-indicator').removeClass('syncing error').addClass('synced');
-                    $('.sync-indicator i').removeClass('spinning fa-sync fa-exclamation-circle').addClass('fa-check-circle');
-                    $('.sync-indicator span').text('Sincronizado');
-                }, 2000);
-            });
-
-            // Create new activity
-            $('#saveActivity').click(function() {
-                const formData = $('#newActivityForm').serialize();
-                console.log('Creating activity:', formData);
-                
-                $('#newActivityModal').modal('hide');
-                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                  'Actividad creada y sincronizada con calendarios externos!' +
-                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                  '</div>').prependTo('.main-content .p-4');
-
-                // Reset form
-                $('#newActivityForm')[0].reset();
-            });
-
-            // Set default date/time for new activities
-            const now = new Date();
-            const formattedDateTime = now.toISOString().slice(0, 16);
-            $('input[name="activity_date"]').val(formattedDateTime);
-
-            // Auto-fill end time when start time changes
-            $('input[name="activity_date"]').change(function() {
-                const startTime = new Date($(this).val());
-                const endTime = new Date(startTime.getTime() + (60 * 60 * 1000)); // Add 1 hour
-                $('input[name="end_date"]').val(endTime.toISOString().slice(0, 16));
-            });
-
-            // Activity type change - update form
-            $('select[name="activity_type"]').change(function() {
-                const type = $(this).val();
-                const titleInput = $('input[name="title"]');
-                
-                // Suggest title based on activity type
-                if (type && !titleInput.val()) {
-                    const suggestions = {
-                        'reunion': 'Reunión comercial con ',
-                        'llamada': 'Llamada de seguimiento con ',
-                        'demo': 'Demo de producto para ',
-                        'seguimiento': 'Seguimiento comercial con ',
-                        'presentacion': 'Presentación de propuesta para '
-                    };
-                    
-                    const clientName = $('select[name="client_id"] option:selected').text();
-                    if (clientName !== 'Seleccionar cliente') {
-                        titleInput.val(suggestions[type] + clientName);
-                    }
-                }
-            });
-
-            // Initialize tooltips
-            $('[data-bs-toggle="tooltip"]').tooltip();
+        // Initialize Select2
+        $('#client-selector, select[name="client_id"]').select2({
+            placeholder: 'Buscar cliente...',
+            allowClear: true,
+            width: '100%'
         });
-    </script>
-</body>
-</html>
+
+        // Client selector change
+        $('#client-selector').change(function() {
+            const clientId = $(this).val();
+            if (clientId) {
+                window.location.href = `/clientes/calendario/${clientId}`;
+            } else {
+                window.location.href = '/clientes/calendario';
+            }
+        });
+
+        // Initialize FullCalendar
+        initializeCalendar();
+
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                locale: 'es',
+                firstDay: 1, // Lunes
+                events: {{ calendar_events|tojson if calendar_events else '[]' }},
+                eventClick: function(info) {
+                    showEventDetails(info.event);
+                },
+                dateClick: function(info) {
+                    // Pre-fill new activity form with clicked date
+                    const clickedDate = new Date(info.date);
+                    const formattedDateTime = clickedDate.toISOString().slice(0, 16);
+                    $('input[name="activity_date"]').val(formattedDateTime);
+                    $('#newActivityModal').modal('show');
+                },
+                eventDidMount: function(info) {
+                    // Add tooltips to events
+                    $(info.el).tooltip({
+                        title: `${info.event.title}\n${info.event.extendedProps.client_name || ''}\n${info.event.extendedProps.assigned_to || ''}`,
+                        placement: 'top'
+                    });
+                }
+            });
+            
+            calendar.render();
+        }
+
+        function showEventDetails(event) {
+            const details = `
+                <div class="modal fade" id="eventDetailsModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${event.title}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p><strong>Cliente:</strong> ${event.extendedProps.client_name || 'No especificado'}</p>
+                                        <p><strong>Tipo:</strong> ${event.extendedProps.activity_type || 'No especificado'}</p>
+                                        <p><strong>Asignado a:</strong> ${event.extendedProps.assigned_to || 'No asignado'}</p>
+                                        <p><strong>Fecha:</strong> ${event.start.toLocaleString()}</p>
+                                        ${event.end ? `<p><strong>Fin:</strong> ${event.end.toLocaleString()}</p>` : ''}
+                                        ${event.extendedProps.description ? `<p><strong>Descripción:</strong> ${event.extendedProps.description}</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="button" class="btn btn-primary">Editar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            $('#eventDetailsModal').remove();
+            
+            // Add and show new modal
+            $('body').append(details);
+            $('#eventDetailsModal').modal('show');
+            
+            // Clean up when modal is hidden
+            $('#eventDetailsModal').on('hidden.bs.modal', function() {
+                $(this).remove();
+            });
+        }
+
+        // Calendar view buttons
+        $('#view-month').click(function() {
+            calendar.changeView('dayGridMonth');
+            $('.btn-group .btn').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('#view-week').click(function() {
+            calendar.changeView('timeGridWeek');
+            $('.btn-group .btn').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('#view-day').click(function() {
+            calendar.changeView('timeGridDay');
+            $('.btn-group .btn').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        // Filtering
+        $('#filter-type, #filter-user, #filter-integration').change(function() {
+            filterCalendarEvents();
+        });
+
+        function filterCalendarEvents() {
+            const type = $('#filter-type').val();
+            const user = $('#filter-user').val();
+            const integration = $('#filter-integration').val();
+
+            // Get all events
+            const allEvents = calendar.getEvents();
+            
+            // Hide all events first
+            allEvents.forEach(event => {
+                event.setProp('display', 'none');
+            });
+
+            // Show matching events
+            allEvents.forEach(event => {
+                let show = true;
+                
+                if (type && event.extendedProps.activity_type !== type) {
+                    show = false;
+                }
+                
+                if (user && event.extendedProps.assigned_to_id != user) {
+                    show = false;
+                }
+                
+                if (integration && event.extendedProps.calendar_integration_id != integration) {
+                    show = false;
+                }
+                
+                if (show) {
+                    event.setProp('display', 'auto');
+                }
+            });
+        }
+
+        // Sync calendars
+        $('#sync-calendars, #quick-sync').click(function() {
+            const btn = $(this);
+            const originalText = btn.html();
+            
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin"></i> Sincronizando...');
+            
+            // Simulate sync process
+            setTimeout(function() {
+                btn.prop('disabled', false);
+                btn.html(originalText);
+                
+                $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                  'Calendarios sincronizados exitosamente!' +
+                  '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                  '</div>').prependTo('.content-wrapper');
+
+                // Update sync indicators
+                $('.sync-indicator').removeClass('syncing error').addClass('synced');
+                $('.sync-indicator i').removeClass('spinning fa-sync fa-exclamation-circle').addClass('fa-check-circle');
+                $('.sync-indicator span').text('Sincronizado');
+            }, 2000);
+        });
+
+        // Create new activity
+        $('#saveActivity').click(function() {
+            const formData = $('#newActivityForm').serialize();
+            console.log('Creating activity:', formData);
+            
+            $('#newActivityModal').modal('hide');
+            $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+              'Actividad creada y sincronizada con calendarios externos!' +
+              '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+              '</div>').prependTo('.content-wrapper');
+
+            // Reset form
+            $('#newActivityForm')[0].reset();
+        });
+
+        // Set default date/time for new activities
+        const now = new Date();
+        const formattedDateTime = now.toISOString().slice(0, 16);
+        $('input[name="activity_date"]').val(formattedDateTime);
+
+        // Auto-fill end time when start time changes
+        $('input[name="activity_date"]').change(function() {
+            const startTime = new Date($(this).val());
+            const endTime = new Date(startTime.getTime() + (60 * 60 * 1000)); // Add 1 hour
+            $('input[name="end_date"]').val(endTime.toISOString().slice(0, 16));
+        });
+
+        // Activity type change - update form
+        $('select[name="activity_type"]').change(function() {
+            const type = $(this).val();
+            const titleInput = $('input[name="title"]');
+            
+            // Suggest title based on activity type
+            if (type && !titleInput.val()) {
+                const suggestions = {
+                    'reunion': 'Reunión comercial con ',
+                    'llamada': 'Llamada de seguimiento con ',
+                    'demo': 'Demo de producto para ',
+                    'seguimiento': 'Seguimiento comercial con ',
+                    'presentacion': 'Presentación de propuesta para '
+                };
+                
+                const clientName = $('select[name="client_id"] option:selected').text();
+                if (clientName !== 'Seleccionar cliente') {
+                    titleInput.val(suggestions[type] + clientName);
+                }
+            }
+        });
+
+        // Initialize tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+        console.log('✅ Calendario de Clientes - Usando layout.html template system');
+    });
+</script>
+{% endblock %}

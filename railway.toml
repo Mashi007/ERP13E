@@ -2,7 +2,7 @@
 # 📁 Ruta: /railway.toml
 # 📄 Nombre: railway.toml  
 # 🏗️ Propósito: Configuración de deployment Railway optimizada
-# ⚡ Performance: Build optimizado, variables de entorno, health checks
+# ⚡ Performance: Build optimizado, variables de entorno, health checks.
 # 🔒 Seguridad: Configuración de puertos y servicios seguros
 # =============================================================================
 

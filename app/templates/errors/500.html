@@ -1,325 +1,261 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error 500 - Error interno del servidor | ERP13 Enterprise</title>
-    
-    <!-- CSS Framework -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <style>
-        /* 
-        ============================================================================
-        📁 Ruta: /templates/errors/500.html
-        📄 Nombre: Error 500 ERP13 Enterprise
-        🏗️ Propósito: Página error 500 - Error interno del servidor
-        ⚡ Performance: CSS optimizado + error logging
-        🔒 Seguridad: Error handling seguro sin exposición de datos
-        ============================================================================
-        */
-        
-        :root {
-            --primary-blue: #3b82f6;
-            --dark-blue: #1e40af;
-            --danger-red: #ef4444;
-            --light-gray: #f8fafc;
-            --dark-gray: #374151;
-            --border-color: #e5e7eb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-        }
+{% extends "layout.html" %}
 
-        body {
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--light-gray) 0%, #ffffff 100%);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
+{% block title %}Error 500 - Error interno del servidor | ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 
+    ============================================================================
+    📁 Ruta: /templates/errors/500.html
+    📄 Nombre: Error 500 ERP13 Enterprise (Integrado)
+    🏗️ Propósito: Página error 500 - Error interno del servidor
+    ⚡ Performance: Integrado con layout.html + error logging
+    🔒 Seguridad: Error handling seguro sin exposición de datos
+    ============================================================================
+    */
+    
+    .error-container {
+        text-align: center;
+        max-width: 700px;
+        margin: 4rem auto;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #ef4444;
+        animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-icon {
+        font-size: 6rem;
+        color: #ef4444;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        color: #ef4444;
+        margin: 0;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 1rem 0;
+    }
+
+    .error-description {
+        font-size: 1.1rem;
+        color: #6b7280;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-error-primary {
+        background: #3b82f6;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 0.875rem 2rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-error-primary:hover {
+        background: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-error-secondary {
+        background: transparent;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        color: #6b7280;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-error-secondary:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+    .btn-error-danger {
+        background: #ef4444;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-error-danger:hover {
+        background: #dc2626;
+        color: white;
+        text-decoration: none;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #fee2e2;
+        color: #ef4444;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    .error-details {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: left;
+    }
+
+    .error-details h4 {
+        color: #ef4444;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .error-details p {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+    }
+
+    .error-details code {
+        background: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+    }
+
+    .support-info {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        border-left: 4px solid #3b82f6;
+        text-align: left;
+    }
+
+    .support-info h4 {
+        color: #1f2937;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .support-info p {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .error-container {
+            margin: 2rem 1rem;
+            padding: 2rem 1.5rem;
+        }
+        
+        .error-code {
+            font-size: 6rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .error-description {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .error-actions {
+            width: 100%;
+        }
+        
+        .btn-error-primary,
+        .btn-error-secondary,
+        .btn-error-danger {
+            width: 100%;
             justify-content: center;
         }
+    }
+</style>
+{% endblock %}
 
-        .error-container {
-            text-align: center;
-            max-width: 700px;
-            padding: 3rem 2rem;
-            margin: 2rem;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-top: 4px solid var(--danger-red);
-            animation: fadeInUp 0.6s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .error-icon {
-            font-size: 6rem;
-            color: var(--danger-red);
-            margin-bottom: 1.5rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .error-code {
-            font-size: 8rem;
-            font-weight: 900;
-            color: var(--danger-red);
-            margin: 0;
-            line-height: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .error-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 1rem 0;
-        }
-
-        .error-description {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-
-        .error-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .btn-primary {
-            background: var(--primary-blue);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            padding: 0.875rem 2rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn-primary:hover {
-            background: var(--dark-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
-            color: white;
-            text-decoration: none;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
-
-        .btn-danger {
-            background: var(--danger-red);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-            color: white;
-            text-decoration: none;
-        }
-
-        .error-details {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            text-align: left;
-        }
-
-        .error-details h4 {
-            color: var(--danger-red);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .error-details p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: 0.5rem 0;
-        }
-
-        .error-details code {
-            background: #f3f4f6;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: #fee2e2;
-            color: var(--danger-red);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .support-info {
-            background: var(--light-gray);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            border-left: 4px solid var(--primary-blue);
-        }
-
-        .support-info h4 {
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .support-info p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        .breadcrumb-nav {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .breadcrumb-nav a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
-
-        .breadcrumb-nav a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .error-container {
-                margin: 1rem;
-                padding: 2rem 1.5rem;
-            }
-            
-            .error-code {
-                font-size: 6rem;
-            }
-            
-            .error-title {
-                font-size: 1.5rem;
-            }
-            
-            .error-description {
-                font-size: 1rem;
-            }
-            
-            .breadcrumb-nav {
-                position: relative;
-                top: 0;
-                left: 0;
-                justify-content: center;
-                margin-bottom: 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .error-actions {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn-primary,
-            .btn-secondary,
-            .btn-danger {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Breadcrumb Navigation -->
-    <nav class="breadcrumb-nav">
-        <a href="/dashboard">
-            <i class="fas fa-home"></i> Inicio
-        </a>
-        <span>›</span>
-        <span>Error 500</span>
-    </nav>
-
+{% block content %}
+<div class="container-fluid">
     <!-- Error Container -->
     <div class="error-container">
         <!-- Status Indicator -->
@@ -347,36 +283,35 @@
 
         <!-- Error Actions -->
         <div class="error-actions">
-            <a href="/dashboard" class="btn-primary">
+            <a href="{{ url_for('dashboard') }}" class="btn-error-primary">
                 <i class="fas fa-home"></i>
                 Volver al Dashboard
             </a>
             
-            <a href="javascript:location.reload()" class="btn-secondary">
+            <a href="javascript:location.reload()" class="btn-error-secondary">
                 <i class="fas fa-redo"></i>
                 Intentar de nuevo
             </a>
             
-            <a href="mailto:soporte@erp13enterprise.com" class="btn-danger">
+            <a href="mailto:soporte@erp13enterprise.com" class="btn-error-danger">
                 <i class="fas fa-envelope"></i>
                 Contactar Soporte
             </a>
         </div>
 
-        <!-- Error Details (Solo en desarrollo) -->
-        {% if config.DEBUG %}
+        <!-- Error Details (Solo en modo debug) -->
+        {% if config and config.get('DEBUG') %}
         <div class="error-details">
             <h4>
                 <i class="fas fa-bug"></i>
                 Información de depuración
             </h4>
-            <p><strong>Timestamp:</strong> {{ moment().format('DD/MM/YYYY HH:mm:ss') if moment else 'No disponible' }}</p>
+            <p><strong>Timestamp:</strong> {{ moment().strftime('%d/%m/%Y %H:%M:%S') if moment else 'No disponible' }}</p>
             <p><strong>URL:</strong> <code>{{ request.url if request else 'No disponible' }}</code></p>
-            <p><strong>Método:</strong> <code>{{ request.method if request else 'No disponible' }}</code></p>
+            <p><strong>Método:</strong> <code>{{ request.method if request else 'GET' }}</code></p>
             <p><strong>IP Cliente:</strong> <code>{{ request.remote_addr if request else 'No disponible' }}</code></p>
-            {% if error_id %}
-                <p><strong>Error ID:</strong> <code>{{ error_id }}</code></p>
-            {% endif %}
+            <p><strong>Usuario:</strong> <code>{{ session.get('user_name', 'Anónimo') }}</code></p>
+            <p><strong>Sesión ID:</strong> <code>{{ session.get('user_id', 'N/A') }}</code></p>
         </div>
         {% endif %}
 
@@ -389,83 +324,86 @@
             <p>
                 Si este error persiste, por favor contacta a nuestro equipo de soporte técnico. 
                 Incluye la información de la hora exacta cuando ocurrió el error para un diagnóstico más rápido.
+                <br><br>
+                <strong>Email:</strong> soporte@erp13enterprise.com<br>
+                <strong>Horario:</strong> Lunes a Viernes, 8:00 AM - 6:00 PM
             </p>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
+<script>
+    // ========== ERROR LOGGING ========== 
+    console.error('Error 500: Error interno del servidor - ' + window.location.href);
+
+    // ========== AUTO-RETRY DESPUÉS DE 60 SEGUNDOS ========== 
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    <script>
-        // ========== ERROR LOGGING ========== 
-        console.error('Error 500: Error interno del servidor - ' + window.location.href);
-
-        // ========== AUTO-RETRY DESPUÉS DE 60 SEGUNDOS ========== 
-        let retryCount = 0;
-        const maxRetries = 3;
-        
-        function autoRetry() {
-            if (retryCount < maxRetries) {
-                setTimeout(function() {
-                    retryCount++;
-                    console.log(`Intento automático ${retryCount}/${maxRetries}`);
-                    
-                    // Crear notificación visual
-                    const notification = document.createElement('div');
-                    notification.innerHTML = `
-                        <div style="position: fixed; top: 20px; right: 20px; background: #3b82f6; color: white; 
-                                    padding: 1rem; border-radius: 8px; z-index: 9999; font-size: 0.9rem;">
-                            <i class="fas fa-info-circle"></i> 
-                            Reintentando automáticamente... (${retryCount}/${maxRetries})
-                        </div>
-                    `;
-                    document.body.appendChild(notification);
-                    
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000);
-                    
-                }, 60000); // 60 segundos
-            }
+    function autoRetry() {
+        if (retryCount < maxRetries) {
+            setTimeout(function() {
+                retryCount++;
+                console.log(`Intento automático ${retryCount}/${maxRetries}`);
+                
+                // Crear notificación visual
+                const notification = document.createElement('div');
+                notification.innerHTML = `
+                    <div style="position: fixed; top: 20px; right: 20px; background: #3b82f6; color: white; 
+                                padding: 1rem; border-radius: 8px; z-index: 9999; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <i class="fas fa-info-circle"></i> 
+                        Reintentando automáticamente... (${retryCount}/${maxRetries})
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+                
+            }, 60000); // 60 segundos
         }
+    }
 
-        // Iniciar auto-retry
-        autoRetry();
+    // Iniciar auto-retry
+    autoRetry();
 
-        // ========== MEJORAS UX ========== 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Focus en el botón principal
-            const primaryBtn = document.querySelector('.btn-primary');
-            if (primaryBtn) {
-                primaryBtn.focus();
+    // ========== MEJORAS UX ========== 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus en el botón principal
+        const primaryBtn = document.querySelector('.btn-error-primary');
+        if (primaryBtn) {
+            primaryBtn.focus();
+        }
+    });
+
+    // ========== MANEJO DE CONECTIVIDAD ========== 
+    window.addEventListener('online', function() {
+        console.log('Conexión restaurada - recargando página...');
+        location.reload();
+    });
+
+    window.addEventListener('offline', function() {
+        console.warn('Conexión perdida');
+        const offlineNotification = document.createElement('div');
+        offlineNotification.innerHTML = `
+            <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+                        background: #ef4444; color: white; padding: 1rem; border-radius: 8px; 
+                        z-index: 9999; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <i class="fas fa-wifi"></i> 
+                Conexión perdida. Verificando...
+            </div>
+        `;
+        document.body.appendChild(offlineNotification);
+        
+        // Remover notificación después de 5 segundos
+        setTimeout(() => {
+            if (offlineNotification.parentNode) {
+                offlineNotification.parentNode.removeChild(offlineNotification);
             }
-            
-            // Tracking de errores (solo si hay analytics)
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'exception', {
-                    'description': 'Error 500 - Internal Server Error',
-                    'fatal': false
-                });
-            }
-        });
-
-        // ========== MANEJO DE CONECTIVIDAD ========== 
-        window.addEventListener('online', function() {
-            location.reload();
-        });
-
-        window.addEventListener('offline', function() {
-            const offlineNotification = document.createElement('div');
-            offlineNotification.innerHTML = `
-                <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
-                            background: #ef4444; color: white; padding: 1rem; border-radius: 8px; 
-                            z-index: 9999; font-size: 0.9rem;">
-                    <i class="fas fa-wifi"></i> 
-                    Conexión perdida. Verificando...
-                </div>
-            `;
-            document.body.appendChild(offlineNotification);
-        });
-    </script>
-</body>
-</html>
+        }, 5000);
+    });
+</script>
+{% endblock %}

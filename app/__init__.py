@@ -1,5 +1,5 @@
 """
-ERP13 Enterprise Factory Pattern - Anti-Rupturas
+ERP13 Enterprise Factory Pattern  Anti-Rupturas
 Diseño: Single factory + blueprints modulares independientes
 """
 

@@ -3,277 +3,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ERP Enterprise{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}ERP13 Enterprise - Sistema de Gestión Integral{% endblock %}">
+    <meta name="author" content="ERP13 Enterprise">
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- META TAGS SEO Y SEGURIDAD -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="msapplication-TileColor" content="#3b82f6">
+    <meta name="application-name" content="ERP13 Enterprise">
     
-    <!-- Font Awesome -->
+    <!-- OPEN GRAPH (OPCIONAL) -->
+    <meta property="og:title" content="{% block og_title %}ERP13 Enterprise{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Sistema de Gestión Integral Empresarial{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_ES">
+    
+    <!-- FAVICONS COMPLETOS -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/static/favicons/android-chrome-512x512.png">
+    <link rel="manifest" href="/static/favicons/site.webmanifest">
+    
+    <title>{% block title %}ERP13 Enterprise{% endblock %}</title>
+    
+    <!-- CSS Framework -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Custom CSS -->
+    <!-- CSS Principal -->
     <style>
+        /* 
+        ============================================================================
+        📁 Ruta: /templates/layout.html
+        📄 Nombre: Layout ERP13 Enterprise - Sidebar Integrado
+        🏗️ Propósito: Template base Flask con navegación jerárquica completa
+        ⚡ Performance: CSS optimizado + JavaScript vanilla + 23 rutas clasificadas
+        🔒 Seguridad: Estructura validada + rutas confirmadas GitHub
+        ============================================================================
+        */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --primary-color: #3b82f6;
-            --secondary-color: #6366f1;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1f2937;
-            --light-color: #f8fafc;
+            --primary-blue: #3b82f6;
+            --dark-blue: #1e40af;
+            --light-gray: #f8fafc;
+            --dark-gray: #374151;
             --border-color: #e5e7eb;
+            --hover-bg: #f1f5f9;
+            --active-bg: #dbeafe;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --sidebar-width: 280px;
+            --header-height: 60px;
         }
 
         body {
-            background: linear-gradient(135deg, var(--light-color) 0%, var(--border-color) 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
 
-        .navbar-custom {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        /* ========== SIDEBAR PRINCIPAL ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
         }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
+        .sidebar.collapsed {
+            transform: translateX(-100%);
         }
 
-        .main-content {
-            padding: 2rem 0;
-        }
-
-        .card-custom {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .card-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        .btn-custom {
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-custom:hover {
-            transform: translateY(-1px);
-        }
-
-        .footer {
-            background: var(--dark-color);
+        /* ========== HEADER SIDEBAR ========== */
+        .sidebar-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
             color: white;
-            padding: 2rem 0;
-            margin-top: auto;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .status-operational {
-            color: var(--success-color);
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .status-degraded {
-            color: var(--warning-color);
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 400;
         }
 
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
+        /* ========== NAVEGACIÓN MENÚ ========== */
+        .sidebar-nav {
+            padding: 1rem 0;
         }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background-color: var(--hover-bg);
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .menu-item.active {
+            background-color: var(--active-bg);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .menu-item.has-submenu:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .menu-icon {
+            font-size: 1.1rem;
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .menu-arrow {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: transform 0.2s ease;
+        }
+
+        .menu-item.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* ========== SUBMENÚS ========== */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: #fafbfc;
+            border-left: 3px solid var(--primary-blue);
+            margin-left: 1rem;
+        }
+
+        .submenu.expanded {
+            max-height: 500px;
+        }
+
+        .submenu .menu-item {
+            padding: 0.6rem 1rem 0.6rem 2rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .submenu .menu-item:hover {
+            color: var(--primary-blue);
+            background-color: var(--hover-bg);
+            text-decoration: none;
+        }
+
+        .submenu .menu-item.active {
+            color: var(--primary-blue);
+            background-color: var(--active-bg);
+            font-weight: 600;
+        }
+
+        .submenu .menu-icon {
+            font-size: 0.9rem;
+            margin-right: 0.8rem;
+        }
+
+        /* ========== ÁREA CONTENIDO PRINCIPAL ========== */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-wrapper.sidebar-collapsed {
+            margin-left: 0;
+        }
+
+        /* ========== HEADER PRINCIPAL ========== */
+        .main-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-nav a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .breadcrumb-nav a:hover {
+            text-decoration: underline;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        /* ========== CONTENIDO PRINCIPAL ========== */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            background: var(--light-gray);
+        }
+
+        /* ========== FLASH MESSAGES ========== */
+        .flash-messages {
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error, .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* ========== RESPONSIVE DESIGN ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-wrapper {
+                margin-left: 0;
+            }
+            
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+            
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .breadcrumb-nav {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ========== BOTÓN MOBILE TOGGLE ========== */
+        .mobile-toggle {
+            display: none;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+        }
+
+        /* ========== UTILIDADES ========== */
+        .separator {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 0.5rem 1rem;
+        }
+
+        .menu-section-title {
+            padding: 1rem 1.5rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ========== CSS ADICIONAL PARA TEMPLATES ========== */
+        {% block extra_css %}{% endblock %}
     </style>
-    
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-building me-2"></i>
-                ERP Enterprise
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}" href="/">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-file-invoice me-1"></i>Facturación
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/facturacion/clientes">
-                                <i class="fas fa-users me-2"></i>Facturas Clientes
-                            </a></li>
-                            <li><a class="dropdown-item" href="/facturacion/estados-pago">
-                                <i class="fas fa-chart-line me-2"></i>Estados de Pago
-                            </a></li>
-                            <li><a class="dropdown-item" href="/facturacion/exportacion">
-                                <i class="fas fa-download me-2"></i>Exportación Contable
-                            </a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contabilidad/apuntes">
-                            <i class="fas fa-balance-scale me-1"></i>Contabilidad
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <span class="navbar-text">
-                            <i class="fas fa-circle status-operational" id="systemStatus"></i>
-                            <span id="statusText">Sistema Operativo</span>
-                        </span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <!-- Overlay Mobile -->
+    <div class="overlay" id="overlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="container">
-            {% block content %}
-            <div class="row">
-                <div class="col-12">
-                    <div class="card card-custom">
-                        <div class="card-body text-center">
-                            <i class="fas fa-building fa-3x text-primary mb-3"></i>
-                            <h1 class="card-title">Bienvenido a ERP Enterprise</h1>
-                            <p class="card-text">Sistema de gestión empresarial integral</p>
-                            <div class="row mt-4">
-                                <div class="col-md-3 mb-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <i class="fas fa-file-invoice fa-2x text-primary mb-2"></i>
-                                            <h5>Facturación</h5>
-                                            <p class="small">Gestión de facturas</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <i class="fas fa-users fa-2x text-success mb-2"></i>
-                                            <h5>Clientes</h5>
-                                            <p class="small">CRM integrado</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <i class="fas fa-balance-scale fa-2x text-warning mb-2"></i>
-                                            <h5>Contabilidad</h5>
-                                            <p class="small">Apuntes contables</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <i class="fas fa-chart-bar fa-2x text-info mb-2"></i>
-                                            <h5>Reportes</h5>
-                                            <p class="small">Analytics avanzado</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- ========== SIDEBAR NAVEGACIÓN ========== -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Header Sidebar -->
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-chart-line"></i>
+                ERP13 Enterprise
+            </div>
+            <div class="sidebar-subtitle">Sistema de Gestión Integral</div>
+        </div>
+
+        <!-- Navegación Principal -->
+        <nav class="sidebar-nav">
+            
+            <!-- ========== DASHBOARD (1 RUTA) ========== -->
+            <a href="/dashboard" class="menu-item" id="dashboard-link">
+                <span class="menu-icon"><i class="fas fa-chart-pie"></i></span>
+                <span class="menu-text">Dashboard</span>
+            </a>
+
+            <div class="separator"></div>
+
+            <!-- ========== MÓDULO CLIENTES (9 RUTAS) ========== -->
+            <div class="menu-item has-submenu" onclick="toggleSubmenu('clientes')">
+                <span class="menu-icon"><i class="fas fa-users"></i></span>
+                <span class="menu-text">Clientes</span>
+                <span class="menu-arrow">▶</span>
+            </div>
+            <div class="submenu" id="submenu-clientes">
+                <a href="/clientes/gestion" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-user-edit"></i></span>
+                    <span class="menu-text">Gestión de Clientes</span>
+                </a>
+                <a href="/clientes/timeline" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-history"></i></span>
+                    <span class="menu-text">Timeline</span>
+                </a>
+                <a href="/clientes/comunicaciones" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-comments"></i></span>
+                    <span class="menu-text">Comunicaciones</span>
+                </a>
+                <a href="/clientes/propuestas" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-file-contract"></i></span>
+                    <span class="menu-text">Propuestas</span>
+                </a>
+                <a href="/clientes/pipeline" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-funnel-dollar"></i></span>
+                    <span class="menu-text">Pipeline</span>
+                </a>
+                <a href="/clientes/tickets" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-ticket-alt"></i></span>
+                    <span class="menu-text">Tickets</span>
+                </a>
+                <a href="/clientes/calendario" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-calendar-alt"></i></span>
+                    <span class="menu-text">Calendario</span>
+                </a>
+                <a href="/clientes/campanas" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-bullhorn"></i></span>
+                    <span class="menu-text">Campañas</span>
+                </a>
+                <a href="/clientes/automatizaciones" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-robot"></i></span>
+                    <span class="menu-text">Automatizaciones</span>
+                </a>
+            </div>
+
+            <!-- ========== MÓDULO AUDITORÍA (2 RUTAS) ========== -->
+            <div class="menu-item has-submenu" onclick="toggleSubmenu('auditoria')">
+                <span class="menu-icon"><i class="fas fa-shield-alt"></i></span>
+                <span class="menu-text">Auditoría</span>
+                <span class="menu-arrow">▶</span>
+            </div>
+            <div class="submenu" id="submenu-auditoria">
+                <a href="/auditoria/proyectos" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-project-diagram"></i></span>
+                    <span class="menu-text">Proyectos</span>
+                </a>
+                <a href="/auditoria/configuracion" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-cogs"></i></span>
+                    <span class="menu-text">Configuración</span>
+                </a>
+            </div>
+
+            <!-- ========== MÓDULO FACTURACIÓN Y CONTABILIDAD (6 RUTAS) ========== -->
+            <div class="menu-item has-submenu" onclick="toggleSubmenu('facturacion')">
+                <span class="menu-icon"><i class="fas fa-euro-sign"></i></span>
+                <span class="menu-text">Facturación y Contabilidad</span>
+                <span class="menu-arrow">▶</span>
+            </div>
+            <div class="submenu" id="submenu-facturacion">
+                <a href="/facturacion/proveedores" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-truck"></i></span>
+                    <span class="menu-text">Facturas de Proveedores</span>
+                </a>
+                <a href="/facturacion/clientes" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-file-invoice"></i></span>
+                    <span class="menu-text">Facturas a Clientes</span>
+                </a>
+                <a href="/facturacion/apuntes" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span class="menu-text">Apuntes Contables</span>
+                </a>
+                <a href="/facturacion/estados-pago" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-chart-bar"></i></span>
+                    <span class="menu-text">Estados de Pago</span>
+                </a>
+                <a href="/facturacion/exportacion" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-download"></i></span>
+                    <span class="menu-text">Exportación Contable</span>
+                </a>
+                <a href="/facturacion/gestionar-proveedores" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-address-book"></i></span>
+                    <span class="menu-text">Gestionar Proveedores</span>
+                </a>
+            </div>
+
+            <!-- ========== MÓDULO CONFIGURACIÓN (5 RUTAS) ========== -->
+            <div class="menu-item has-submenu" onclick="toggleSubmenu('configuracion')">
+                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                <span class="menu-text">Configuración</span>
+                <span class="menu-arrow">▶</span>
+            </div>
+            <div class="submenu" id="submenu-configuracion">
+                <a href="/configuracion/general" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-sliders-h"></i></span>
+                    <span class="menu-text">Configuración General</span>
+                </a>
+                <a href="/configuracion/usuarios" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-users-cog"></i></span>
+                    <span class="menu-text">Gestión de Usuarios</span>
+                </a>
+                <a href="/configuracion/plantillas-presupuesto" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-file-alt"></i></span>
+                    <span class="menu-text">Plantillas de Presupuesto</span>
+                </a>
+                <a href="/configuracion/ia-interna" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-brain"></i></span>
+                    <span class="menu-text">IA Interna</span>
+                </a>
+                <a href="/configuracion/facturacion" class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-calculator"></i></span>
+                    <span class="menu-text">Configuración Facturación</span>
+                </a>
+            </div>
+
+        </nav>
+    </aside>
+
+    <!-- ========== CONTENIDO PRINCIPAL ========== -->
+    <div class="main-wrapper" id="main-wrapper">
+        
+        <!-- Header Principal -->
+        <header class="main-header">
+            <div class="breadcrumb-nav">
+                <button class="mobile-toggle" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <nav aria-label="breadcrumb">
+                    <a href="/dashboard">Inicio</a>
+                    {% if request.endpoint != 'dashboard' %}
+                        <span>›</span>
+                        <span>{% block breadcrumb %}{{ title|default('Página') }}{% endblock %}</span>
+                    {% endif %}
+                </nav>
+            </div>
+            
+            <div class="header-actions">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ current_user.nombre if current_user else 'Usuario' }}</span>
                 </div>
             </div>
+        </header>
+
+        <!-- Área de Contenido -->
+        <main class="main-content">
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                                <i class="fas fa-{{ 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Contenido Principal del Template -->
+            {% block content %}
+                <div class="container-fluid">
+                    <h1>Bienvenido al ERP13 Enterprise</h1>
+                    <p>Sistema de Gestión Integral</p>
+                </div>
             {% endblock %}
-        </div>
+            
+        </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-auto">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h6>ERP Enterprise v3.0.0</h6>
-                    <p class="small mb-0">Sistema de gestión empresarial integral</p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <p class="small mb-0">
-                        <i class="fas fa-server me-1"></i>
-                        Hosted on Railway
-                        <span class="ms-2">
-                            <i class="fas fa-globe me-1"></i>
-                            Production Ready
-                        </span>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- JavaScript Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
+    <!-- JavaScript Principal del Sidebar -->
     <script>
-        // System status checker
-        async function checkSystemStatus() {
-            try {
-                const response = await fetch('/health');
-                const data = await response.json();
-                
-                const statusIcon = document.getElementById('systemStatus');
-                const statusText = document.getElementById('statusText');
-                
-                if (data.status === 'operational') {
-                    statusIcon.className = 'fas fa-circle status-operational';
-                    statusText.textContent = 'Sistema Operativo';
-                } else {
-                    statusIcon.className = 'fas fa-circle status-degraded';
-                    statusText.textContent = 'Sistema Degradado';
-                }
-            } catch (error) {
-                console.error('Error checking system status:', error);
-                const statusIcon = document.getElementById('systemStatus');
-                const statusText = document.getElementById('statusText');
-                statusIcon.className = 'fas fa-circle text-danger';
-                statusText.textContent = 'Error de Conexión';
-            }
-        }
-        
-        // Check status on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 ERP Enterprise v3.0.0 - Loaded on Railway');
-            checkSystemStatus();
+        // ========== FUNCIONES SUBMENU ========== 
+        function toggleSubmenu(menuId) {
+            const submenu = document.getElementById('submenu-' + menuId);
+            const menuItem = submenu.previousElementSibling;
             
-            // Check status every 30 seconds
-            setInterval(checkSystemStatus, 30000);
+            // Cerrar otros submenús
+            document.querySelectorAll('.submenu').forEach(sub => {
+                if (sub !== submenu) {
+                    sub.classList.remove('expanded');
+                    sub.previousElementSibling.classList.remove('expanded');
+                }
+            });
+            
+            // Toggle submenu actual
+            submenu.classList.toggle('expanded');
+            menuItem.classList.toggle('expanded');
+        }
+
+        // ========== FUNCIONES MOBILE ========== 
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainWrapper = document.getElementById('main-wrapper');
+            
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // ========== MANEJO DE RUTAS ACTIVAS ========== 
+        function setActiveRoute() {
+            const currentPath = window.location.pathname;
+            const menuItems = document.querySelectorAll('.menu-item[href]');
+            
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                    
+                    // Expandir submenu padre si está dentro de uno
+                    const submenu = item.closest('.submenu');
+                    if (submenu) {
+                        submenu.classList.add('expanded');
+                        submenu.previousElementSibling.classList.add('expanded');
+                    }
+                }
+            });
+        }
+
+        // ========== INICIALIZACIÓN ========== 
+        document.addEventListener('DOMContentLoaded', function() {
+            setActiveRoute();
+            
+            // Cerrar sidebar mobile al hacer clic en enlaces
+            document.querySelectorAll('.submenu .menu-item[href]').forEach(link => {
+                link.addEventListener('click', closeMobileSidebar);
+            });
+            
+            // Cerrar con Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeMobileSidebar();
+                }
+            });
+
+            // Auto-cerrar alerts después de 5 segundos
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
         });
-        
-        // Navbar active state
-        const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-        
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
+
+        // ========== FUNCIONES ADICIONALES PARA TEMPLATES ========== 
+        {% block extra_js %}{% endblock %}
     </script>
-    
-    {% block extra_js %}{% endblock %}
+
 </body>
 </html>

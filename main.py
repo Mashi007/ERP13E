@@ -4,7 +4,7 @@
 📁 Ruta: /app/main.py
 📄 Nombre: MainApplication.py
 🏗️ Propósito: Aplicación Flask principal con health checks integrados
-⚡ Performance: Configuración optimizada para Railway
+⚡ Performance: Configuración optimizada para Railway.
 🔒 Seguridad: Manejo robusto de errores y logging
 
 ERP13 Enterprise - Aplicación Principal

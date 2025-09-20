@@ -1,62 +1,197 @@
-# =============================================================================
-# 📁 Ruta: /railway.toml
-# 📄 Nombre: railway.toml  
-# 🏗️ Propósito: Configuración de deployment Railway optimizada
-# ⚡ Performance: Build optimizado, variables de entorno, health checks.
-# 🔒 Seguridad: Configuración de puertos y servicios seguros
-# =============================================================================
+# =================================================================
+# 📁 Ruta: /app/railway.toml
+# 📄 Nombre: railway.toml
+# 🏗️ Propósito: Configuración integral Railway para ERP13 Enterprise
+# ⚡ Performance: Build y deploy optimizados, health checks integrados
+# 🔒 Seguridad: Timeouts seguros, manejo de recursos eficiente
+# =================================================================
 
 [build]
-# 🔨 Configuración de Build
+# 🔧 COMANDO BUILD OPTIMIZADO
 builder = "nixpacks"
-buildCommand = "pip install --no-cache-dir -r requirements.txt"
+buildCommand = """
+pip install --no-cache-dir --upgrade pip setuptools wheel &&
+pip install --no-cache-dir -r requirements.txt &&
+python -c "import flask; print('✅ Flask instalado correctamente')" &&
+python -c "import sqlalchemy; print('✅ SQLAlchemy instalado correctamente')" &&
+python -c "import redis; print('✅ Redis instalado correctamente')" &&
+python -m py_compile main.py &&
+echo "✅ ERP13 Enterprise build completado"
+"""
+
+# 📦 CONFIGURACIÓN PROVIDERS
+[[build.providers]]
+name = "python"
 
 [deploy]
-# 🚀 Configuración de Deployment
-startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --worker-class sync --worker-tmp-dir /dev/shm --log-level info wsgi:application"
+# 🚀 COMANDO START ADAPTADO A TU MAIN.PY (31 RUTAS)
+startCommand = """
+gunicorn \
+  --bind 0.0.0.0:$PORT \
+  --workers 2 \
+  --worker-class sync \
+  --timeout 120 \
+  --keep-alive 5 \
+  --max-requests 1000 \
+  --max-requests-jitter 50 \
+  --preload \
+  --worker-tmp-dir /dev/shm \
+  --log-level info \
+  --access-logfile - \
+  --error-logfile - \
+  --capture-output \
+  --enable-stdio-inheritance \
+  --pythonpath . \
+  wsgi:application
+"""
+
+# 🏥 HEALTH CHECK CONFIGURACIÓN
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 10
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
+# ⏱️ TIMEOUTS OPTIMIZADOS
+deployTimeout = 300
+startTimeout = 60
+stopTimeout = 30
+
+# 📊 CONFIGURACIÓN DE RECURSOS
+[deploy.resources]
+# Configuración conservadora para Railway
+memory = "512Mi"
+cpu = "0.5"
+
+# 🌐 NETWORKING
+[deploy.networking]
+# Health check endpoint
+healthcheck = "/health"
+
+# 📁 CONFIGURACIÓN DE ARCHIVOS
+[build.watchPaths]
+# Paths que triggerean rebuild
+include = ["**/*.py", "requirements.txt", "*.toml", "*.yml", "*.yaml"]
+ignore = ["**/__pycache__/**", "**/*.pyc", "**/node_modules/**", "**/.git/**"]
+
+# 🔧 VARIABLES DE ENTORNO POR DEFECTO
 [env]
-# 🌐 Variables de Entorno por Defecto
+# Variables críticas que se aplicarán si no están definidas
+FLASK_APP = "main.py"
+FLASK_ENV = "production"
+FLASK_DEBUG = "False"
+PORT = "8080"
+WORKERS = "2"
+TIMEOUT = "120"
 PYTHONPATH = "."
 PYTHONUNBUFFERED = "1"
-FLASK_ENV = "production"
-GUNICORN_CMD_ARGS = "--preload --log-level info"
+PYTHONDONTWRITEBYTECODE = "1"
 
-# 📊 Configuración de Performance
-WEB_CONCURRENCY = "2"
-MAX_WORKERS = "4"
-WORKER_TIMEOUT = "60"
-KEEP_ALIVE = "5"
+# 🚦 PRE-DEPLOY HOOKS
+[deploy.hooks]
+# Verificaciones antes del deploy
+beforeDeploy = """
+echo "🔍 Verificando estructura del proyecto..." &&
+ls -la &&
+echo "🔍 Verificando main.py..." &&
+test -f main.py || { echo "❌ main.py no encontrado"; exit 1; } &&
+echo "🔍 Verificando requirements.txt..." &&
+test -f requirements.txt || { echo "❌ requirements.txt no encontrado"; exit 1; } &&
+echo "🔍 Verificando sintaxis Python..." &&
+python -m py_compile main.py &&
+echo "✅ Verificaciones pre-deploy completadas"
+"""
 
-# 🔒 Configuración de Seguridad
-SECURE_SSL_REDIRECT = "True"
-SESSION_COOKIE_SECURE = "True"
-SESSION_COOKIE_HTTPONLY = "True"
+# 📈 POST-DEPLOY HOOKS
+afterDeploy = """
+echo "🚀 ERP13 Enterprise desplegado exitosamente" &&
+echo "🌐 Servicio disponible en: https://$RAILWAY_PUBLIC_DOMAIN" &&
+echo "🏥 Health check: https://$RAILWAY_PUBLIC_DOMAIN/health" &&
+echo "📊 Version: $(python -c 'print(__import__(\"main\").__version__ if hasattr(__import__(\"main\"), \"__version__\") else \"1.0.0\")')"
+"""
 
-[services.web]
-# 🌐 Configuración del Servicio Web
-port = 8080
-protocol = "http"
+# 🔄 CONFIGURACIÓN DE REINICIO
+[deploy.restart]
+# Política de reinicio en caso de fallo
+policy = "on-failure"
+maxRetries = 3
+delay = "5s"
 
-[services.web.healthcheck]
-# 🏥 Health Check Configuration
-path = "/health"
-interval = 30
-timeout = 10
-retries = 3
-start_period = 60
-
-[logging]
-# 📝 Configuración de Logging
+# 📋 LOGGING CONFIGURACIÓN
+[deploy.logging]
 level = "info"
 format = "json"
+structured = true
 
-# 🔧 Configuraciones específicas para ERP13 Enterprise
-[variables]
-APP_NAME = "ERP13 Enterprise"
-APP_VERSION = "1.0.0"
-SERVICE_NAME = "erp13-web"
+# 🎯 CONFIGURACIÓN ESPECÍFICA RAILWAY
+[railway]
+# Configuración específica para Railway platform
+region = "us-east-1"
+environment = "production"
+
+# 📊 MONITOREO Y MÉTRICAS
+[deploy.monitoring]
+enabled = true
+healthcheckInterval = "30s"
+healthcheckRetries = 3
+healthcheckStartPeriod = "60s"
+
+# 🔐 SEGURIDAD
+[deploy.security]
+# Configuración de seguridad básica
+allowPrivilegedPorts = false
+readOnlyRootFilesystem = false  # Flask necesita escribir logs temporales
+
+# 📁 VOLÚMENES TEMPORALES
+[deploy.volumes]
+# Directorio temporal para uploads y logs
+tmpfs = ["/tmp:size=100M,mode=1777"]
+
+# 🚀 CONFIGURACIÓN AVANZADA
+[build.config]
+# Configuración adicional del build
+nodeVersion = "18"
+pythonVersion = "3.12"
+pipVersion = "latest"
+
+# 🔧 OPTIMIZACIONES
+[deploy.optimizations]
+# Optimizaciones para performance
+enableCompression = true
+enableCaching = true
+cacheStaticAssets = true
+
+# 📊 CONFIGURACIÓN DE MÉTRICAS
+[deploy.metrics]
+enabled = true
+path = "/metrics"
+port = "$PORT"
+
+# 🌍 CONFIGURACIÓN MULTI-REGIÓN (Pro feature)
+[deploy.regions]
+primary = "us-east-1"
+# replicas = ["eu-west-1", "ap-southeast-1"]  # Comentado para plan gratuito
+
+# 🔄 DATABASE MIGRATIONS (si aplica)
+[deploy.migrations]
+# Comandos para ejecutar migraciones de BD
+beforeStart = """
+echo "🗄️ Verificando conexión a base de datos..." &&
+python -c "
+import os
+import psycopg2
+try:
+    if os.environ.get('DATABASE_URL'):
+        conn = psycopg2.connect(os.environ['DATABASE_URL'], connect_timeout=5)
+        conn.close()
+        print('✅ Base de datos conectada')
+    else:
+        print('⚠️ DATABASE_URL no configurada')
+except Exception as e:
+    print(f'⚠️ Error BD: {e}')
+"
+"""
+
+# 🔍 DEBUGGING (solo para desarrollo)
+[build.debug]
+enabled = false
+verbose = false

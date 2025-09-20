@@ -13,21 +13,21 @@ buildCommand = "pip install --no-cache-dir -r requirements.txt"
 [deploy]
 # Health check configuration optimizada
 healthcheckPath = "/health"
-healthcheckTimeout = 300
-healthcheckInterval = 30
-healthcheckRetries = 3
+healthcheckTimeout = 60
+healthcheckInterval = 15
+healthcheckRetries = 5
 
 # Restart policy enterprise
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5
 
 # Resource management
 numReplicas = 1
-memoryLimit = 512
+memoryLimit = 1024
 cpuLimit = 1000
 
 # Startup configuration
-startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --threads 4 --timeout 120 --keepalive 5 --max-requests 1000 --preload wsgi:application"
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --threads 4 --timeout 120 --max-requests 1000 --preload wsgi:application"
 
 [environments.production]
 variables = { 

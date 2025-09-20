@@ -1,124 +1,64 @@
 # =============================================================================
-# ERP13 ENTERPRISE v3.0 - RAILWAY COMPATIBLE DEPENDENCIES
-# =============================================================================
-# 📁 Ruta: /app/requirements.txt
-# 📄 Nombre: requirements.txt
-# 🏗️ Propósito: Dependencias compatible Python 3.13 + Railway
-# ⚡ Performance: Versiones tested para Railway deployment
-# 🔒 Seguridad: Sin vulnerabilidades + compatible Python 3.13.7
-# 
-# FIXED: Pillow compatibility issue + Python 3.13.7 optimization
+# ERP ENTERPRISE - REQUIREMENTS.TXT OPTIMIZADO RAILWAY
+# Compatible con Python 3.13.7 + Railway Railpack 0.7.2
+# Performance: Production-ready dependencies
 # =============================================================================
 
-# =============================================================================
-# CORE FRAMEWORK - FLASK ECOSYSTEM
-# =============================================================================
-
-# Flask Framework Principal
+# Flask Framework
 Flask==3.0.3
 Werkzeug==3.0.3
-Jinja2==3.1.4
-MarkupSafe==2.1.5
-itsdangerous==2.2.0
-click==8.1.7
 
-# =============================================================================
-# DATABASE & ORM
-# =============================================================================
-
-# SQLAlchemy ORM
+# Database & ORM
 SQLAlchemy==2.0.25
 Flask-SQLAlchemy==3.1.1
-
-# PostgreSQL Driver (Railway compatible)
 psycopg2-binary==2.9.9
 
-# =============================================================================
-# CACHE & SESSION MANAGEMENT
-# =============================================================================
-
-# Redis
+# Redis & Session Management
 redis==5.0.1
-
-# Session Management
 Flask-Session==0.5.0
 
-# =============================================================================
-# AUTHENTICATION & SECURITY
-# =============================================================================
-
-# JWT Authentication
+# Authentication & Security
 Flask-JWT-Extended==4.6.0
 Flask-Bcrypt==1.0.1
 PyJWT==2.8.0
 
-# =============================================================================
-# WSGI PRODUCTION SERVER
-# =============================================================================
-
-# Gunicorn for Railway
+# Production Server
 gunicorn==21.2.0
 
-# =============================================================================
-# ENVIRONMENT & CONFIGURATION
-# =============================================================================
-
-# Environment variables
+# Environment & Configuration
 python-dotenv==1.0.0
 
-# =============================================================================
-# IMAGE PROCESSING (FIXED VERSION)
-# =============================================================================
-
-# Pillow - FIXED: Using compatible version for Python 3.13
+# Image Processing - FIXED for Python 3.13
 Pillow==10.4.0
 
-# =============================================================================
-# OPTIONAL: HTTP & API TOOLS
-# =============================================================================
+# Additional ERP Dependencies
+requests==2.31.0
+celery==5.3.4
+flask-cors==4.0.0
 
-# HTTP Requests
-requests==2.32.3
+# Data Processing
+pandas==2.1.4
+openpyxl==3.1.2
+xlsxwriter==3.1.9
 
-# =============================================================================
-# OPTIONAL: EMAIL SUPPORT
-# =============================================================================
+# PDF Generation
+reportlab==4.0.7
+weasyprint==60.2
 
-# Email support (if needed)
-# Flask-Mail==0.9.1
+# Email & Notifications
+Flask-Mail==0.9.1
 
-# =============================================================================
-# OPTIONAL: FORM HANDLING
-# =============================================================================
+# File Upload & Processing
+python-magic==0.4.27
 
-# WTF Forms (if needed)
-# Flask-WTF==1.2.1
-# WTForms==3.1.2
+# API Documentation
+flask-restx==1.3.0
 
-# =============================================================================
-# DEVELOPMENT TOOLS (optional)
-# =============================================================================
+# Monitoring & Logging
+sentry-sdk[flask]==1.38.0
 
-# Development environment
-# flask-cors==4.0.0
+# Background Tasks
+dramatiq[redis]==1.15.0
 
-# =============================================================================
-# NOTES:
-# =============================================================================
-# 
-# 🔧 RAILWAY DEPLOYMENT:
-#    - Todas las versiones son compatibles con Python 3.13.7
-#    - Pillow actualizado a versión compatible
-#    - psycopg2-binary funciona con libpq-dev instalado
-#    - Redis configurado para Railway Redis addon
-#
-# ⚡ OPTIMIZATIONS:
-#    - Dependencias mínimas para arranque rápido
-#    - Build time optimizado para Railway
-#    - Versiones locked para estabilidad
-#
-# 🚀 EXPAND LATER:
-#    - Uncomment optional packages según necesidades
-#    - Agregar monitoring tools cuando sistema esté stable
-#
-# =============================================================================
+# Caching
+Flask-Caching==2.1.0

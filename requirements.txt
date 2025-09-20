@@ -1,10 +1,10 @@
 # =============================================================================
-# ERP ENTERPRISE - REQUIREMENTS.TXT OPTIMIZADO RAILWAY
-# Compatible con Python 3.13.7 + Railway Railpack 0.7.2
-# Performance: Production-ready dependencies
+# ERP ENTERPRISE - REQUIREMENTS.TXT RAILWAY OPTIMIZED
+# Compatible: Python 3.13.7 + Railway Railpack 0.7.2
+# Strategy: Minimal dependencies + Fast build time
 # =============================================================================
 
-# Flask Framework
+# Flask Framework Core
 Flask==3.0.3
 Werkzeug==3.0.3
 
@@ -28,37 +28,28 @@ gunicorn==21.2.0
 # Environment & Configuration
 python-dotenv==1.0.0
 
-# Image Processing - FIXED for Python 3.13
+# Image Processing - Python 3.13 Compatible
 Pillow==10.4.0
 
-# Additional ERP Dependencies
+# Essential ERP Dependencies - Python 3.13 Compatible
 requests==2.31.0
-celery==5.3.4
 flask-cors==4.0.0
 
-# Data Processing
-pandas==2.1.4
+# Excel Processing - Lightweight alternatives
 openpyxl==3.1.2
 xlsxwriter==3.1.9
-
-# PDF Generation
-reportlab==4.0.7
-weasyprint==60.2
 
 # Email & Notifications
 Flask-Mail==0.9.1
 
-# File Upload & Processing
-python-magic==0.4.27
-
 # API Documentation
 flask-restx==1.3.0
 
-# Monitoring & Logging
-sentry-sdk[flask]==1.38.0
-
-# Background Tasks
-dramatiq[redis]==1.15.0
+# File Upload & Processing
+python-magic==0.4.27
 
 # Caching
 Flask-Caching==2.1.0
+
+# Monitoring - Optional
+# sentry-sdk[flask]==1.38.0

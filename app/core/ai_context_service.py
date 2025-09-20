@@ -3,7 +3,7 @@
 📄 Nombre: ai_context_service.py
 🏗️ Propósito: Recopilador de datos de todos los módulos del cliente
 ⚡ Performance: Consultas optimizadas multi-módulo
-🔒 Seguridad: Acceso controlado a datos del cliente.
+🔒 Seguridad: Acceso controlado a datos del cliente
 
 ERP13 Enterprise - AI Context Service
 Recopila datos de los 9 módulos del cliente para contexto AI

@@ -1,6 +1,6 @@
 # 📁 Ruta: /app/wsgi.py
 # 📄 Nombre: wsgi.py  
-# 🏗️ Propósito: Entry point Railway deployment ERP13 Enterprise
+# 🏗️ Propósito: Entry point Railway deployment ERP13 Enterprise.
 # ⚡ Performance: Gunicorn + workers + health checks
 # 🔒 Seguridad: Environment variables + secrets management
 

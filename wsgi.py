@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 ERP13 Enterprise v3.0 - Railway WSGI Entry Point
-FIXED: Compatible with Flask 3.1.2 + Railway deployment
+FIXED: Compatible with Flask 3.1.2 + Railway deployment.
 """
 
 import os

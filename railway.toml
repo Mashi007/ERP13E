@@ -1,30 +1,62 @@
-# railway.toml
+# =============================================================================
 # 📁 Ruta: /railway.toml
-# 📄 Nombre: railway.toml
-# 🏗️ Propósito: Configuración optimizada para Railway deployment
-# ⚡ Performance: Variables de entorno y health checks
-# 🔒 Seguridad: Configuración de servicios y recursos
+# 📄 Nombre: railway.toml  
+# 🏗️ Propósito: Configuración de deployment Railway optimizada
+# ⚡ Performance: Build optimizado, variables de entorno, health checks
+# 🔒 Seguridad: Configuración de puertos y servicios seguros
+# =============================================================================
 
 [build]
-# 🚀 CONFIGURACIÓN DE BUILD
+# 🔨 Configuración de Build
 builder = "nixpacks"
-buildCommand = "pip install -r requirements.txt"
+buildCommand = "pip install --no-cache-dir -r requirements.txt"
 
 [deploy]
-# 🎯 CONFIGURACIÓN DE DEPLOYMENT
-startCommand = "gunicorn --bind 0.0.0.0:$PORT wsgi:application --workers 1 --timeout 30 --keep-alive 2 --log-level info"
+# 🚀 Configuración de Deployment
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --worker-class sync --worker-tmp-dir /dev/shm --log-level info wsgi:application"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
-restartPolicyType = "ON_FAILURE"
+restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
-# 🌐 CONFIGURACIÓN DE NETWORKING
-[networking]
-allowedInboundPorts = []
-
-# 📊 VARIABLES DE ENTORNO RECOMENDADAS
 [env]
+# 🌐 Variables de Entorno por Defecto
+PYTHONPATH = "."
+PYTHONUNBUFFERED = "1"
 FLASK_ENV = "production"
-FLASK_DEBUG = "False"
-WEB_CONCURRENCY = "1"
-PYTHON_VERSION = "3.12"
+GUNICORN_CMD_ARGS = "--preload --log-level info"
+
+# 📊 Configuración de Performance
+WEB_CONCURRENCY = "2"
+MAX_WORKERS = "4"
+WORKER_TIMEOUT = "60"
+KEEP_ALIVE = "5"
+
+# 🔒 Configuración de Seguridad
+SECURE_SSL_REDIRECT = "True"
+SESSION_COOKIE_SECURE = "True"
+SESSION_COOKIE_HTTPONLY = "True"
+
+[services.web]
+# 🌐 Configuración del Servicio Web
+port = 8080
+protocol = "http"
+
+[services.web.healthcheck]
+# 🏥 Health Check Configuration
+path = "/health"
+interval = 30
+timeout = 10
+retries = 3
+start_period = 60
+
+[logging]
+# 📝 Configuración de Logging
+level = "info"
+format = "json"
+
+# 🔧 Configuraciones específicas para ERP13 Enterprise
+[variables]
+APP_NAME = "ERP13 Enterprise"
+APP_VERSION = "1.0.0"
+SERVICE_NAME = "erp13-web"

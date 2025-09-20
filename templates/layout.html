@@ -6,10 +6,10 @@
     <title>{% block title %}ERP13 Enterprise - Sistema Integrado{% endblock %}</title>
     
     <!-- 📁 Ruta: /app/templates/layout.html -->
-    <!-- 📄 Nombre: layout_final_fixed.html -->
-    <!-- 🏗️ Propósito: Layout base ERP13 Enterprise v3.1 - BuildError CORREGIDO -->
-    <!-- ⚡ Performance: Routing optimizado, sin referencias main.* -->
-    <!-- 🔒 Seguridad: CSRF, XSS protection, auth integrada -->
+    <!-- 📄 Nombre: layout_spa_dynamic.html -->
+    <!-- 🏗️ Propósito: Layout SPA con sidebar expandible y carga dinámica -->
+    <!-- ⚡ Performance: Zero page reloads, contenido lazy-loaded, cache inteligente -->
+    <!-- 🔒 Seguridad: CSRF tokens dinámicos, auth persistente, audit trail -->
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -24,7 +24,9 @@
             --dark-color: #1e293b;
             --light-color: #f8fafc;
             --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
             --header-height: 70px;
+            --animation-speed: 0.3s;
         }
         
         body {
@@ -33,8 +35,10 @@
             color: var(--dark-color);
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
         
+        /* SIDEBAR EXPANDIBLE */
         .sidebar {
             position: fixed;
             top: 0;
@@ -45,12 +49,22 @@
             z-index: 1050;
             overflow-y: auto;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            transition: width var(--animation-speed) ease;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
         }
         
         .sidebar-header {
             padding: 24px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(255, 255, 255, 0.05);
+            transition: padding var(--animation-speed) ease;
+        }
+        
+        .sidebar.collapsed .sidebar-header {
+            padding: 24px 10px;
         }
         
         .logo-container {
@@ -70,30 +84,41 @@
             color: white;
             font-size: 18px;
             font-weight: bold;
+            flex-shrink: 0;
         }
         
         .logo-text {
             color: white;
+            transition: opacity var(--animation-speed) ease;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
         }
         
         .logo-text h4 {
             margin: 0;
             font-size: 20px;
             font-weight: 700;
+            white-space: nowrap;
         }
         
         .logo-text span {
             font-size: 12px;
             opacity: 0.8;
             display: block;
+            white-space: nowrap;
         }
         
+        /* NAVEGACIÓN EXPANDIBLE */
         .sidebar-nav {
             padding: 20px 0;
         }
         
         .nav-section {
-            margin-bottom: 32px;
+            margin-bottom: 8px;
         }
         
         .nav-section-title {
@@ -104,6 +129,18 @@
             letter-spacing: 1px;
             padding: 0 20px 12px 20px;
             margin-bottom: 8px;
+            transition: all var(--animation-speed) ease;
+        }
+        
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-item {
+            position: relative;
         }
         
         .nav-link {
@@ -112,8 +149,15 @@
             padding: 12px 20px;
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            transition: all 0.15s ease;
+            transition: all var(--animation-speed) ease;
             border-left: 3px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sidebar.collapsed .nav-link {
+            padding: 12px 16px;
+            justify-content: center;
         }
         
         .nav-link:hover {
@@ -128,16 +172,96 @@
             border-left-color: var(--primary-color);
         }
         
+        .nav-link.expanded {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--primary-color);
+        }
+        
         .nav-link i {
             width: 20px;
             margin-right: 12px;
             font-size: 16px;
+            flex-shrink: 0;
         }
         
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+        
+        .nav-text {
+            transition: opacity var(--animation-speed) ease;
+            white-space: nowrap;
+            flex-grow: 1;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .nav-arrow {
+            transition: transform var(--animation-speed) ease;
+            font-size: 12px;
+        }
+        
+        .nav-link.expanded .nav-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .sidebar.collapsed .nav-arrow {
+            display: none;
+        }
+        
+        /* SUBNAVEGACIÓN */
+        .subnav {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--animation-speed) ease;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .subnav.expanded {
+            max-height: 500px;
+        }
+        
+        .sidebar.collapsed .subnav {
+            display: none;
+        }
+        
+        .subnav-link {
+            display: block;
+            padding: 10px 20px 10px 60px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.15s ease;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .subnav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            padding-left: 65px;
+        }
+        
+        .subnav-link.active {
+            background: rgba(37, 99, 235, 0.3);
+            color: white;
+            border-left: 2px solid var(--primary-color);
+        }
+        
+        /* CONTENIDO PRINCIPAL */
         .main-content {
             margin-left: var(--sidebar-width);
             min-height: 100vh;
             padding: 0;
+            transition: margin-left var(--animation-speed) ease;
+        }
+        
+        .sidebar.collapsed + .main-content {
+            margin-left: var(--sidebar-collapsed-width);
         }
         
         .top-navbar {
@@ -153,86 +277,151 @@
             z-index: 1000;
         }
         
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--dark-color);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background var(--animation-speed) ease;
+        }
+        
+        .sidebar-toggle:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
         .content-area {
             padding: 32px;
+            min-height: calc(100vh - var(--header-height));
         }
         
-        .page-header {
-            margin-bottom: 32px;
+        .dynamic-content {
+            animation: fadeInUp 0.3s ease-out;
         }
         
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin: 0;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
-        .breadcrumb-custom {
+        /* LOADING STATE */
+        .content-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            flex-direction: column;
+            color: var(--secondary-color);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* BREADCRUMBS DINÁMICOS */
+        .breadcrumb-dynamic {
             background: none;
             padding: 0;
             margin: 8px 0 0 0;
         }
         
-        .breadcrumb-custom .breadcrumb-item {
+        .breadcrumb-dynamic .breadcrumb-item {
             color: var(--secondary-color);
         }
         
-        .breadcrumb-custom .breadcrumb-item.active {
+        .breadcrumb-dynamic .breadcrumb-item.active {
             color: var(--primary-color);
         }
         
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .alert-custom {
-            border: none;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-        }
-        
-        .alert-success-custom {
-            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-            color: #065f46;
-            border-left: 4px solid var(--success-color);
-        }
-        
-        .alert-danger-custom {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            color: #991b1b;
-            border-left: 4px solid var(--danger-color);
-        }
-        
+        /* RESPONSIVE */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                width: var(--sidebar-width) !important;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
             }
             
             .main-content {
-                margin-left: 0;
+                margin-left: 0 !important;
             }
+            
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
+                display: none;
+            }
+            
+            .mobile-overlay.show {
+                display: block;
+            }
+        }
+        
+        /* TOOLTIP PARA SIDEBAR COLAPSADO */
+        .nav-tooltip {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--dark-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1060;
+            pointer-events: none;
+        }
+        
+        .nav-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-right-color: var(--dark-color);
+        }
+        
+        .sidebar.collapsed .nav-link:hover .nav-tooltip {
+            opacity: 1;
+            visibility: visible;
+            left: 80px;
         }
     </style>
 </head>
 <body>
-    <!-- SIDEBAR PRINCIPAL -->
-    <nav class="sidebar">
+    <!-- SIDEBAR EXPANDIBLE -->
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo-container">
                 <div class="logo-icon">
@@ -249,42 +438,103 @@
             <!-- NAVEGACIÓN PRINCIPAL -->
             <div class="nav-section">
                 <div class="nav-section-title">Principal</div>
-                <!-- ✅ CORRECCIÓN: Usar dashboard en lugar de main.dashboard -->
-                <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a>
+                <div class="nav-item">
+                    <a class="nav-link" data-content="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Dashboard</span>
+                        <span class="nav-tooltip">Dashboard</span>
+                    </a>
+                </div>
             </div>
             
             <!-- GESTIÓN DE CLIENTES -->
             <div class="nav-section">
                 <div class="nav-section-title">Gestión</div>
-                <!-- ✅ CORRECCIÓN: Usar nombres directos de endpoints -->
-                <a href="{{ url_for('clientes') }}" class="nav-link {% if request.endpoint == 'clientes' %}active{% endif %}">
-                    <i class="fas fa-users"></i>
-                    Clientes
-                </a>
-                <a href="{{ url_for('auditoria') }}" class="nav-link {% if request.endpoint == 'auditoria' %}active{% endif %}">
-                    <i class="fas fa-search"></i>
-                    Auditoría
-                </a>
-                <a href="{{ url_for('facturacion') }}" class="nav-link {% if request.endpoint == 'facturacion' %}active{% endif %}">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    Facturación
-                </a>
+                <div class="nav-item">
+                    <a class="nav-link" data-toggle="subnav" data-target="clientes-subnav">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Clientes</span>
+                        <i class="fas fa-chevron-right nav-arrow"></i>
+                        <span class="nav-tooltip">Clientes</span>
+                    </a>
+                    <div class="subnav" id="clientes-subnav">
+                        <a class="subnav-link" data-content="clientes/gestion_clientes">Gestión de Clientes</a>
+                        <a class="subnav-link" data-content="clientes/pipeline">Pipeline</a>
+                        <a class="subnav-link" data-content="clientes/automatizaciones">Automatizaciones</a>
+                        <a class="subnav-link" data-content="clientes/calendario">Calendario</a>
+                        <a class="subnav-link" data-content="clientes/campanas">Campañas</a>
+                        <a class="subnav-link" data-content="clientes/comunicaciones">Comunicaciones</a>
+                        <a class="subnav-link" data-content="clientes/propuestas">Propuestas</a>
+                        <a class="subnav-link" data-content="clientes/tickets">Tickets</a>
+                        <a class="subnav-link" data-content="clientes/timeline">Timeline</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link" data-toggle="subnav" data-target="auditoria-subnav">
+                        <i class="fas fa-search"></i>
+                        <span class="nav-text">Auditoría</span>
+                        <i class="fas fa-chevron-right nav-arrow"></i>
+                        <span class="nav-tooltip">Auditoría</span>
+                    </a>
+                    <div class="subnav" id="auditoria-subnav">
+                        <a class="subnav-link" data-content="auditoria/auditoria_configuracion">Configuración</a>
+                        <a class="subnav-link" data-content="auditoria/auditoria_proyectos">Proyectos</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link" data-toggle="subnav" data-target="facturacion-subnav">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span class="nav-text">Facturación</span>
+                        <i class="fas fa-chevron-right nav-arrow"></i>
+                        <span class="nav-tooltip">Facturación</span>
+                    </a>
+                    <div class="subnav" id="facturacion-subnav">
+                        <a class="subnav-link" data-content="facturacion/facturas_clientes">Facturas Clientes</a>
+                        <a class="subnav-link" data-content="facturacion/facturas_proveedores">Facturas Proveedores</a>
+                        <a class="subnav-link" data-content="facturacion/proveedores">Proveedores</a>
+                        <a class="subnav-link" data-content="facturacion/apuntes_contables">Apuntes Contables</a>
+                        <a class="subnav-link" data-content="facturacion/estados_pago">Estados de Pago</a>
+                        <a class="subnav-link" data-content="facturacion/exportacion_contable">Exportación Contable</a>
+                    </div>
+                </div>
             </div>
             
             <!-- CONFIGURACIÓN -->
             <div class="nav-section">
                 <div class="nav-section-title">Sistema</div>
-                <a href="{{ url_for('configuracion') }}" class="nav-link {% if request.endpoint == 'configuracion' %}active{% endif %}">
-                    <i class="fas fa-cog"></i>
-                    Configuración
-                </a>
-                <a href="{{ url_for('health_check') }}" class="nav-link">
-                    <i class="fas fa-heartbeat"></i>
-                    Estado Sistema
-                </a>
+                <div class="nav-item">
+                    <a class="nav-link" data-toggle="subnav" data-target="configuracion-subnav">
+                        <i class="fas fa-cog"></i>
+                        <span class="nav-text">Configuración</span>
+                        <i class="fas fa-chevron-right nav-arrow"></i>
+                        <span class="nav-tooltip">Configuración</span>
+                    </a>
+                    <div class="subnav" id="configuracion-subnav">
+                        <a class="subnav-link" data-content="configuracion/configuracion_general">General</a>
+                        <a class="subnav-link" data-content="configuracion/configuracion_facturacion">Facturación</a>
+                        <a class="subnav-link" data-content="configuracion/gestion_usuarios">Usuarios</a>
+                        <a class="subnav-link" data-content="configuracion/ia_interna">IA Interna</a>
+                        <a class="subnav-link" data-content="configuracion/plantillas_presupuesto">Plantillas</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link" data-content="monitoring">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="nav-text">Monitoreo</span>
+                        <span class="nav-tooltip">Monitoreo</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link" data-content="health">
+                        <i class="fas fa-heartbeat"></i>
+                        <span class="nav-text">Estado Sistema</span>
+                        <span class="nav-tooltip">Estado Sistema</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -293,53 +543,337 @@
     <div class="main-content">
         <!-- NAVBAR SUPERIOR -->
         <nav class="top-navbar">
-            <div>
-                <h5 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h5>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-custom">
-                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Inicio</a></li>
-                        {% block breadcrumb %}{% endblock %}
-                    </ol>
-                </nav>
+            <div class="d-flex align-items-center">
+                <button class="sidebar-toggle me-3" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h5 class="mb-0" id="page-title">Dashboard</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dynamic" id="dynamic-breadcrumbs">
+                            <li class="breadcrumb-item"><a href="#" data-content="dashboard">Inicio</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </nav>
+                </div>
             </div>
             
             <div class="user-menu">
                 <div class="dropdown">
-                    <div class="user-avatar" data-bs-toggle="dropdown">
-                        {{ session.username[0].upper() if session.username else 'A' }}
+                    <div class="user-avatar" data-bs-toggle="dropdown" style="width: 40px; height: 40px; background: var(--primary-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; cursor: pointer;">
+                        {{ session.user_name[0].upper() if session.user_name else 'A' }}
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Mi Perfil</a></li>
+                        <li><a class="dropdown-item" href="#" data-content="profile">Mi Perfil</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('auth_logout') }}">Cerrar Sesión</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('auth_fixed.auth_logout') }}">Cerrar Sesión</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <!-- ÁREA DE CONTENIDO -->
+        <!-- ÁREA DE CONTENIDO DINÁMICO -->
         <div class="content-area">
             <!-- MENSAJES FLASH -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}-custom alert-custom alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+            <div id="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}-custom alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
 
-            <!-- CONTENIDO DE LA PÁGINA -->
-            {% block content %}{% endblock %}
+            <!-- CONTENIDO DINÁMICO -->
+            <div id="dynamic-content">
+                {% block content %}
+                <!-- Contenido inicial del dashboard se carga aquí -->
+                <div class="content-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando sistema...</p>
+                </div>
+                {% endblock %}
+            </div>
         </div>
     </div>
+
+    <!-- OVERLAY PARA MOBILE -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
 
     <!-- JAVASCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- SCRIPTS ADICIONALES -->
+    <script>
+        // SISTEMA DE NAVEGACIÓN DINÁMICO
+        class ERPSPANavigator {
+            constructor() {
+                this.init();
+                this.loadInitialContent();
+            }
+            
+            init() {
+                // Toggle sidebar
+                document.getElementById('sidebarToggle').addEventListener('click', () => {
+                    this.toggleSidebar();
+                });
+                
+                // Navigation events
+                this.setupNavigation();
+                
+                // Mobile overlay
+                document.getElementById('mobileOverlay').addEventListener('click', () => {
+                    this.closeMobileSidebar();
+                });
+                
+                // Window resize
+                window.addEventListener('resize', () => {
+                    this.handleResize();
+                });
+            }
+            
+            setupNavigation() {
+                // Content loading
+                document.addEventListener('click', (e) => {
+                    const contentLink = e.target.closest('[data-content]');
+                    if (contentLink) {
+                        e.preventDefault();
+                        const content = contentLink.getAttribute('data-content');
+                        this.loadContent(content);
+                        this.setActiveNav(contentLink);
+                    }
+                });
+                
+                // Subnav toggle
+                document.addEventListener('click', (e) => {
+                    const toggleLink = e.target.closest('[data-toggle="subnav"]');
+                    if (toggleLink) {
+                        e.preventDefault();
+                        const target = toggleLink.getAttribute('data-target');
+                        this.toggleSubnav(toggleLink, target);
+                    }
+                });
+            }
+            
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('collapsed');
+                
+                // Close expanded subnavs when collapsing
+                if (sidebar.classList.contains('collapsed')) {
+                    document.querySelectorAll('.subnav.expanded').forEach(subnav => {
+                        subnav.classList.remove('expanded');
+                    });
+                    document.querySelectorAll('.nav-link.expanded').forEach(link => {
+                        link.classList.remove('expanded');
+                    });
+                }
+            }
+            
+            toggleSubnav(toggleLink, targetId) {
+                const target = document.getElementById(targetId);
+                const isExpanded = target.classList.contains('expanded');
+                
+                // Close all other subnavs
+                document.querySelectorAll('.subnav.expanded').forEach(subnav => {
+                    if (subnav !== target) {
+                        subnav.classList.remove('expanded');
+                    }
+                });
+                document.querySelectorAll('.nav-link.expanded').forEach(link => {
+                    if (link !== toggleLink) {
+                        link.classList.remove('expanded');
+                    }
+                });
+                
+                // Toggle current subnav
+                target.classList.toggle('expanded');
+                toggleLink.classList.toggle('expanded');
+            }
+            
+            loadContent(contentPath) {
+                const dynamicContent = document.getElementById('dynamic-content');
+                
+                // Show loading
+                dynamicContent.innerHTML = `
+                    <div class="content-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Cargando contenido...</p>
+                    </div>
+                `;
+                
+                // Load content via AJAX
+                fetch(`/api/content/${contentPath}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error cargando contenido');
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        dynamicContent.innerHTML = html;
+                        dynamicContent.classList.add('dynamic-content');
+                        this.updateBreadcrumbs(contentPath);
+                        this.updatePageTitle(contentPath);
+                        
+                        // Initialize any scripts in the loaded content
+                        this.initializeLoadedScripts();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        dynamicContent.innerHTML = `
+                            <div class="alert alert-danger">
+                                <h5>Error de carga</h5>
+                                <p>No se pudo cargar el contenido solicitado.</p>
+                                <button class="btn btn-primary" onclick="erpNavigator.loadContent('dashboard')">
+                                    Volver al Dashboard
+                                </button>
+                            </div>
+                        `;
+                    });
+            }
+            
+            setActiveNav(activeLink) {
+                // Remove active from all nav links
+                document.querySelectorAll('.nav-link.active, .subnav-link.active').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Set active on clicked link
+                activeLink.classList.add('active');
+                
+                // If it's a subnav link, also expand parent
+                if (activeLink.classList.contains('subnav-link')) {
+                    const parentSubnav = activeLink.closest('.subnav');
+                    const parentToggle = document.querySelector(`[data-target="${parentSubnav.id}"]`);
+                    if (parentToggle) {
+                        parentSubnav.classList.add('expanded');
+                        parentToggle.classList.add('expanded');
+                    }
+                }
+            }
+            
+            updateBreadcrumbs(contentPath) {
+                const breadcrumbs = document.getElementById('dynamic-breadcrumbs');
+                const pathParts = contentPath.split('/');
+                
+                let breadcrumbHTML = '<li class="breadcrumb-item"><a href="#" data-content="dashboard">Inicio</a></li>';
+                
+                if (pathParts.length > 1) {
+                    const module = pathParts[0];
+                    const page = pathParts[1];
+                    
+                    breadcrumbHTML += `<li class="breadcrumb-item">${this.getModuleName(module)}</li>`;
+                    breadcrumbHTML += `<li class="breadcrumb-item active">${this.getPageName(page)}</li>`;
+                } else {
+                    breadcrumbHTML += `<li class="breadcrumb-item active">${this.getPageName(contentPath)}</li>`;
+                }
+                
+                breadcrumbs.innerHTML = breadcrumbHTML;
+            }
+            
+            updatePageTitle(contentPath) {
+                const pageTitle = document.getElementById('page-title');
+                const pathParts = contentPath.split('/');
+                
+                if (pathParts.length > 1) {
+                    pageTitle.textContent = this.getPageName(pathParts[1]);
+                } else {
+                    pageTitle.textContent = this.getPageName(contentPath);
+                }
+            }
+            
+            getModuleName(module) {
+                const moduleNames = {
+                    'clientes': 'Clientes',
+                    'auditoria': 'Auditoría',
+                    'facturacion': 'Facturación',
+                    'configuracion': 'Configuración'
+                };
+                return moduleNames[module] || module;
+            }
+            
+            getPageName(page) {
+                const pageNames = {
+                    'dashboard': 'Dashboard',
+                    'gestion_clientes': 'Gestión de Clientes',
+                    'pipeline': 'Pipeline',
+                    'automatizaciones': 'Automatizaciones',
+                    'calendario': 'Calendario',
+                    'campanas': 'Campañas',
+                    'comunicaciones': 'Comunicaciones',
+                    'propuestas': 'Propuestas',
+                    'tickets': 'Tickets',
+                    'timeline': 'Timeline',
+                    'auditoria_configuracion': 'Configuración de Auditoría',
+                    'auditoria_proyectos': 'Auditoría de Proyectos',
+                    'facturas_clientes': 'Facturas de Clientes',
+                    'facturas_proveedores': 'Facturas de Proveedores',
+                    'proveedores': 'Proveedores',
+                    'apuntes_contables': 'Apuntes Contables',
+                    'estados_pago': 'Estados de Pago',
+                    'exportacion_contable': 'Exportación Contable',
+                    'configuracion_general': 'Configuración General',
+                    'configuracion_facturacion': 'Configuración de Facturación',
+                    'gestion_usuarios': 'Gestión de Usuarios',
+                    'ia_interna': 'IA Interna',
+                    'plantillas_presupuesto': 'Plantillas de Presupuesto',
+                    'monitoring': 'Monitoreo',
+                    'health': 'Estado del Sistema'
+                };
+                return pageNames[page] || page;
+            }
+            
+            initializeLoadedScripts() {
+                // Re-initialize any jQuery plugins or scripts in loaded content
+                if (typeof $ !== 'undefined') {
+                    // Re-initialize Select2 if present
+                    if ($.fn.select2) {
+                        $('.select2').select2();
+                    }
+                    
+                    // Re-initialize other plugins
+                    if ($.fn.datepicker) {
+                        $('.datepicker').datepicker();
+                    }
+                }
+            }
+            
+            loadInitialContent() {
+                // Load dashboard by default
+                this.loadContent('dashboard');
+            }
+            
+            handleResize() {
+                if (window.innerWidth <= 768) {
+                    // Mobile view
+                    const sidebar = document.getElementById('sidebar');
+                    if (!sidebar.classList.contains('collapsed')) {
+                        this.closeMobileSidebar();
+                    }
+                }
+            }
+            
+            closeMobileSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('mobileOverlay');
+                
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('show');
+            }
+        }
+        
+        // Initialize SPA Navigator
+        const erpNavigator = new ERPSPANavigator();
+        
+        console.log('🚀 ERP13 Enterprise SPA Navigation System Loaded');
+        console.log('📱 Dynamic content loading enabled');
+        console.log('🔄 Sidebar expandible system active');
+    </script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>

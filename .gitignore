@@ -1,19 +1,27 @@
-# ================================
-# ERP13 ENTERPRISE v3.0 - GITIGNORE
-# ================================
-# Comprehensive .gitignore for Flask/Python ERP system
-# Optimized for Railway deployment and development workflow
+# =============================================================================
+# ERP13 ENTERPRISE v3.0 - GITIGNORE CONFIGURATION
+# =============================================================================
+# 📁 Ruta: /.gitignore
+# 📄 Nombre: .gitignore
+# 🏗️ Propósito: Exclusiones Git para proyecto Flask enterprise
+# ⚡ Performance: Excluir archivos innecesarios para build Railway
+# 🔒 Seguridad: Proteger datos sensibles y configuraciones
+# 
+# Optimizado para: Python 3.9+ | Flask 3.0+ | Railway Platform
+# Compatible con: VSCode, PyCharm, Sublime Text, Vim
+# =============================================================================
 
-# ================================
-# PYTHON ESPECÍFICO
-# ================================
-# Byte-compiled / optimized / DLL files
+# =============================================================================
+# PYTHON CORE - BYTECODE & DISTRIBUTIONS
+# =============================================================================
+
+# Bytecode Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 
-# Distribution / packaging
+# Distribuciones Python
+*.so
 .Python
 build/
 develop-eggs/
@@ -27,195 +35,168 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
+# =============================================================================
+# VIRTUAL ENVIRONMENTS & PACKAGE MANAGERS
+# =============================================================================
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff (en caso de migración futura)
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff
-instance/
-.webassets-cache
-
-# Scrapy stuff
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# poetry
-poetry.lock
-
-# pdm
-.pdm.toml
-
-# PEP 582
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
 venv/
+env/
 ENV/
 env.bak/
 venv.bak/
+erp13_env/
+.env/
+.venv/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# Pipenv
+Pipfile.lock
 
-# Rope project settings
-.ropeproject
+# Poetry
+poetry.lock
 
-# mkdocs documentation
-/site
+# Conda
+.conda/
 
-# mypy
+# =============================================================================
+# FLASK SPECIFIC FILES
+# =============================================================================
+
+# Flask instance folder
+instance/
+
+# Flask migrations (si usas Flask-Migrate)
+migrations/versions/*.pyc
+
+# Flask session files
+flask_session/
+
+# Werkzeug cache
+.werkzeug_cache/
+
+# =============================================================================
+# DATABASES & DATA FILES
+# =============================================================================
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# PostgreSQL dumps
+*.sql
+*.dump
+
+# Database backups
+backups/
+*.backup
+
+# Data files
+data/
+uploads/
+media/
+static/uploads/
+
+# =============================================================================
+# CACHE & TEMPORARY FILES
+# =============================================================================
+
+# Redis dumps
+dump.rdb
+
+# Cache directories
+.cache/
+.pytest_cache/
 .mypy_cache/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# ================================
-# ERP13 ENTERPRISE ESPECÍFICO
-# ================================
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-data/
-database/
-migrations/versions/
-
-# Log files
-logs/
-*.log
-*.log.*
-app.log
-error.log
-access.log
-gunicorn.log
-
-# Upload directories
-uploads/
-files/
-media/
-static/uploads/
-user_files/
-attachments/
-
-# Backup files
-backups/
-*.bak
-*.backup
-*.sql.gz
-*.dump
-
-# Configuration files with secrets
-config.py
-config_local.py
-local_settings.py
-.secrets
-secrets/
-
-# API Keys and tokens
-.apikeys
-.tokens
-api_keys.txt
-credentials.json
-
-# Cache directories
-cache/
-.cache/
-tmp/
+# Temporary files
+*.tmp
+*.temp
 temp/
+tmp/
 .tmp/
 
-# Session files
-flask_session/
-sessions/
+# =============================================================================
+# LOGS & MONITORING
+# =============================================================================
 
-# ================================
-# DESARROLLO Y TESTING
-# ================================
+# Log files
+*.log
+logs/
+log/
+*.log.*
+*.out
 
-# IDE y Editor files
+# Monitoring & profiling
+.prof
+*.prof
+
+# Error tracking
+sentry_debug/
+
+# =============================================================================
+# CONFIGURATION & SECRETS
+# =============================================================================
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+
+# Configuration files with secrets
+config.ini
+config.cfg
+settings.ini
+local_settings.py
+secrets.py
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# API Keys & tokens
+.apikeys
+.tokens
+.secrets/
+
+# =============================================================================
+# RAILWAY PLATFORM SPECIFIC
+# =============================================================================
+
+# Railway local files
+.railway/
+railway.toml.local
+
+# Railway environment
+.railway-env
+
+# Railway build artifacts
+.railway-build/
+
+# =============================================================================
+# DEVELOPMENT TOOLS & EDITORS
+# =============================================================================
+
+# VSCode
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
+*.code-workspace
 
-# JetBrains IDEs
+# PyCharm
 .idea/
 *.iml
 *.ipr
@@ -228,57 +209,66 @@ Thumbs.db
 # Vim
 *.swp
 *.swo
-*.tmp
+*~
 
 # Emacs
-*~
 \#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
 .\#*
 
-# Testing
+# =============================================================================
+# TESTING & COVERAGE
+# =============================================================================
+
+# Pytest
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 .tox/
 .nox/
-test_results/
-test-reports/
 
-# Profiling
-*.prof
-*.profile
+# Unit test / coverage reports
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 
-# ================================
-# FRONTEND ASSETS
-# ================================
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
 
-# Node.js (si se usa para frontend)
+# Sphinx documentation
+docs/_build/
+docs/build/
+
+# MkDocs
+site/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# =============================================================================
+# FRONTEND & ASSETS
+# =============================================================================
+
+# Node.js (si usas build tools)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.npm
-.node_repl_history
 
-# CSS/JS build artifacts
-*.css.map
-*.js.map
-/static/dist/
-/static/build/
-webpack-stats.json
-
-# SASS/SCSS
+# Sass/SCSS
 .sass-cache/
 *.css.map
 
-# ================================
-# SYSTEM FILES
-# ================================
+# Build artifacts
+static/dist/
+static/build/
+
+# =============================================================================
+# OPERATING SYSTEM SPECIFIC
+# =============================================================================
 
 # macOS
 .DS_Store
@@ -286,22 +276,16 @@ webpack-stats.json
 .LSOverride
 Icon?
 ._*
-.DocumentRevisions-V100
-.fseventsd
 .Spotlight-V100
-.TemporaryItems
 .Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
 
 # Windows
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
-*.tmp
-*.temp
-Desktop.ini
+*.stackdump
+[Dd]esktop.ini
 $RECYCLE.BIN/
 *.cab
 *.msi
@@ -317,221 +301,196 @@ $RECYCLE.BIN/
 .Trash-*
 .nfs*
 
-# ================================
-# DEPLOYMENT & CLOUD
-# ================================
-
-# Railway specific
-.railway/
-railway.json
-
-# Docker
-Dockerfile.local
-docker-compose.override.yml
-.dockerignore.local
-
-# Kubernetes
-*.kubeconfig
-k8s-secrets/
-
-# Terraform
-*.tfstate
-*.tfstate.*
-.terraform/
-.terraformrc
-terraform.rc
-
-# Ansible
-*.retry
-inventory/local
-
-# ================================
-# MONITORING & LOGS
-# ================================
-
-# Application logs
-app*.log
-error*.log
-access*.log
-debug*.log
-application*.log
-
-# System monitoring
-monitoring/
-metrics/
-traces/
-
-# Error tracking
-sentry/
-.sentry-native
-
-# ================================
-# SECURITY FILES
-# ================================
-
-# SSL/TLS certificates
-*.pem
-*.key
-*.crt
-*.cert
-*.ca-bundle
-*.p12
-*.pfx
-ssl/
-certs/
-
-# SSH keys
-id_rsa
-id_ed25519
-*.pub
-.ssh/
-
-# GPG keys
-*.gpg
-*.asc
-.gnupg/
-
-# OAuth & API credentials
-oauth.json
-client_secret*.json
-service-account*.json
-
-# ================================
-# BACKUP & TEMPORARY
-# ================================
+# =============================================================================
+# BACKUP & ARCHIVE FILES
+# =============================================================================
 
 # Backup files
 *.bak
 *.backup
 *.old
 *.orig
-*.save
-*_backup
-
-# Temporary files
-*.tmp
-*.temp
-tmp/
-temp/
-.temporary/
 
 # Archive files
-*.zip
 *.tar
 *.tar.gz
-*.tar.bz2
+*.zip
 *.rar
 *.7z
 
-# ================================
-# DOCUMENTATION BUILD
-# ================================
+# =============================================================================
+# SECURITY & AUDIT FILES
+# =============================================================================
 
-# Sphinx build
-docs/_build/
-docs/build/
+# Security scans
+security-audit.json
+npm-audit.json
 
-# MkDocs
-site/
+# Vulnerability reports
+vulnerability-report.*
 
-# GitBook
-_book/
-
-# ================================
-# CI/CD ESPECÍFICO
-# ================================
-
-# GitHub Actions
-.github/workflows/local*
-
-# GitLab CI
-.gitlab-ci.local.yml
-
-# CircleCI
-.circleci/local/
-
-# Jenkins
-Jenkinsfile.local
-
-# ================================
-# MISC PROJECT FILES
-# ================================
-
-# Project specific
-TODO.md
-NOTES.md
-ROADMAP.local.md
-.project-notes
-
-# Local configuration
-local/
-.local/
-dev/
-development/
-
-# ================================
-# VARIABLES DE ENTORNO LOCALES
-# ================================
-
-# Environment files
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-.env.backup
-
-# Dotenv variants
-.env.*
-!.env.example
-!.env.template
-
-# ================================
+# =============================================================================
 # PERFORMANCE & PROFILING
-# ================================
+# =============================================================================
 
-# Performance monitoring
-performance/
-benchmarks/
-.benchmark/
+# Memory dumps
+*.hprof
+*.dump
 
-# Memory profiling
+# Performance profiles
 *.prof
-memory_profiler/
+*.profile
 
-# ================================
-# INTEGRATION TESTING
-# ================================
+# =============================================================================
+# ERP13 ENTERPRISE SPECIFIC
+# =============================================================================
 
-# Test databases
+# Datos empresariales sensibles
+/data/empresas/
+/data/clientes/
+/exports/
+/reports/confidential/
+
+# Backups automáticos
+/backups/
+auto_backup_*
+
+# Uploads de usuarios
+/static/uploads/
+/media/uploads/
+user_uploads/
+
+# Cache específico ERP13
+erp13_cache/
+.erp13_cache/
+
+# Reportes generados
+/reports/generated/
+*.pdf
+*.xlsx
+*.docx
+
+# Templates compilados
+/templates/compiled/
+
+# =============================================================================
+# THIRD-PARTY INTEGRATIONS
+# =============================================================================
+
+# Google APIs
+credentials.json
+token.json
+.google/
+
+# Microsoft Office 365
+.office365/
+
+# Salesforce
+.salesforce/
+
+# AWS
+.aws/
+aws-credentials
+
+# =============================================================================
+# CONTAINERIZATION
+# =============================================================================
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Kubernetes
+*.kubeconfig
+
+# =============================================================================
+# CI/CD & DEPLOYMENT
+# =============================================================================
+
+# GitHub Actions secrets
+.github/secrets/
+
+# Deployment scripts con secretos
+deploy_secrets.sh
+.deploy/
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# =============================================================================
+# MONITORING & ANALYTICS
+# =============================================================================
+
+# Analytics data
+analytics/
+.analytics/
+
+# Monitoring data
+monitoring/
+.monitoring/
+
+# =============================================================================
+# DEVELOPMENT & DEBUG FILES
+# =============================================================================
+
+# Debug configurations
+.debug/
+debug.py
+debug_*.py
+
+# Development databases
+dev.db
 test.db
-test.sqlite
-test_*.db
+development.sqlite
 
-# Test uploads
-test_uploads/
-test_files/
+# Sample data
+sample_data/
+mock_data/
+fixtures/
 
-# Test reports
-test-results/
-allure-results/
-allure-reports/
+# =============================================================================
+# OPTIONAL: UNCOMMENT IF NEEDED
+# =============================================================================
 
-# ================================
-# CUSTOM EXCLUDES
-# ================================
+# Si no quieres trackear migrations
+# migrations/
 
-# Add your custom excludes here
-# custom/
-# local_data/
-# personal_notes/
+# Si tienes assets compilados que quieres ignorar
+# static/css/compiled/
+# static/js/compiled/
 
-# ================================
-# NOTES:
-# ================================
-# 1. Este .gitignore cubre Flask, Python, Railway y herramientas comunes
-# 2. Mantiene la seguridad excluyendo archivos sensibles
-# 3. Optimiza el tamaño del repositorio
-# 4. Compatible con workflows de CI/CD
-# 5. Incluye exclusiones específicas para ERP13 Enterprise
-# 6. Actualizar según necesidades específicas del proyecto
+# Si usas Docker y no quieres trackear compose override
+# docker-compose.override.yml
+
+# Si tienes configuraciones locales específicas
+# local_config.py
+# config_local.py
+
+# =============================================================================
+# IMPORTANT NOTES:
+# =============================================================================
+#
+# 🔒 SEGURIDAD:
+#    - Nunca commitear archivos .env con datos reales
+#    - Revisar regularmente si hay secretos expuestos
+#    - Usar git-secrets o similar para prevención
+#
+# ⚡ PERFORMANCE:
+#    - Este .gitignore optimiza velocidad de clone/pull
+#    - Excluye archivos innecesarios para Railway builds
+#    - Mantiene repos limpios y focalizados
+#
+# 🚀 RAILWAY:
+#    - Railway ignora automáticamente algunos archivos
+#    - Este .gitignore complementa las exclusiones Railway
+#    - Optimizado para builds rápidos en Railway
+#
+# 📁 ESTRUCTURA:
+#    - Organizado por categorías para fácil mantenimiento
+#    - Comentarios para entender cada sección
+#    - Compatible con múltiples IDEs y herramientas
+#
+# =============================================================================

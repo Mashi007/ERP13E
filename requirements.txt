@@ -1,0 +1,305 @@
+# ================================
+# ERP13 ENTERPRISE v3.0 - DEPENDENCIES
+# ================================
+# Production-ready dependencies for Railway deployment
+# Versiones bloqueadas para estabilidad y reproducibilidad
+
+# ================================
+# CORE FRAMEWORK
+# ================================
+Flask==2.3.7
+Werkzeug==2.3.7
+Jinja2==3.1.2
+MarkupSafe==2.1.3
+itsdangerous==2.1.2
+click==8.1.7
+
+# ================================
+# DATABASE & ORM
+# ================================
+SQLAlchemy==2.0.23
+Flask-SQLAlchemy==3.1.1
+Alembic==1.12.1
+psycopg2-binary==2.9.7
+
+# ================================
+# CACHE & SESSION MANAGEMENT
+# ================================
+redis==5.0.1
+Flask-Session==0.5.0
+hiredis==2.2.3
+
+# ================================
+# AUTHENTICATION & SECURITY
+# ================================
+PyJWT==2.8.0
+Flask-JWT-Extended==4.5.3
+Flask-CORS==4.0.0
+cryptography==41.0.7
+bcrypt==4.0.1
+
+# ================================
+# API & HTTP CLIENT
+# ================================
+requests==2.31.0
+urllib3==2.0.7
+certifi==2023.7.22
+charset-normalizer==3.3.2
+idna==3.4
+
+# ================================
+# AI INTEGRATIONS
+# ================================
+openai==0.28.1
+anthropic==0.3.11
+tenacity==8.2.3
+tiktoken==0.5.1
+
+# ================================
+# COMMUNICATION APIS
+# ================================
+# WhatsApp Business API
+twilio==8.9.1
+
+# Email processing
+Flask-Mail==0.9.1
+email-validator==2.1.0
+
+# SMS services
+python-decouple==3.8
+
+# ================================
+# DATA PROCESSING & VALIDATION
+# ================================
+marshmallow==3.20.1
+Flask-Marshmallow==0.15.0
+marshmallow-sqlalchemy==0.29.0
+WTForms==3.1.0
+Flask-WTF==1.2.1
+
+# ================================
+# DATE & TIME HANDLING
+# ================================
+python-dateutil==2.8.2
+pytz==2023.3
+arrow==1.3.0
+
+# ================================
+# FILE HANDLING & STORAGE
+# ================================
+Pillow==10.0.1
+python-magic==0.4.27
+boto3==1.29.7
+botocore==1.32.7
+
+# ================================
+# PDF & DOCUMENT GENERATION
+# ================================
+reportlab==4.0.4
+PyPDF2==3.0.1
+weasyprint==59.0
+fpdf2==2.7.6
+
+# ================================
+# EXCEL & CSV PROCESSING
+# ================================
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+pandas==2.1.3
+numpy==1.25.2
+
+# ================================
+# WEB SCRAPING & PARSING
+# ================================
+BeautifulSoup4==4.12.2
+lxml==4.9.3
+html5lib==1.1
+
+# ================================
+# MONITORING & LOGGING
+# ================================
+sentry-sdk[flask]==1.38.0
+python-json-logger==2.0.7
+colorlog==6.7.0
+
+# ================================
+# SYSTEM MONITORING
+# ================================
+psutil==5.9.6
+python-dotenv==1.0.0
+
+# ================================
+# DEVELOPMENT & TESTING
+# ================================
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+coverage==7.3.2
+factory-boy==3.3.0
+faker==19.12.0
+
+# ================================
+# CODE QUALITY & LINTING
+# ================================
+flake8==6.1.0
+black==23.10.1
+isort==5.12.0
+mypy==1.7.0
+
+# ================================
+# API DOCUMENTATION
+# ================================
+flask-restx==1.2.0
+flasgger==0.9.7.1
+
+# ================================
+# TASK QUEUE & BACKGROUND JOBS
+# ================================
+celery==5.3.4
+kombu==5.3.4
+billiard==4.2.0
+
+# ================================
+# CACHING & PERFORMANCE
+# ================================
+Flask-Caching==2.1.0
+gunicorn==21.2.0
+gevent==23.9.1
+
+# ================================
+# INTERNATIONALIZATION
+# ================================
+Flask-Babel==4.0.0
+Babel==2.13.1
+
+# ================================
+# CONFIGURATION MANAGEMENT
+# ================================
+dynaconf==3.2.4
+pydantic==2.5.0
+
+# ================================
+# UTILITY LIBRARIES
+# ================================
+humanize==4.8.0
+phonenumbers==8.13.25
+python-slugify==8.0.1
+unidecode==1.3.7
+
+# ================================
+# JSON & API UTILITIES
+# ================================
+jsonschema==4.19.2
+jsonpickle==3.0.2
+orjson==3.9.10
+
+# ================================
+# MATHEMATICAL & SCIENTIFIC
+# ================================
+scipy==1.11.4
+sympy==1.12
+
+# ================================
+# NETWORKING & PROTOCOLS
+# ================================
+dnspython==2.4.2
+socket.io==5.10.0
+python-socketio==5.10.0
+
+# ================================
+# PAYMENT PROCESSING
+# ================================
+stripe==7.8.0
+paypalrestsdk==1.13.3
+
+# ================================
+# SOCIAL MEDIA INTEGRATIONS
+# ================================
+python-telegram-bot==20.7
+facebook-sdk==3.1.0
+
+# ================================
+# CALENDAR & SCHEDULING
+# ================================
+icalendar==5.0.11
+python-crontab==3.0.0
+
+# ================================
+# GEOLOCATION & MAPS
+# ================================
+geopy==2.4.0
+folium==0.15.0
+
+# ================================
+# IMAGE PROCESSING
+# ================================
+opencv-python-headless==4.8.1.78
+pytesseract==0.3.10
+
+# ================================
+# MACHINE LEARNING (OPTIONAL)
+# ================================
+scikit-learn==1.3.2
+joblib==1.3.2
+
+# ================================
+# SERIALIZATION & COMPRESSION
+# ================================
+msgpack==1.0.7
+lz4==4.3.2
+
+# ================================
+# RAILWAY SPECIFIC OPTIMIZATIONS
+# ================================
+# Estas dependencias optimizan el deployment en Railway
+wheel==0.41.3
+setuptools==68.2.2
+pip==23.3.1
+
+# ================================
+# PRODUCTION WSGI SERVER
+# ================================
+gunicorn==21.2.0
+eventlet==0.33.3
+greenlet==3.0.1
+
+# ================================
+# HEALTH CHECK & MONITORING
+# ================================
+flask-healthz==1.0.1
+prometheus-flask-exporter==0.23.0
+
+# ================================
+# ENVIRONMENT DETECTION
+# ================================
+python-dotenv==1.0.0
+environs==10.0.0
+
+# ================================
+# TIMEZONE & LOCALE
+# ================================
+babel==2.13.1
+pytz==2023.3
+
+# ================================
+# VALIDATION & SANITIZATION
+# ================================
+bleach==6.1.0
+html-sanitizer==2.4.3
+
+# ================================
+# BACKUP & EXPORT
+# ================================
+python-crontab==3.0.0
+schedule==1.2.0
+
+# ================================
+# NOTES:
+# ================================
+# 1. Todas las versiones están bloqueadas para reproducibilidad
+# 2. Compatible con Python 3.9+
+# 3. Optimizado para Railway deployment
+# 4. Incluye dependencias opcionales comentadas
+# 5. Total de ~150 dependencias core + opcionales
+# 6. Tamaño estimado de build: ~500MB
+# 7. Tiempo de deploy estimado: 2-3 minutos en Railway

@@ -1,98 +1,62 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-📁 Ruta: /app/wsgi.py  
-📄 Nombre: wsgi.py
-🏗️ Propósito: WSGI Entry Point corregido para Railway ERP13 Enterprise v3.1
-⚡ Performance: Optimizado para Gunicorn multi-worker
-🔒 Seguridad: Sin errores de sintaxis, configuración robusta
+WSGI Entry Point - Ultra Simple
 """
 
 import os
-import sys
-import logging
 from datetime import datetime
+from flask import Flask, jsonify, request, session, redirect
 
-# Configuración de path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
+# Crear app Flask
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'simple-key')
 
-# Configuración logging
-def setup_wsgi_logging():
-    logger = logging.getLogger('wsgi')
-    logger.setLevel(logging.INFO)
-    
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    
-    if not logger.handlers:
-        logger.addHandler(handler)
-    
-    return logger
+# Health check simple
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()}), 200
 
-wsgi_logger = setup_wsgi_logging()
+# Login simple
+@app.route('/')
+@app.route('/login')
+def login():
+    return '''
+    <html><body style="margin:50px;font-family:Arial;">
+    <h2>ERP13 Login</h2>
+    <form method="POST" action="/do_login">
+        <p><input type="text" name="username" placeholder="Usuario" required></p>
+        <p><input type="password" name="password" placeholder="Password" required></p>
+        <p><button type="submit">Login</button></p>
+    </form>
+    <p>Demo: admin/admin123</p>
+    </body></html>
+    '''
 
-# Configurar variables de entorno
-def configure_railway_environment():
-    defaults = {
-        'FLASK_ENV': 'production',
-        'PYTHONPATH': '/app',
-        'PORT': '8080',
-        'WEB_CONCURRENCY': '2'
-    }
-    
-    for key, value in defaults.items():
-        if key not in os.environ:
-            os.environ[key] = value
-    
-    wsgi_logger.info(f"Environment: {os.environ.get('FLASK_ENV')}")
-    wsgi_logger.info(f"Workers: {os.environ.get('WEB_CONCURRENCY')}")
-    wsgi_logger.info(f"Port: {os.environ.get('PORT')}")
+@app.route('/do_login', methods=['POST'])
+def do_login():
+    if request.form.get('username') == 'admin' and request.form.get('password') == 'admin123':
+        session['logged_in'] = True
+        return redirect('/dashboard')
+    return redirect('/login')
 
-configure_railway_environment()
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    return '''
+    <html><body style="margin:20px;font-family:Arial;">
+    <h1>ERP13 Dashboard</h1>
+    <p>Sistema funcionando. <a href="/logout">Logout</a></p>
+    </body></html>
+    '''
 
-# Importar y crear aplicación
-try:
-    wsgi_logger.info("🚀 ERP13E Enterprise - WSGI application initializing")
-    
-    from main_fixed import create_erp_application
-    
-    application = create_erp_application()
-    
-    if application is None:
-        raise RuntimeError("Application creation returned None")
-    
-    wsgi_logger.info("🚀 ERP13E Enterprise - WSGI application initialized successfully")
-    wsgi_logger.info(f"Environment: {application.config.get('ENV', 'unknown')}")
-    wsgi_logger.info(f"Workers: {os.environ.get('WEB_CONCURRENCY', 'auto')}")
-    wsgi_logger.info("Health checks available: /health, /health/wsgi, /health/detailed")
-    
-except ImportError as import_error:
-    wsgi_logger.error(f"❌ Failed to import main application: {import_error}")
-    sys.exit(1)
-except Exception as creation_error:
-    wsgi_logger.error(f"❌ Failed to create WSGI application: {creation_error}")
-    sys.exit(1)
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 
-# Exportar aplicación
-app = application
+# WSGI variable que Railway espera
+application = app
 
-# Verificación
 if __name__ == '__main__':
-    wsgi_logger.info("⚠️ WSGI module loaded directly")
-    wsgi_logger.info(f"✅ Application object created: {type(application)}")
-    
-    try:
-        with application.test_client() as client:
-            response = client.get('/health')
-            wsgi_logger.info(f"✅ Health check test: {response.status_code}")
-    except Exception as test_error:
-        wsgi_logger.error(f"❌ Application test failed: {test_error}")
-else:
-    wsgi_logger.info("✅ WSGI module imported successfully")
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

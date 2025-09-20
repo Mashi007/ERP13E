@@ -1,0 +1,496 @@
+{% extends "layout.html" %}
+
+{% block title %}Error 429 - Límite de velocidad excedido | ERP13 Enterprise{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 
+    ============================================================================
+    📁 Ruta: /templates/errors/429.html
+    📄 Nombre: Error 429 ERP13 Enterprise (Integrado)
+    🏗️ Propósito: Página error 429 - Límite de velocidad excedido
+    ⚡ Performance: Integrado con layout.html + rate limiting info
+    🔒 Seguridad: Error handling seguro + información de límites
+    ============================================================================
+    */
+    
+    .error-container {
+        text-align: center;
+        max-width: 650px;
+        margin: 4rem auto;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #f97316;
+        animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-icon {
+        font-size: 6rem;
+        color: #f97316;
+        margin-bottom: 1.5rem;
+        animation: spin 3s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        color: #f97316;
+        margin: 0;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 1rem 0;
+    }
+
+    .error-description {
+        font-size: 1.1rem;
+        color: #6b7280;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-error-primary {
+        background: #3b82f6;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 0.875rem 2rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-error-primary:hover {
+        background: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-error-secondary {
+        background: transparent;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        color: #6b7280;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-error-secondary:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #fed7aa;
+        color: #ea580c;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    .countdown-container {
+        background: #fff7ed;
+        border: 1px solid #fdba74;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .countdown-timer {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #f97316;
+        margin: 1rem 0;
+        font-family: 'Courier New', monospace;
+    }
+
+    .countdown-label {
+        color: #ea580c;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .countdown-message {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .rate-limit-info {
+        background: #fed7aa;
+        border: 1px solid #fdba74;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: left;
+    }
+
+    .rate-limit-info h4 {
+        color: #ea580c;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .rate-limit-info p {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+    }
+
+    .rate-limit-info code {
+        background: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f97316, #ea580c);
+        border-radius: 4px;
+        transition: width 1s ease;
+        animation: progressAnimation 60s linear;
+    }
+
+    @keyframes progressAnimation {
+        from {
+            width: 0%;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    .tips-info {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        border-left: 4px solid #3b82f6;
+        text-align: left;
+    }
+
+    .tips-info h4 {
+        color: #1f2937;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .tips-info ul {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .tips-info li {
+        margin: 0.5rem 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .error-container {
+            margin: 2rem 1rem;
+            padding: 2rem 1.5rem;
+        }
+        
+        .error-code {
+            font-size: 6rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .error-description {
+            font-size: 1rem;
+        }
+        
+        .countdown-timer {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .error-actions {
+            width: 100%;
+        }
+        
+        .btn-error-primary,
+        .btn-error-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Error Container -->
+    <div class="error-container">
+        <!-- Status Indicator -->
+        <div class="status-indicator">
+            <i class="fas fa-exclamation-triangle"></i>
+            Demasiadas solicitudes detectadas
+        </div>
+
+        <!-- Error Icon -->
+        <div class="error-icon">
+            <i class="fas fa-tachometer-alt"></i>
+        </div>
+
+        <!-- Error Code -->
+        <h1 class="error-code">429</h1>
+
+        <!-- Error Title -->
+        <h2 class="error-title">Límite de velocidad excedido</h2>
+
+        <!-- Error Description -->
+        <p class="error-description">
+            Has realizado demasiadas solicitudes en un período muy corto de tiempo. 
+            Por favor, espera un momento antes de intentar nuevamente.
+        </p>
+
+        <!-- Countdown Container -->
+        <div class="countdown-container">
+            <div class="countdown-label">
+                <i class="fas fa-clock"></i>
+                Podrás intentar nuevamente en:
+            </div>
+            <div class="countdown-timer" id="countdown">01:00</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div class="countdown-message">
+                La página se recargará automáticamente cuando expire el tiempo
+            </div>
+        </div>
+
+        <!-- Error Actions -->
+        <div class="error-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn-error-primary">
+                <i class="fas fa-home"></i>
+                Volver al Dashboard
+            </a>
+            
+            <a href="javascript:history.back()" class="btn-error-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Página anterior
+            </a>
+        </div>
+
+        <!-- Rate Limit Info -->
+        <div class="rate-limit-info">
+            <h4>
+                <i class="fas fa-info-circle"></i>
+                Información del límite de velocidad
+            </h4>
+            <p><strong>Límite de solicitudes:</strong> <code>100 por hora</code></p>
+            <p><strong>IP Cliente:</strong> <code>{{ request.remote_addr if request else 'No disponible' }}</code></p>
+            <p><strong>Usuario:</strong> <code>{{ session.get('user_name', 'Anónimo') }}</code></p>
+            <p><strong>Timestamp:</strong> <code>{{ moment().strftime('%d/%m/%Y %H:%M:%S') if moment else 'No disponible' }}</code></p>
+            <p><strong>Reinicio del límite:</strong> <code>En 60 minutos</code></p>
+        </div>
+
+        <!-- Tips Info -->
+        <div class="tips-info">
+            <h4>
+                <i class="fas fa-lightbulb"></i>
+                Consejos para evitar este error
+            </h4>
+            <ul>
+                <li>Evita hacer clic repetidamente en los botones</li>
+                <li>Espera a que las páginas carguen completamente</li>
+                <li>No refresques la página constantemente</li>
+                <li>Utiliza las funciones de búsqueda en lugar de navegar manualmente</li>
+                <li>Si trabajas con la API, implementa delays entre solicitudes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ========== ERROR LOGGING ========== 
+    console.warn('Error 429: Rate limit exceeded - ' + window.location.href);
+
+    // ========== COUNTDOWN TIMER ========== 
+    let timeLeft = 60; // 60 segundos
+    const countdownElement = document.getElementById('countdown');
+    const progressBar = document.getElementById('progressBar');
+    
+    function updateCountdown() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        
+        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        countdownElement.textContent = formattedTime;
+        
+        // Actualizar barra de progreso
+        const progressPercent = ((60 - timeLeft) / 60) * 100;
+        progressBar.style.width = progressPercent + '%';
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.textContent = '00:00';
+            progressBar.style.width = '100%';
+            
+            // Auto-reload después del countdown
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            timeLeft--;
+        }
+    }
+
+    // Iniciar countdown
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    updateCountdown(); // Llamada inicial
+
+    // ========== RETRY AUTOMÁTICO ========== 
+    setTimeout(function() {
+        console.log('Auto-retry activado después de 60 segundos');
+        location.reload();
+    }, 60000);
+
+    // ========== TRACKING DE RATE LIMIT ========== 
+    const rateLimitData = {
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+        user: "{{ session.get('user_name', 'Anónimo') }}"
+    };
+    
+    console.log('Rate limit triggered:', rateLimitData);
+
+    // ========== MEJORAS UX ========== 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus en el botón principal
+        const primaryBtn = document.querySelector('.btn-error-primary');
+        if (primaryBtn) {
+            primaryBtn.focus();
+        }
+        
+        // Deshabilitar botones temporalmente para evitar más rate limiting
+        const allButtons = document.querySelectorAll('button, .btn');
+        allButtons.forEach(btn => {
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.6';
+        });
+        
+        // Rehabilitar botones después de 10 segundos
+        setTimeout(() => {
+            allButtons.forEach(btn => {
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            });
+        }, 10000);
+    });
+
+    // ========== PREVENIR MÚLTIPLES REQUESTS ========== 
+    // Deshabilitar F5 y Ctrl+R temporalmente
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+            e.preventDefault();
+            alert('Por favor espera a que termine el countdown antes de recargar la página');
+        }
+    });
+
+    // ========== NOTIFICACIONES VISUALES ========== 
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.innerHTML = `
+            <div style="position: fixed; top: 20px; right: 20px; background: ${type === 'info' ? '#3b82f6' : '#f97316'}; 
+                        color: white; padding: 1rem; border-radius: 8px; z-index: 9999; font-size: 0.9rem;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 300px;">
+                <i class="fas fa-info-circle"></i> 
+                ${message}
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+
+    // Mostrar notificación inicial
+    setTimeout(() => {
+        showNotification('Límite de velocidad activado. La página se recargará automáticamente.', 'warning');
+    }, 2000);
+</script>
+{% endblock %}

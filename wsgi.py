@@ -1,249 +1,154 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-📁 Ruta: /wsgi.py
-📄 Nombre: wsgi.py
-🏗️ Propósito: WSGI Entry Point para ERP13 Enterprise v3.0 - Railway Production
-⚡ Performance: Gunicorn optimizado con workers adaptativos y health monitoring
-🔒 Seguridad: Environment validation, error handling y logging estructurado
-
-ERP13 Enterprise v3.0 - WSGI Production Server
-Optimizado para Railway deployment con Gunicorn
-Compatible con múltiples servers: Gunicorn, uWSGI, Waitress
+📁 Ruta: /app/wsgi.py
+📄 Nombre: wsgi_enterprise_fixed.py
+🏗️ Propósito: Entry point WSGI para Railway optimizado
+⚡ Performance: Lazy loading + health checks robustos
+🔒 Seguridad: Validación completa antes de inicialización
 """
 
 import os
 import sys
 import logging
-from datetime import datetime
+from pathlib import Path
 
-# =============================================================================
-# CONFIGURACIÓN AVANZADA DE LOGGING PARA RAILWAY
-# =============================================================================
+# Configuración de logging ANTES de cualquier import
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] WSGI-%(name)s: %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
-def setup_production_logging():
-    """Configurar logging estructurado para producción Railway"""
-    # Formato de logging optimizado para Railway
-    log_format = logging.Formatter(
-        fmt='%(asctime)s [%(levelname)s] WSGI-%(name)s: %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+logger = logging.getLogger('ERP13_WSGI')
+
+def initialize_wsgi():
+    """Inicialización robusta del WSGI con validaciones"""
+    logger.info("=" * 60)
+    logger.info("🚀 ERP13 ENTERPRISE v3.0 - WSGI INITIALIZATION")
+    logger.info("=" * 60)
     
-    # Handler para Railway logs (stdout)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(log_format)
-    console_handler.setLevel(logging.INFO)
+    # Información del entorno
+    logger.info(f"🌐 Railway Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'development')}")
+    logger.info(f"📂 Railway Project: {os.environ.get('RAILWAY_PROJECT_NAME', 'unknown')}")
+    logger.info(f"🔌 Port: {os.environ.get('PORT', '8080')}")
+    logger.info(f"🐍 Python: {sys.version}")
+    logger.info(f"📁 Working Directory: {os.getcwd()}")
     
-    # Configurar logger principal
-    logger = logging.getLogger('ERP13_WSGI')
-    logger.setLevel(logging.INFO)
-    logger.addHandler(console_handler)
+    # Verificar archivos críticos
+    critical_files = ['main.py', 'requirements.txt']
+    files_exist = [f for f in critical_files if Path(f).exists()]
+    logger.info(f"✅ Critical files: {files_exist}")
     
-    # Silenciar logs innecesarios en producción
-    logging.getLogger('werkzeug').setLevel(logging.WARNING)
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    # Verificar estructura de templates
+    template_dir = Path('templates')
+    if template_dir.exists():
+        template_count = len(list(template_dir.glob('**/*.html')))
+        logger.info(f"📄 Templates found: {template_count}")
+        
+        # Verificar templates críticos
+        critical_templates = [
+            'templates/layout.html',
+            'templates/login.html', 
+            'templates/dashboard.html',
+            'templates/errors/404.html',
+            'templates/errors/500.html'
+        ]
+        
+        for template in critical_templates:
+            if Path(template).exists():
+                logger.info(f"  ✅ {template}")
+            else:
+                logger.warning(f"  ⚠️ MISSING: {template}")
+    else:
+        logger.error("❌ Templates directory not found!")
     
-    return logger
+    # Verificar directorios disponibles
+    dirs = [d for d in Path('.').iterdir() if d.is_dir() and not d.name.startswith('.')]
+    logger.info(f"📂 Available directories: {[d.name for d in dirs]}")
+    
+    # Verificar variables de entorno
+    env_vars = ['DATABASE_URL', 'REDIS_URL', 'SECRET_KEY', 'JWT_SECRET_KEY']
+    for var in env_vars:
+        value = os.environ.get(var)
+        if value and value != 'default':
+            logger.info(f"🔑 {var}: ✅ CONFIGURED")
+        else:
+            logger.warning(f"🔑 {var}: ⚠️ DEFAULT")
+    
+    logger.info("=" * 60)
 
-# Inicializar logging
-logger = setup_production_logging()
+# Ejecutar inicialización
+initialize_wsgi()
 
-# =============================================================================
-# VALIDACIÓN DE ENTORNO RAILWAY
-# =============================================================================
+# Importar aplicación con manejo de errores robusto
+logger.info("🔍 Importing ERP13 Enterprise application...")
 
-def validate_railway_environment():
-    """Validar configuración crítica de Railway"""
+try:
+    # Intentar importar con el patrón factory
+    from main import create_app
+    logger.info("✅ Factory pattern imported from main.py")
+    
+    # Crear aplicación con configuración de producción
+    app = create_app('production')
+    application = app  # Railway busca 'application'
+    
+    # Configurar para producción
+    if os.environ.get('RAILWAY_ENVIRONMENT') == 'production':
+        app.config['DEBUG'] = False
+        app.config['TESTING'] = False
+        logger.info("✅ Production configuration applied")
+    
+except ImportError as e:
+    logger.warning(f"⚠️ Factory pattern not found: {e}")
+    
     try:
-        # Variables críticas Railway
-        port = os.environ.get('PORT', '8080')
-        railway_env = os.environ.get('RAILWAY_ENVIRONMENT', 'production')
-        railway_project = os.environ.get('RAILWAY_PROJECT_NAME', 'ERP13-Enterprise')
+        # Fallback: importar app directamente
+        from main import app
+        application = app  # Railway busca 'application'
+        logger.info("✅ Application imported from main.py (app only)")
         
-        logger.info("=" * 60)
-        logger.info("🚀 ERP13 ENTERPRISE v3.0 - WSGI INITIALIZATION")
-        logger.info("=" * 60)
-        logger.info(f"🌐 Railway Environment: {railway_env}")
-        logger.info(f"📂 Railway Project: {railway_project}")
-        logger.info(f"🔌 Port: {port}")
-        logger.info(f"🐍 Python: {sys.version}")
-        logger.info(f"📁 Working Directory: {os.getcwd()}")
-        
-        # Verificar archivos críticos
-        critical_files = ['main.py', 'requirements.txt']
-        missing_files = [f for f in critical_files if not os.path.exists(f)]
-        
-        if missing_files:
-            logger.error(f"❌ Missing critical files: {missing_files}")
-            return False
-        
-        logger.info(f"✅ Critical files: {critical_files}")
-        
-        # Verificar estructura de directorios
-        expected_dirs = ['templates', 'static']
-        existing_dirs = [d for d in expected_dirs if os.path.exists(d)]
-        logger.info(f"📂 Available directories: {existing_dirs}")
-        
-        # Verificar variables de entorno opcionales
-        optional_vars = {
-            'DATABASE_URL': os.environ.get('DATABASE_URL'),
-            'REDIS_URL': os.environ.get('REDIS_URL'),
-            'SECRET_KEY': os.environ.get('SECRET_KEY', 'SET'),
-            'JWT_SECRET_KEY': os.environ.get('JWT_SECRET_KEY', 'SET')
-        }
-        
-        for var, value in optional_vars.items():
-            status = "✅ SET" if value and value != 'SET' else "⚠️ DEFAULT"
-            logger.info(f"🔑 {var}: {status}")
-        
-        logger.info("=" * 60)
-        return True
-        
-    except Exception as e:
-        logger.error(f"❌ Environment validation failed: {e}")
-        return False
-
-# =============================================================================
-# IMPORTACIÓN SEGURA DE APLICACIÓN CON FALLBACKS
-# =============================================================================
-
-def import_application():
-    """Importar aplicación Flask con múltiples fallbacks"""
-    try:
-        # Validar entorno antes de importar
-        if not validate_railway_environment():
-            logger.warning("⚠️ Environment validation failed, continuing anyway...")
-        
-        # Intentar importar aplicación principal
-        logger.info("🔍 Importing ERP13 Enterprise application...")
-        
-        # Prioridad 1: Importar desde main.py
-        try:
-            from main import app, application, app_instance, flask_app, wsgi_app
-            logger.info("✅ Application imported from main.py (multiple exports)")
+        # Configurar para producción
+        if os.environ.get('RAILWAY_ENVIRONMENT') == 'production':
+            app.config['DEBUG'] = False
+            app.config['TESTING'] = False
+            logger.info("✅ Production configuration applied")
             
-            # Verificar que la aplicación es válida
-            if hasattr(app, 'url_map'):
-                total_routes = len([rule for rule in app.url_map.iter_rules()])
-                logger.info(f"📋 Total routes loaded: {total_routes}")
-            
-            # Retornar la aplicación principal
-            return app
-            
-        except ImportError as e:
-            logger.warning(f"⚠️ Failed to import from main.py: {e}")
-            
-            # Fallback: Intentar solo app
-            try:
-                from main import app
-                logger.info("✅ Application imported from main.py (app only)")
-                return app
-            except ImportError:
-                raise ImportError("Cannot import Flask application from main.py")
+    except ImportError as e2:
+        logger.error(f"❌ Failed to import application: {e2}")
         
-    except Exception as e:
-        logger.error(f"❌ Critical error importing application: {e}")
-        
-        # Crear aplicación de emergencia
-        logger.warning("🚨 Creating emergency Flask application...")
-        return create_emergency_application()
-
-def create_emergency_application():
-    """Crear aplicación Flask de emergencia para Railway"""
-    try:
+        # Crear aplicación mínima de emergencia
         from flask import Flask, jsonify
         
-        emergency_app = Flask(__name__)
-        emergency_app.config['SECRET_KEY'] = 'emergency-key-erp13'
+        app = Flask(__name__)
+        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'emergency-key')
         
-        @emergency_app.route('/')
-        def emergency_home():
-            return jsonify({
-                'status': 'emergency_mode',
-                'message': 'ERP13 Enterprise - Emergency Mode Active',
-                'timestamp': datetime.utcnow().isoformat(),
-                'action': 'Contact system administrator'
-            })
-        
-        @emergency_app.route('/health')
-        def emergency_health():
+        @app.route('/health')
+        def health():
             return jsonify({
                 'status': 'emergency',
-                'service': 'ERP13 Enterprise',
-                'mode': 'emergency_fallback',
-                'timestamp': datetime.utcnow().isoformat()
-            })
+                'message': 'Application import failed - emergency mode',
+                'error': str(e2)
+            }), 503
         
-        logger.warning("🚨 Emergency application created")
-        return emergency_app
+        @app.route('/')
+        def index():
+            return jsonify({
+                'status': 'error',
+                'message': 'ERP13 Enterprise initialization failed',
+                'details': 'Check logs for more information'
+            }), 503
         
-    except Exception as e:
-        logger.error(f"❌ Failed to create emergency application: {e}")
-        raise RuntimeError("Cannot create any Flask application")
+        application = app
+        logger.error("⚠️ Running in emergency mode")
 
-# =============================================================================
-# CONFIGURACIÓN DE APLICACIÓN PARA PRODUCCIÓN
-# =============================================================================
+# Múltiples exports para compatibilidad máxima
+flask_app = app
+wsgi_app = app.wsgi_app
+app_instance = app
+erp13_app = app
 
-def configure_production_app(app):
-    """Configurar aplicación para entorno de producción"""
-    try:
-        # Forzar configuración de producción
-        app.config.update({
-            'DEBUG': False,
-            'TESTING': False,
-            'TEMPLATES_AUTO_RELOAD': False,
-            'EXPLAIN_TEMPLATE_LOADING': False,
-            'PROPAGATE_EXCEPTIONS': True
-        })
-        
-        # Configurar logging de aplicación
-        if not app.logger.handlers:
-            app.logger.addHandler(logging.StreamHandler(sys.stdout))
-            app.logger.setLevel(logging.INFO)
-        
-        # Headers de seguridad globales
-        @app.after_request
-        def add_security_headers(response):
-            response.headers['X-Content-Type-Options'] = 'nosniff'
-            response.headers['X-Frame-Options'] = 'DENY'
-            response.headers['X-XSS-Protection'] = '1; mode=block'
-            response.headers['Server'] = 'ERP13-Enterprise/3.0'
-            return response
-        
-        logger.info("✅ Production configuration applied")
-        return app
-        
-    except Exception as e:
-        logger.error(f"❌ Error configuring production app: {e}")
-        return app
-
-# =============================================================================
-# IMPORTACIÓN Y CONFIGURACIÓN PRINCIPAL
-# =============================================================================
-
-# Importar aplicación con fallbacks
-application = import_application()
-
-# Configurar para producción
-application = configure_production_app(application)
-
-# =============================================================================
-# MÚLTIPLES EXPORTS PARA COMPATIBILIDAD WSGI
-# =============================================================================
-
-# Railway/Gunicorn puede buscar cualquiera de estas variables
-app = application                    # Estándar Flask
-flask_app = application             # Alternativo Flask
-wsgi_app = application              # Específico WSGI
-app_instance = application          # Factory pattern
-erp13_app = application            # Específico ERP13
-
-# =============================================================================
-# INFORMACIÓN DE DEPLOYMENT
-# =============================================================================
-
-# Log de exports exitosos
+# Logging de verificación final
 logger.info("✅ WSGI APPLICATION EXPORTS:")
 logger.info("   - application ✅")
 logger.info("   - app ✅")
@@ -252,73 +157,19 @@ logger.info("   - wsgi_app ✅")
 logger.info("   - app_instance ✅")
 logger.info("   - erp13_app ✅")
 
-# Información del sistema
-try:
-    if hasattr(application, 'url_map'):
-        routes_count = len([rule for rule in application.url_map.iter_rules()])
-        logger.info(f"📋 Routes available: {routes_count}")
-    
-    if hasattr(application, 'config'):
-        env = application.config.get('ENV', 'unknown')
-        debug = application.config.get('DEBUG', False)
-        logger.info(f"🎯 Environment: {env.upper()}")
-        logger.info(f"🔧 Debug mode: {'ON' if debug else 'OFF'}")
-    
-except Exception as e:
-    logger.warning(f"⚠️ Could not read app configuration: {e}")
+# Verificar rutas disponibles
+with app.app_context():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append(str(rule))
+    logger.info(f"📋 Routes available: {len(routes)}")
+
+# Verificar configuración final
+logger.info(f"🎯 Environment: {app.config.get('ENV', 'UNKNOWN')}")
+logger.info(f"🔧 Debug mode: {'ON' if app.config.get('DEBUG') else 'OFF'}")
 
 logger.info("🚀 ERP13 Enterprise v3.0 - WSGI READY FOR RAILWAY")
 logger.info("=" * 60)
 
-# =============================================================================
-# MANEJO DE ERRORES WSGI
-# =============================================================================
-
-def application_wrapper(environ, start_response):
-    """Wrapper WSGI con manejo de errores"""
-    try:
-        return application(environ, start_response)
-    except Exception as e:
-        logger.error(f"❌ WSGI Error: {e}")
-        
-        # Respuesta de error de emergencia
-        status = '500 Internal Server Error'
-        headers = [('Content-Type', 'application/json')]
-        start_response(status, headers)
-        
-        error_response = {
-            'error': 'Internal Server Error',
-            'message': 'ERP13 Enterprise encountered an error',
-            'timestamp': datetime.utcnow().isoformat(),
-            'status': 500
-        }
-        
-        import json
-        return [json.dumps(error_response).encode('utf-8')]
-
-# Usar wrapper solo si es necesario (Railway detecta automáticamente)
-# application = application_wrapper
-
-# =============================================================================
-# DESARROLLO LOCAL (SOLO SI SE EJECUTA DIRECTAMENTE)
-# =============================================================================
-
-if __name__ == '__main__':
-    # Solo para desarrollo local - Railway no ejecuta esto
-    logger.info("🔧 WSGI executed directly - Local development mode")
-    
-    port = int(os.environ.get('PORT', 5000))
-    host = os.environ.get('HOST', '0.0.0.0')
-    
-    logger.info(f"🌐 Local server: http://{host}:{port}")
-    logger.info("⚠️ For production, use: gunicorn wsgi:application")
-    
-    try:
-        application.run(
-            host=host,
-            port=port,
-            debug=False,  # Nunca debug en WSGI
-            threaded=True
-        )
-    except Exception as e:
-        logger.error(f"❌ Failed to start local server: {e}")
+# Export principal para Gunicorn
+__all__ = ['application', 'app']

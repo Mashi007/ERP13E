@@ -1,12 +1,40 @@
-Werkzeug==3.0.1
-SQLAlchemy==2.0.21
+# ERP13 Enterprise - Requirements compatible Python 3.13
+# Versiones específicas para solucionar incompatibilidad SQLAlchemy
+
+# Framework principal
+Flask==3.0.3
+Werkzeug==3.0.3
+
+# Base de datos - VERSION ESPECÍFICA PARA PYTHON 3.13
+SQLAlchemy==2.0.25
+Flask-SQLAlchemy==3.1.1
+psycopg2-binary==2.9.9
+
+# Cache y sesiones
+redis==5.0.1
+Flask-Session==0.5.0
+
+# Autenticación y seguridad
+Flask-JWT-Extended==4.6.0
+Flask-Bcrypt==1.0.1
+PyJWT==2.8.0
+
+# WSGI Server
 gunicorn==21.2.0
-redis==4.6.0
-Flask-Redis==0.4.0
-cryptography>=42.0.0
-PyJWT>=2.8.0
-psycopg2-binary>=2.9.0
-python-dotenv>=1.0.0
-Flask>=2.3.0
-flask-sqlalchemy>=3.0.0
-flask-jwt-extended>=4.5.0
+
+# Utilidades
+python-dotenv==1.0.0
+Pillow==10.2.0
+
+# Monitoreo sistema
+psutil==5.9.8
+
+# Formularios
+Flask-WTF==1.2.1
+WTForms==3.1.1
+
+# CORS
+Flask-CORS==4.0.0
+
+# Logging
+structlog==23.2.0

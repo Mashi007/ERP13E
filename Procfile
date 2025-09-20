@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --worker-class gthread --threads 4 --timeout 120 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 --preload --access-logfile - --error-logfile - --log-level info wsgi:application
+web: gunicorn --bind 0.0.0.0:$PORT main_minimal:application

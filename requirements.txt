@@ -1,5 +1,2 @@
-# ERP13 Enterprise - DEPENDENCIAS MINIMALES
-# Solo lo esencial que sabemos que funciona
-
 Flask==3.0.3
 gunicorn==21.2.0

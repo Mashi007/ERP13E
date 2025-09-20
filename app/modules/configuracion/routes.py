@@ -3,7 +3,7 @@
 📄 Nombre: clientes_routes.py
 🏗️ Propósito: Blueprint completo del módulo Clientes con Chat AI
 ⚡ Performance: Carga eficiente y contexto AI optimizado
-🔒 Seguridad: Validación de acceso por cliente.
+🔒 Seguridad: Validación de acceso por cliente
 
 ERP13 Enterprise - Módulo Clientes Completo
 9 submódulos integrados con Chat AI inteligente

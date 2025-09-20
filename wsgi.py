@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-ERP13 Enterprise WSGI Entry Point - Railway Compatible
-Corregido: Sin conflictos de rutas, manejo seguro de fallback
+📁 Ruta: /app/wsgi.py
+📄 Nombre: wsgi.py
+🏗️ Propósito: WSGI Entry Point consolidado ERP13 Enterprise v3.1
+⚡ Performance: Gunicorn optimizado, health checks nativos, manejo de errores robusto
+🔒 Seguridad: Fallback seguro, logging auditado, headers de seguridad
+
+WSGI ENTERPRISE ENTRY POINT:
+- Importación segura de aplicación principal
+- Fallback automático en caso de errores
+- Health checks independientes para Railway
+- Configuración production-ready
+- Logging estructurado para debugging
 """
 
 import os
@@ -10,9 +20,9 @@ import sys
 import logging
 from datetime import datetime
 
-# =============================================================================
-# CONFIGURACIÓN DE LOGGING
-# =============================================================================
+# ============================================================================
+# CONFIGURACIÓN DE LOGGING ENTERPRISE
+# ============================================================================
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
@@ -22,97 +32,148 @@ logging.basicConfig(
 
 logger = logging.getLogger('ERP13_WSGI')
 
-# =============================================================================
-# VARIABLES DE ENTORNO
-# =============================================================================
+# ============================================================================
+# VARIABLES DE ENTORNO RAILWAY
+# ============================================================================
 PORT = int(os.environ.get('PORT', 8080))
 WORKERS = int(os.environ.get('WEB_CONCURRENCY', 2))
 ENV = os.environ.get('FLASK_ENV', 'production')
 
+logger.info("🚀 ERP13 Enterprise WSGI - Iniciando aplicación")
 logger.info(f"🌐 Environment: {ENV}")
 logger.info(f"⚙️ Workers: {WORKERS}")
 logger.info(f"🔌 Port: {PORT}")
-logger.info("🚀 ERP13E Enterprise - WSGI application initializing")
 
-# =============================================================================
-# IMPORTACIÓN SEGURA DE LA APLICACIÓN
-# =============================================================================
-
-def create_fallback_app(error_msg):
-    """Crear aplicación de fallback en caso de error"""
+# ============================================================================
+# APLICACIÓN DE FALLBACK ENTERPRISE
+# ============================================================================
+def create_emergency_app():
+    """Crear aplicación de emergencia standalone"""
     from flask import Flask, jsonify
     
-    fallback_app = Flask(__name__)
+    emergency_app = Flask(__name__)
+    emergency_app.config['SECRET_KEY'] = 'emergency-fallback-key'
     
-    @fallback_app.route('/health')
-    def fallback_health():
+    @emergency_app.route('/health')
+    def emergency_health():
         return jsonify({
             'status': 'degraded',
-            'message': 'Main application failed to load',
-            'error': str(error_msg),
+            'message': 'Running in emergency mode',
+            'service': 'ERP13-Enterprise-Emergency',
             'timestamp': datetime.utcnow().isoformat(),
-            'version': 'wsgi-fallback-1.0'
+            'mode': 'fallback'
         }), 503
     
-    @fallback_app.route('/')
-    def fallback_index():
+    @emergency_app.route('/health/ready')
+    def emergency_ready():
         return jsonify({
-            'status': 'error',
-            'message': 'ERP13 Enterprise is temporarily unavailable',
-            'error': 'Application startup failed',
-            'support': 'Check logs for details'
+            'status': 'not_ready',
+            'message': 'Main application failed to start',
+            'timestamp': datetime.utcnow().isoformat()
         }), 503
     
-    @fallback_app.after_request
-    def add_fallback_headers(response):
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['Server'] = 'ERP13E-Fallback'
+    @emergency_app.route('/health/live')
+    def emergency_live():
+        return jsonify({
+            'status': 'alive',
+            'mode': 'emergency',
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+    
+    @emergency_app.route('/')
+    def emergency_index():
+        return jsonify({
+            'status': 'emergency_mode',
+            'message': 'ERP13 Enterprise is starting up, please try again in a moment',
+            'service': 'ERP13-Enterprise',
+            'timestamp': datetime.utcnow().isoformat(),
+            'retry_after': 30
+        }), 503
+    
+    @emergency_app.errorhandler(404)
+    def emergency_404(error):
+        return jsonify({
+            'error': 'Not found in emergency mode',
+            'message': 'Service is temporarily unavailable',
+            'status': 503
+        }), 503
+    
+    @emergency_app.after_request
+    def emergency_headers(response):
+        response.headers.update({
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY',
+            'Server': 'ERP13E-Emergency',
+            'Retry-After': '30'
+        })
         return response
     
-    return fallback_app
+    logger.info("🚨 Emergency application created")
+    return emergency_app
 
-# Intentar importar la aplicación principal
+# ============================================================================
+# IMPORTACIÓN SEGURA DE LA APLICACIÓN PRINCIPAL
+# ============================================================================
 application = None
+import_success = False
 
 try:
-    from main import app as main_app
-    logger.info("✅ Main application imported successfully")
+    # Intentar importar la aplicación principal
+    logger.info("📥 Attempting to import main application...")
     
-    if main_app is None:
+    from main import app as main_application
+    
+    if main_application is None:
         raise ValueError("Main application is None")
     
-    # Usar la aplicación principal
-    application = main_app
+    # Verificar que la aplicación es válida
+    if not hasattr(main_application, 'config'):
+        raise ValueError("Invalid Flask application object")
     
-    # Configuraciones para producción
+    # Usar la aplicación principal
+    application = main_application
+    import_success = True
+    
+    logger.info("✅ Main application imported successfully")
+    
+    # Configuraciones específicas para WSGI/Gunicorn
     application.config.update({
         'ENV': ENV,
         'DEBUG': False,
         'TESTING': False,
-        'PROPAGATE_EXCEPTIONS': True
+        'PROPAGATE_EXCEPTIONS': True,
+        'PREFERRED_URL_SCHEME': 'https' if ENV == 'production' else 'http'
     })
     
-    logger.info("✅ Application configured for production")
+    logger.info("✅ Application configured for WSGI deployment")
     
 except ImportError as import_error:
-    logger.error(f"❌ Failed to import main application: {import_error}")
-    application = create_fallback_app(import_error)
-    logger.info("🔄 Fallback application created due to import error")
+    logger.error(f"❌ ImportError: {import_error}")
+    logger.error("📋 Available modules in current directory:")
+    try:
+        for item in os.listdir('.'):
+            if item.endswith('.py'):
+                logger.error(f"   - {item}")
+    except Exception:
+        pass
+    
+    application = create_emergency_app()
+    logger.info("🔄 Using emergency application due to import failure")
     
 except Exception as general_error:
     logger.error(f"❌ Critical error during application setup: {general_error}")
-    application = create_fallback_app(general_error)
-    logger.info("🚨 Fallback application created due to critical error")
+    logger.error(f"📍 Error type: {type(general_error).__name__}")
+    
+    application = create_emergency_app()
+    logger.info("🚨 Using emergency application due to critical error")
 
-# =============================================================================
-# AGREGAR HEALTH CHECKS ADICIONALES SOLO SI ES LA APP PRINCIPAL
-# =============================================================================
-
-def add_additional_health_checks():
-    """Agregar health checks adicionales solo a la aplicación principal"""
+# ============================================================================
+# HEALTH CHECKS WSGI LAYER
+# ============================================================================
+def add_wsgi_health_checks():
+    """Agregar health checks específicos del layer WSGI"""
     try:
-        # Verificar si tenemos la aplicación principal (no fallback)
-        if hasattr(application, 'config') and application.config.get('ENV'):
+        if import_success and hasattr(application, 'route'):
             
             @application.route('/health/wsgi')
             def wsgi_health():
@@ -121,104 +182,112 @@ def add_additional_health_checks():
                     return {
                         'status': 'healthy',
                         'component': 'wsgi',
-                        'port': PORT,
-                        'workers': WORKERS,
-                        'environment': ENV,
+                        'gunicorn': {
+                            'workers': WORKERS,
+                            'port': PORT,
+                            'environment': ENV
+                        },
+                        'application': {
+                            'imported': import_success,
+                            'type': type(application).__name__,
+                            'routes': len(application.url_map._rules)
+                        },
                         'timestamp': datetime.utcnow().isoformat(),
                         'version': 'ERP13E-WSGI-3.1'
                     }, 200
-                except Exception as health_error:
-                    logger.error(f"WSGI health check failed: {health_error}")
+                except Exception as e:
+                    logger.error(f"WSGI health check failed: {e}")
                     return {
                         'status': 'error',
                         'component': 'wsgi',
-                        'error': str(health_error),
+                        'error': str(e),
                         'timestamp': datetime.utcnow().isoformat()
                     }, 500
             
-            @application.route('/health/detailed')
-            def detailed_health():
-                """Health check detallado"""
-                try:
-                    try:
-                        import psutil
-                        memory = psutil.virtual_memory()
-                        cpu_percent = psutil.cpu_percent(interval=0.1)
-                        
-                        system_metrics = {
-                            'memory_percent': round(memory.percent, 2),
-                            'memory_available_mb': round(memory.available / (1024 * 1024), 2),
-                            'cpu_percent': round(cpu_percent, 2)
-                        }
-                    except ImportError:
-                        system_metrics = 'psutil_not_available'
-                    
-                    return {
-                        'status': 'healthy',
-                        'timestamp': datetime.utcnow().isoformat(),
-                        'system': system_metrics,
-                        'application': {
-                            'environment': ENV,
-                            'port': PORT,
-                            'workers': WORKERS,
-                            'flask_version': getattr(application, '__version__', 'unknown')
-                        }
-                    }, 200
-                    
-                except Exception as detailed_error:
-                    logger.error(f"Detailed health check failed: {detailed_error}")
-                    return {
-                        'status': 'degraded',
-                        'error': str(detailed_error),
-                        'timestamp': datetime.utcnow().isoformat()
-                    }, 500
+            @application.route('/health/layers')
+            def layers_health():
+                """Health check de todas las capas"""
+                layers = {
+                    'wsgi': 'healthy',
+                    'flask': 'healthy' if import_success else 'degraded',
+                    'application': 'healthy' if import_success else 'emergency',
+                    'gunicorn': 'configured',
+                    'railway': 'connected'
+                }
+                
+                overall_status = 'healthy' if all(
+                    status in ['healthy', 'configured', 'connected'] 
+                    for status in layers.values()
+                ) else 'degraded'
+                
+                return {
+                    'status': overall_status,
+                    'layers': layers,
+                    'timestamp': datetime.utcnow().isoformat()
+                }, 200 if overall_status == 'healthy' else 503
             
-            @application.route('/metrics')
-            def metrics():
-                """Endpoint de métricas"""
-                try:
-                    return {
-                        'service': 'ERP13E',
-                        'version': '3.1',
-                        'environment': ENV,
-                        'workers': WORKERS,
-                        'port': PORT,
-                        'timestamp': datetime.utcnow().isoformat()
-                    }, 200
-                except Exception as metrics_error:
-                    logger.error(f"Metrics failed: {metrics_error}")
-                    return {'error': str(metrics_error)}, 500
+            logger.info("✅ WSGI health checks added successfully")
             
-            logger.info("✅ Additional health checks registered")
-            
-    except Exception as health_setup_error:
-        logger.warning(f"Could not add additional health checks: {health_setup_error}")
+    except Exception as e:
+        logger.warning(f"Could not add WSGI health checks: {e}")
 
 # Agregar health checks si es posible
-add_additional_health_checks()
+add_wsgi_health_checks()
 
-# =============================================================================
-# CONFIGURACIÓN FINAL
-# =============================================================================
-
-# Headers de seguridad
+# ============================================================================
+# MIDDLEWARE WSGI ENTERPRISE
+# ============================================================================
 @application.after_request
-def add_security_headers(response):
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY' 
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Server'] = 'ERP13E-Enterprise'
+def wsgi_security_headers(response):
+    """Headers de seguridad para WSGI layer"""
+    response.headers.update({
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'X-XSS-Protection': '1; mode=block',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Server': 'ERP13E-Enterprise-WSGI',
+        'X-Powered-By': 'ERP13Enterprise'
+    })
+    
+    # Headers específicos para Railway
+    if ENV == 'production':
+        response.headers.update({
+            'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+            'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'"
+        })
+    
     return response
 
-# Log final
-logger.info("✅ WSGI application ready")
-logger.info(f"✅ Application type: {type(application).__name__}")
-logger.info("✅ Health checks: /health, /health/wsgi, /health/detailed, /metrics")
+# ============================================================================
+# LOGGING DE INICIALIZACIÓN WSGI
+# ============================================================================
+logger.info("✅ WSGI application ready for deployment")
+logger.info(f"📊 Application type: {type(application).__name__}")
+logger.info(f"🔧 Import success: {import_success}")
 
-# =============================================================================
+if import_success:
+    logger.info(f"📋 Total routes: {len(application.url_map._rules)}")
+    logger.info("🏥 Health endpoints: /health, /health/ready, /health/live, /health/wsgi, /health/layers")
+else:
+    logger.info("🚨 Running in emergency mode - limited functionality")
+
+logger.info("🛡️ Security headers: Configured")
+logger.info("🚀 Ready for Gunicorn deployment")
+
+# ============================================================================
 # PUNTO DE ENTRADA PARA GUNICORN
-# =============================================================================
-
+# ============================================================================
 if __name__ == "__main__":
-    logger.warning("⚠️ Running standalone - Use Gunicorn for production")
-    application.run(host='0.0.0.0', port=PORT, debug=False)
+    logger.warning("⚠️ Running WSGI standalone - Use Gunicorn for production")
+    logger.info(f"🔌 Starting development server on port {PORT}")
+    
+    if application:
+        application.run(
+            host='0.0.0.0',
+            port=PORT,
+            debug=False,
+            threaded=True
+        )
+    else:
+        logger.error("❌ No application available to run")
+        sys.exit(1)

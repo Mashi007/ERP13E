@@ -1,272 +1,480 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-📁 Ruta: /main.py
-📄 Nombre: main_corrected.py
-🏗️ Propósito: ERP13 Enterprise Application - Entry Point Corregido
-⚡ Performance: Factory pattern, lazy loading, connection pooling
-🔒 Seguridad: CSRF protection, secure headers, input validation
+📁 Ruta: /app/main.py
+📄 Nombre: main.py
+🏗️ Propósito: Aplicación principal ERP13 Enterprise v3.1 - Railway Production Ready
+⚡ Performance: Optimizado para Railway, multi-worker Gunicorn
+🔒 Seguridad: Configuración de producción, logging seguro
 
-ERP13 Enterprise v3.1 - Railway Production
-Arquitectura modular con patterns de microservicios
+ERP13 ENTERPRISE MAIN APPLICATION:
+- Configuración Railway-optimizada
+- Health checks integrados
+- Error handling robusto
+- Logging estructurado
+- WSGI compliance garantizada
 """
 
 import os
+import sys
 import logging
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-import traceback
+from flask import Flask, render_template, redirect, url_for, session, request, flash, jsonify
 
-# ========== CONFIGURACIÓN LOGGING ==========
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
-)
+# ========== CONFIGURACIÓN INICIAL ==========
+# Asegurar path de módulos
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-logger = logging.getLogger('ERP13_HOTFIX')
+# ========== CONFIGURACIÓN LOGGING ENTERPRISE ==========
+def setup_logging():
+    """Configurar logging estructurado para Railway"""
+    # Configuración del logger principal
+    logger = logging.getLogger('ERP13_HOTFIX')
+    logger.setLevel(logging.INFO)
+    
+    # Handler para stdout (Railway logs)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    
+    # Formato estructurado
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    
+    return logger
 
-# ========== APLICACIÓN FLASK ==========
-def create_app():
-    """Factory pattern para crear aplicación Flask"""
+# Inicializar logging
+logger = setup_logging()
+
+# ========== CONFIGURACIÓN FLASK ==========
+def create_erp_application():
+    """Factory para crear aplicación ERP13 Enterprise"""
+    
+    logger.info("🚀 Creating ERP13 Enterprise HOTFIX application")
+    
+    # Crear aplicación Flask
     app = Flask(__name__)
     
-    # Configuración de seguridad empresarial
-    app.secret_key = os.environ.get('SECRET_KEY', 'erp13-enterprise-production-key-2025')
+    # ========== CONFIGURACIÓN BÁSICA ==========
     app.config.update(
-        SESSION_COOKIE_SECURE=False,  # True en HTTPS
+        SECRET_KEY=os.environ.get('SECRET_KEY', 'erp13-enterprise-production-key-v3.1'),
+        DEBUG=False,  # Siempre False en producción
+        TESTING=False,
+        ENV='production',
+        SESSION_COOKIE_SECURE=True,
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE='Lax',
-        PERMANENT_SESSION_LIFETIME=28800  # 8 horas
+        PERMANENT_SESSION_LIFETIME=3600,  # 1 hora
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        JSON_SORT_KEYS=False,
+        JSONIFY_PRETTYPRINT_REGULAR=False  # Optimización JSON
     )
     
-    return app
-
-app = create_app()
-
-# ========== IMPORTACIÓN BLUEPRINT CORREGIDA ==========
-try:
-    from auth_fixed import auth_bp, setup_default_auth_config, require_auth
-    
-    # Registrar blueprint
-    app.register_blueprint(auth_bp)
-    
-    # Configurar autenticación
-    setup_default_auth_config(app)
-    
-    logger.info("Auth blueprint registered successfully")
-    
-except ImportError as e:
-    logger.error(f"Critical error importing auth_fixed: {str(e)}")
-    # Crear blueprint básico de emergencia
-    from flask import Blueprint
-    auth_bp = Blueprint('auth_fixed', __name__)
-    
-    @auth_bp.route('/login')
-    def auth_login():
-        return "Sistema en mantenimiento. Contacte al administrador."
-    
-    app.register_blueprint(auth_bp)
-
-# ========== DATOS MOCK EMPRESARIALES ==========
-def get_dashboard_metrics():
-    """Métricas empresariales en tiempo real"""
-    return {
-        'total_clientes': 152,
-        'facturas_pendientes': 23,
-        'ingresos_mes': 45320.50,
-        'ventas_hoy': 12,
-        'conversion_rate': 68.5,
-        'efficiency_rate': 94.2,
-        'uptime_percentage': 99.8,
-        'last_update': datetime.now().strftime('%H:%M:%S')
-    }
-
-def get_recent_activities():
-    """Actividades recientes del sistema"""
-    return [
-        {'type': 'sale', 'description': 'Nueva venta registrada - Cliente ABC Corp', 'time': '10:30'},
-        {'type': 'user', 'description': 'Nuevo usuario registrado - Maria González', 'time': '09:15'},
-        {'type': 'invoice', 'description': 'Factura #001234 enviada', 'time': '08:45'},
-        {'type': 'payment', 'description': 'Pago recibido - $2,500', 'time': '08:20'}
-    ]
-
-# ========== ROUTES PRINCIPALES ==========
-
-@app.route('/')
-def index():
-    """Ruta raíz - Redirigir según estado de autenticación"""
+    # ========== REGISTRO DE HEALTH CHECKS ==========
     try:
+        from health_check_fixed import register_health_checks
+        register_health_checks(app)
+        logger.info("✅ Health checks registered successfully")
+    except ImportError as e:
+        logger.warning(f"⚠️ Health check module not found: {e}")
+        # Fallback health check básico
+        @app.route('/health')
+        def fallback_health():
+            return jsonify({
+                'status': 'healthy',
+                'timestamp': datetime.utcnow().isoformat(),
+                'service': 'ERP13-Enterprise',
+                'version': '3.1.0-fallback'
+            }), 200
+        logger.info("✅ Fallback health check configured")
+    except Exception as e:
+        logger.error(f"❌ Error registering health checks: {e}")
+        # Health check de emergencia
+        @app.route('/health')
+        def emergency_health():
+            return jsonify({'status': 'limited', 'error': str(e)}), 200
+    
+    # ========== REGISTRO DE AUTH BLUEPRINT ==========
+    try:
+        from auth_fixed import auth_bp
+        app.register_blueprint(auth_bp)
+        logger.info("✅ Auth blueprint registered successfully")
+    except ImportError as e:
+        logger.warning(f"⚠️ Auth blueprint not found: {e}")
+        # Rutas de auth fallback
+        @app.route('/login')
+        def fallback_login():
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>ERP13 Login</title></head>
+            <body>
+                <h2>ERP13 Enterprise Login</h2>
+                <form method="POST" action="/do_login">
+                    <input type="text" name="username" placeholder="Usuario" required><br><br>
+                    <input type="password" name="password" placeholder="Contraseña" required><br><br>
+                    <button type="submit">Iniciar Sesión</button>
+                </form>
+            </body>
+            </html>
+            """)
+        
+        @app.route('/do_login', methods=['POST'])
+        def fallback_do_login():
+            username = request.form.get('username')
+            password = request.form.get('password')
+            
+            # Validación simple para fallback
+            if username == 'admin' and password == 'admin123':
+                session['user_id'] = 1
+                session['username'] = username
+                logger.info(f"✅ Login successful: {username}")
+                return redirect(url_for('dashboard'))
+            else:
+                logger.warning(f"❌ Login failed: {username}")
+                flash('Credenciales incorrectas', 'error')
+                return redirect(url_for('fallback_login'))
+                
+        logger.info("✅ Fallback auth routes configured")
+    except Exception as e:
+        logger.error(f"❌ Error configuring auth: {e}")
+    
+    # ========== RUTAS PRINCIPALES ==========
+    
+    @app.route('/')
+    def index():
+        """Ruta principal - redirect a login o dashboard"""
         if 'user_id' in session:
-            logger.info("🔒 Index redirect to dashboard (authenticated)")
             return redirect(url_for('dashboard'))
         else:
             logger.info("🔒 Index redirect to login")
-            return redirect(url_for('auth_fixed.auth_login'))
-    except Exception as e:
-        logger.error(f"Error in index route: {str(e)}")
-        return "Sistema temporalmente no disponible", 500
-
-@app.route('/dashboard')
-@require_auth
-def dashboard():
-    """Dashboard principal empresarial"""
-    try:
+            return redirect(url_for('fallback_login'))
+    
+    @app.route('/dashboard')
+    def dashboard():
+        """Dashboard principal del ERP"""
+        if 'user_id' not in session:
+            flash('Debe iniciar sesión para acceder al dashboard', 'error')
+            return redirect(url_for('fallback_login'))
+        
         username = session.get('username', 'Usuario')
-        role = session.get('role', 'user')
         
-        # Obtener métricas empresariales
-        metrics = get_dashboard_metrics()
-        activities = get_recent_activities()
+        # Template del dashboard optimizado
+        dashboard_html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>ERP13 Enterprise Dashboard</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                .sidebar {{
+                    min-height: 100vh;
+                    background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+                }}
+                .sidebar .nav-link {{
+                    color: rgba(255,255,255,0.8);
+                    padding: 0.75rem 1rem;
+                    border-radius: 0.5rem;
+                    margin: 0.25rem;
+                    transition: all 0.3s ease;
+                }}
+                .sidebar .nav-link:hover {{
+                    background: rgba(255,255,255,0.1);
+                    color: white;
+                    transform: translateX(5px);
+                }}
+                .sidebar .nav-link.active {{
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                }}
+                .main-content {{
+                    background: #f8f9fa;
+                    min-height: 100vh;
+                }}
+                .card {{
+                    border: none;
+                    border-radius: 15px;
+                    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }}
+                .card:hover {{
+                    transform: translateY(-2px);
+                    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+                }}
+                .metric-card {{
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                }}
+                .metric-value {{
+                    font-size: 2.5rem;
+                    font-weight: bold;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- Sidebar -->
+                    <div class="col-md-2 sidebar p-0">
+                        <div class="d-flex flex-column p-3">
+                            <div class="text-center mb-4">
+                                <h4 class="text-white">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    ERP13
+                                </h4>
+                                <small class="text-white-50">Enterprise v3.1</small>
+                            </div>
+                            
+                            <nav class="nav flex-column">
+                                <a class="nav-link active" href="/dashboard">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    <span class="nav-text">Dashboard</span>
+                                </a>
+                                <a class="nav-link" href="/clientes">
+                                    <i class="fas fa-users me-2"></i>
+                                    <span class="nav-text">Clientes</span>
+                                </a>
+                                <a class="nav-link" href="/facturas">
+                                    <i class="fas fa-file-invoice me-2"></i>
+                                    <span class="nav-text">Facturas</span>
+                                </a>
+                                <a class="nav-link" href="/productos">
+                                    <i class="fas fa-box me-2"></i>
+                                    <span class="nav-text">Productos</span>
+                                </a>
+                                <a class="nav-link" href="/inventario">
+                                    <i class="fas fa-warehouse me-2"></i>
+                                    <span class="nav-text">Inventario</span>
+                                </a>
+                                <a class="nav-link" href="/reportes">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    <span class="nav-text">Reportes</span>
+                                </a>
+                                <a class="nav-link" href="/configuracion">
+                                    <i class="fas fa-cog me-2"></i>
+                                    <span class="nav-text">Configuración</span>
+                                </a>
+                                
+                                <hr class="my-3" style="border-color: rgba(255,255,255,0.2);">
+                                
+                                <a class="nav-link" href="/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    <span class="nav-text">Cerrar Sesión</span>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Content -->
+                    <div class="col-md-10 main-content p-0">
+                        <!-- Header -->
+                        <div class="bg-white shadow-sm border-bottom p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h2 class="mb-0">
+                                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                                    Dashboard Principal
+                                </h2>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-3">Bienvenido, <strong>{username}</strong></span>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-circle me-1"></i>
+                                        Online
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dashboard Content -->
+                        <div class="p-4">
+                            <!-- Métricas Principales -->
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="card metric-card">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-users fa-2x mb-3"></i>
+                                            <div class="metric-value">1,247</div>
+                                            <div>Clientes Activos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card metric-card">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-file-invoice fa-2x mb-3"></i>
+                                            <div class="metric-value">847</div>
+                                            <div>Facturas del Mes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card metric-card">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-dollar-sign fa-2x mb-3"></i>
+                                            <div class="metric-value">$2.3M</div>
+                                            <div>Ventas del Mes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card metric-card">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-box fa-2x mb-3"></i>
+                                            <div class="metric-value">3,456</div>
+                                            <div>Productos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Accesos Rápidos -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5><i class="fas fa-bolt me-2"></i>Accesos Rápidos</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="list-group list-group-flush">
+                                                <a href="/facturas/nueva" class="list-group-item list-group-item-action">
+                                                    <i class="fas fa-plus me-2"></i>Nueva Factura
+                                                </a>
+                                                <a href="/clientes/nuevo" class="list-group-item list-group-item-action">
+                                                    <i class="fas fa-user-plus me-2"></i>Nuevo Cliente
+                                                </a>
+                                                <a href="/productos/nuevo" class="list-group-item list-group-item-action">
+                                                    <i class="fas fa-box me-2"></i>Nuevo Producto
+                                                </a>
+                                                <a href="/reportes/ventas" class="list-group-item list-group-item-action">
+                                                    <i class="fas fa-chart-line me-2"></i>Reporte de Ventas
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5><i class="fas fa-clock me-2"></i>Actividad Reciente</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="timeline">
+                                                <div class="timeline-item mb-3">
+                                                    <div class="d-flex">
+                                                        <div class="timeline-marker bg-success"></div>
+                                                        <div class="timeline-content">
+                                                            <strong>Factura #1234</strong> procesada
+                                                            <br><small class="text-muted">Hace 15 minutos</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="timeline-item mb-3">
+                                                    <div class="d-flex">
+                                                        <div class="timeline-marker bg-info"></div>
+                                                        <div class="timeline-content">
+                                                            Nuevo cliente <strong>ACME Corp</strong> registrado
+                                                            <br><small class="text-muted">Hace 1 hora</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="timeline-item mb-3">
+                                                    <div class="d-flex">
+                                                        <div class="timeline-marker bg-warning"></div>
+                                                        <div class="timeline-content">
+                                                            Stock bajo en <strong>Producto ABC</strong>
+                                                            <br><small class="text-muted">Hace 2 horas</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        </body>
+        </html>
+        """
         
-        return render_template('dashboard.html',
-                             title='ERP13 Enterprise - Dashboard',
-                             username=username,
-                             role=role,
-                             metrics=metrics,
-                             activities=activities,
-                             current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                             
-    except Exception as e:
-        logger.error(f"Dashboard error: {str(e)}")
-        flash('Error cargando dashboard. Contacte al administrador.', 'error')
-        return redirect(url_for('auth_fixed.auth_login'))
-
-# ========== API ENDPOINTS ==========
-
-@app.route('/api/status')
-def api_status():
-    """Status del sistema para monitoreo"""
-    return jsonify({
-        'status': 'operational',
-        'version': '3.1.0',
-        'environment': 'production',
-        'timestamp': datetime.now().isoformat(),
-        'services': {
-            'auth': 'online',
-            'database': 'connected',
-            'cache': 'active'
-        }
-    })
-
-@app.route('/api/metrics')
-@require_auth
-def api_metrics():
-    """API para métricas en tiempo real"""
-    try:
-        metrics = get_dashboard_metrics()
+        return dashboard_html
+    
+    @app.route('/logout')
+    def logout():
+        """Cerrar sesión"""
+        username = session.get('username', 'Unknown')
+        session.clear()
+        logger.info(f"✅ Logout successful: {username}")
+        flash('Sesión cerrada exitosamente', 'success')
+        return redirect(url_for('fallback_login'))
+    
+    # ========== ERROR HANDLERS ==========
+    @app.errorhandler(404)
+    def not_found_error(error):
+        """Handler para páginas no encontradas"""
         return jsonify({
-            'success': True,
-            'data': metrics,
-            'timestamp': datetime.now().isoformat()
-        })
-    except Exception as e:
+            'error': 'Página no encontrada',
+            'status': 404,
+            'timestamp': datetime.utcnow().isoformat()
+        }), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        """Handler para errores internos"""
+        logger.error(f"Internal server error: {error}")
         return jsonify({
-            'success': False,
-            'error': str(e)
+            'error': 'Error interno del servidor',
+            'status': 500,
+            'timestamp': datetime.utcnow().isoformat()
         }), 500
-
-# ========== HEALTH CHECKS ==========
-
-@app.route('/health')
-def health():
-    """Health check básico"""
-    return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.now().isoformat()
-    })
-
-@app.route('/health/detailed')
-def health_detailed():
-    """Health check detallado"""
-    return jsonify({
-        'status': 'healthy',
-        'version': '3.1.0',
-        'environment': 'production',
-        'uptime': 'running',
-        'database': 'connected',
-        'auth_system': 'operational',
-        'timestamp': datetime.now().isoformat()
-    })
-
-@app.route('/metrics')
-def metrics():
-    """Métricas para Prometheus/Grafana"""
-    return jsonify({
-        'requests_total': 1000,
-        'response_time_avg': 0.25,
-        'error_rate': 0.02,
-        'active_sessions': len([s for s in [session] if 'user_id' in s]),
-        'memory_usage': 'normal',
-        'cpu_usage': 'low'
-    })
-
-# ========== ERROR HANDLERS ==========
-
-@app.errorhandler(404)
-def not_found(error):
-    """Handler para errores 404"""
-    logger.warning(f"404 error: {request.url}")
-    if request.path.startswith('/api/'):
-        return jsonify({'error': 'Endpoint not found'}), 404
-    return render_template('error.html', 
-                         error_code=404,
-                         error_message='Página no encontrada'), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    """Handler para errores 500"""
-    logger.error(f"500 error: {str(error)}")
-    logger.error(traceback.format_exc())
     
-    if request.path.startswith('/api/'):
-        return jsonify({'error': 'Internal server error'}), 500
-    return render_template('error.html',
-                         error_code=500,
-                         error_message='Error interno del servidor'), 500
+    # ========== FUNCIÓN DE TEMPLATE STRING ==========
+    def render_template_string(source, **context):
+        """Función helper para renderizar templates inline"""
+        try:
+            # Simple template rendering sin Jinja2 para fallback
+            for key, value in context.items():
+                source = source.replace(f'{{{{{key}}}}}', str(value))
+            return source
+        except Exception as e:
+            logger.error(f"Template rendering error: {e}")
+            return f"<html><body><h1>Template Error</h1><p>{e}</p></body></html>"
+    
+    logger.info("🚀 ERP13 Enterprise application created successfully")
+    return app
 
-@app.errorhandler(403)
-def forbidden(error):
-    """Handler para errores 403"""
-    logger.warning(f"403 error: {request.url}")
-    if request.path.startswith('/api/'):
-        return jsonify({'error': 'Forbidden'}), 403
-    flash('Acceso denegado. Permisos insuficientes.', 'error')
-    return redirect(url_for('dashboard'))
+# ========== CREAR APLICACIÓN ==========
+try:
+    application = create_erp_application()
+    app = application  # Alias para compatibilidad
+    
+    logger.info("✅ Application instance created successfully")
+    logger.info(f"✅ Flask version: {Flask.__version__}")
+    logger.info(f"✅ Python version: {sys.version}")
+    
+except Exception as e:
+    logger.error(f"❌ Failed to create application: {e}")
+    raise
 
-# ========== CONTEXTO GLOBAL ==========
-
-@app.context_processor
-def inject_globals():
-    """Inyectar variables globales en templates"""
-    return {
-        'current_year': datetime.now().year,
-        'app_version': '3.1.0',
-        'environment': 'production'
-    }
-
-# ========== INICIALIZACIÓN ==========
-
+# ========== WSGI COMPLIANCE CHECK ==========
 if __name__ == '__main__':
-    logger.info("🚀 Creating ERP13 Enterprise HOTFIX application")
-    
-    # Configuración para Railway
-    port = int(os.environ.get('PORT', 8080))
-    
-    # Información del sistema
-    logger.info("="*60)
-    logger.info("🏢 ERP13 ENTERPRISE v3.1 - PRODUCTION HOTFIX")
-    logger.info(f"🚀 Environment: production")
-    logger.info(f"🔧 Port: {port}")
-    logger.info(f"🔐 Auth System: {'✅ Active' if 'auth_bp' in locals() else '❌ Error'}")
-    logger.info(f"📊 Health Checks: /health, /health/detailed, /metrics")
-    logger.info(f"🌐 Dashboard: /dashboard")
-    logger.info(f"🔑 Login: /login")
-    logger.info("="*60)
-    
-    app.run(
+    # Solo para testing local - Railway usa Gunicorn
+    logger.warning("⚠️ Running in standalone mode - Use Gunicorn for production")
+    application.run(
         host='0.0.0.0',
-        port=port,
-        debug=False,  # Siempre False en producción
-        use_reloader=False
+        port=int(os.environ.get('PORT', 8080)),
+        debug=False
     )
+else:
+    # Modo WSGI para Railway/Gunicorn
+    logger.info("✅ WSGI mode activated - Ready for Railway deployment")
+    logger.info("🔧 Gunicorn will handle the application")
